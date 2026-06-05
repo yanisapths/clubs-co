@@ -1,0 +1,15 @@
+# root .gitignore
+node_modules/
+
+# env files — never commit these
+club-web/.env.local
+club-web/.env*.local
+club-backend/.env
+club-backend/.env.local
+
+# build outputs
+club-web/.next/
+club-backend/dist/
+
+# OS
+.DS_Store
