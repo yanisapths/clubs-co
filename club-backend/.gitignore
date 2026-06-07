@@ -1,0 +1,12 @@
+# Environment variables — never commit secrets
+.env
+
+# Binary output
+bin/
+
+# Go test cache
+*.test
+*.out
+
+# OS
+.DS_Store

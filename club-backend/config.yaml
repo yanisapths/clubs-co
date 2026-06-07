@@ -1,0 +1,16 @@
+app:
+  env: development
+  port: "8080"
+
+database:
+  host: localhost
+  port: "5432"
+  user: postgres
+  password: secret
+  name: club_db
+  sslmode: disable
+
+jwt:
+  secret: "change-me-to-a-long-random-secret-min-32-chars"
+  access_token_ttl: "15m"
+  refresh_token_ttl: "168h"
