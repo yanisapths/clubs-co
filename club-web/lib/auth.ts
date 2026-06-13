@@ -1,0 +1,86 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// auth.ts
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [
+    Credentials({
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+        try {
+          const res = await fetch(
+            `${process.env.API_BASE_URL}/api/v1/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                identifier: credentials.email,
+                password: credentials.password,
+              }),
+            },
+          );
+          if (!res.ok) return null;
+
+          const json = await res.json();
+          // unwrap nested response
+          if (!json.success) return null;
+
+          const { user, tokens } = json.data;
+
+          // return shape that maps into JWT callback
+          return {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            accessToken: tokens.access_token,
+            refreshToken: tokens.refresh_token,
+          };
+        } catch {
+          return null;
+        }
+      },
+    }),
+  ],
+
+  callbacks: {
+    async jwt({ token, user }) {
+      // `user` is only present on first sign-in
+      if (user) {
+        token.id = user.id as string;
+        token.username = (user as any).username as string;
+        token.firstName = (user as any).first_name as string;
+        token.lastName = (user as any).last_name as string;
+        token.accessToken = (user as any).accessToken as string;
+        token.refreshToken = (user as any).refreshToken as string;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.username = token.username as string;
+        session.firstName = token.firstName as string;
+        session.lastName = token.lastName as string;
+        session.accessToken = token.accessToken as string;
+        session.refreshToken = token.refreshToken as string;
+      }
+      return session;
+    },
+  },
+
+  pages: { signIn: "/login" },
+  session: { strategy: "jwt" },
+});
+
+export async function getSession() {
+  const session = await auth();
+  if (!session) return null;
+  return session;
+}
