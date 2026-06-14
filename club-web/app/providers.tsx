@@ -6,6 +6,7 @@ import { type ReactNode, Suspense, useState } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useOverflowDebugger } from "@/hooks/use-overflow-debugger";
+import { SessionProvider } from "next-auth/react";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -56,7 +57,7 @@ const ProvidersContent = ({ children }: Readonly<ProvidersProps>) => {
         }}
       />
 
-      {children}
+      <SessionProvider>{children}</SessionProvider>
     </QueryClientProvider>
   );
 };

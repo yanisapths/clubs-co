@@ -1,4 +1,4 @@
-import { useState } from "react";
+// DashboardLayout.tsx
 import { AppSidebar } from "./AppSideBar";
 
 interface DashboardLayoutProps {
@@ -6,18 +6,15 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
-
   return (
-    <div className="flex h-full w-full overflow-hidden bg-[#fbfaf9]">
-      <AppSidebar
-        isExpanded={sidebarExpanded}
-        onToggle={() => setSidebarExpanded(!sidebarExpanded)}
-      />
+    <div>
+      <div className="bg-black flex h-full w-full overflow-hidden">
+        <AppSidebar />
 
-      <main className="h-screen min-h-0 flex-1 overflow-hidden">
-        {children}
-      </main>
+        <main className="ml-16 h-screen min-h-0 flex-1 overflow-hidden">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

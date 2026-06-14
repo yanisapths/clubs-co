@@ -14,6 +14,7 @@ import (
 	"club-backend/internal/middleware"
 	"club-backend/internal/repository"
 	"club-backend/internal/service"
+	_ "club-backend/internal/validator"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"

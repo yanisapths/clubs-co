@@ -80,7 +80,7 @@ const buttonVariants = tv({
   defaultVariants: {
     customSize: "md",
     color: "default",
-    weight: "semibold",
+    weight: "regular",
     hidden: false,
   },
 });

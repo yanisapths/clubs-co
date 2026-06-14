@@ -1,121 +1,65 @@
+// AppSideBar.tsx
 "use client";
 
-import { Button } from "@/design-system/components/button";
-import { Tooltip } from "@/design-system/components/tooltip";
 import { cn } from "@/lib/utils";
-import { TooltipContent, TooltipTrigger } from "@heroui/react";
-import { PanelLeft, Plus, SparklesIcon } from "lucide-react";
+import { Clock, FolderLock, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { StudioLogo } from "../studio-logo";
 
 const mainNavItems = [
-  // { title: 'History', url: '/history', icon: Clock },
-  // { title: 'Vault', url: '/vault', icon: FolderLock },
-  // { title: 'Library', url: '/library', icon: BookOpen },
-  // { title: 'Guidance', url: '/guidance', icon: Compass },
+  { title: "History", url: "/history", icon: Clock },
+  { title: "Vault", url: "/vault", icon: FolderLock },
 ];
 
-const bottomNavItems = [
-  // { title: 'Settings', url: '/dashboard', icon: Settings },
-  // { title: 'Help', url: '/dashboard', icon: HelpCircle },
-];
+const bottomNavItems = [{ title: "Settings", url: "/", icon: Settings }];
 
-interface AppSidebarProps {
-  isExpanded: boolean;
-  onToggle: () => void;
-}
-
-export function AppSidebar({ isExpanded, onToggle }: AppSidebarProps) {
+export function AppSidebar() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
 
-  const NavItem = ({
-    // item,
-    showLabel,
-  }: {
-    // item: (typeof mainNavItems)[0];
-    showLabel: boolean;
-  }) => {
-    //     const content = (
-    //       <Link
-    //         href={item.url}
-    //         className={cn(
-    //           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-    //           "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-    //           isActive(item.url) &&
-    //             "bg-sidebar-accent text-sidebar-accent-foreground",
-    //         )}
-    //       >
-    //         <item.icon className="h-5 w-5 shrink-0" />
-    //         {showLabel && <span className="truncate">{item.title}</span>}
-    //       </Link>
-    //     );
-    //     if (!showLabel) {
-    //       return (
-    //         <Tooltip delayDuration={0}>
-    //           <TooltipTrigger asChild>{content}</TooltipTrigger>
-    //           <TooltipContent side="right">{item.title}</TooltipContent>
-    //         </Tooltip>
-    //       );
-    //     }
-    //     return content;
-  };
+  const NavItem = ({ item }: { item: (typeof mainNavItems)[0] }) => (
+    <Link
+      href={item.url}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+        "text-white/60 hover:bg-white/10 hover:text-white",
+        isActive(item.url) && "text-white",
+      )}
+    >
+      <item.icon className="h-5 w-5 shrink-0" />
+      <span className="truncate opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        {item.title}
+      </span>
+    </Link>
+  );
 
   return (
     <aside
       className={cn(
-        "bg-sidebar border-sidebar-border z-40 flex h-screen flex-col border-r transition-all duration-300",
-        isExpanded ? "w-56" : "w-16",
+        "group bg-[#1c1c1c] border-white/5 fixed left-0 top-0 z-50 flex h-screen w-16 flex-col border-r",
+        "transition-[width] duration-300 ease-in-out hover:w-56",
+        "overflow-hidden hover:overflow-visible",
       )}
     >
-      <div
-        className={cn(
-          "border-sidebar-border flex items-center gap-2 border-b px-3 py-4",
-          isExpanded ? "justify-between" : "justify-center",
-        )}
-      >
-        {isExpanded ? (
-          <>
-            <div className="flex items-center gap-2">
-              <Link href="/" className="hover:shadow-xl">
-                <SparklesIcon />
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <Button variant="icon" onClick={onToggle}>
-                <PanelLeft className="h-4 w-4" />
-              </Button>
-            </div>
-          </>
-        ) : (
-          <Button variant="icon" onClick={onToggle}>
-            <PanelLeft className="h-4 w-4" />
-          </Button>
-        )}
+      <div className="flex items-center gap-2 px-3 py-4">
+        <StudioLogo />
+        <p className="truncate whitespace-nowrap text-lg font-semibold text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          Creator Studio
+        </p>
       </div>
 
-      <div className={cn("px-3 py-3", !isExpanded && "flex justify-center")}>
-        {isExpanded ? (
-          <Link href="/">
-            <Button variant="outline" className="w-full gap-2">
-              <Plus className="h-4 w-4" />
-              New Chat
-            </Button>
-          </Link>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger>
-              <Link href="/">
-                <Button variant="icon" className="bg-[#716D65]/5 rounded-full">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>New Chat</TooltipContent>
-          </Tooltip>
-        )}
-      </div>
+      <nav className="flex-1 space-y-1 px-3 py-2">
+        {mainNavItems.map((item) => (
+          <NavItem key={item.title} item={item} />
+        ))}
+      </nav>
+
+      <nav className="border-sidebar-border space-y-1 px-3 py-4">
+        {bottomNavItems.map((item) => (
+          <NavItem key={item.title} item={item} />
+        ))}
+      </nav>
     </aside>
   );
 }
