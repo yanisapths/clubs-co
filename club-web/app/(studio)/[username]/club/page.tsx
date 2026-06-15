@@ -1,15 +1,17 @@
 "use client";
 import { Button } from "@/design-system/components/button";
-import { Pencil, MoreHorizontal } from "lucide-react";
+import { Pencil, MoreHorizontal, Plus } from "lucide-react";
 import { Avatar } from "@/features/shared/components/avatar";
 import { BackgroundCover } from "@/features/studio/components/layout/background-cover";
 import { StudioHeader } from "@/features/studio/components/layout/header";
 import { useAccountAuth } from "@/hooks/use-account-auth";
+import { useRouter } from "next/navigation";
 
-const tabs = ["Portfolio", "Collections"];
+const tabs = ["Clubs", "Portfolio", "Collections"];
 
 function ClubStudioPage() {
   const { user } = useAccountAuth();
+  const router = useRouter();
 
   return (
     <div className="relative min-h-screen bg-black">
@@ -78,13 +80,16 @@ function ClubStudioPage() {
             <div className="h-32 w-24 rounded-xl bg-rose-300" />
             <div className="h-32 w-24 rotate-[8deg] rounded-xl bg-zinc-700" />
           </div>
-          <h2 className="text-3xl font-bold">Feature your favorites</h2>
+          <h2 className="text-3xl font-bold">Feature your clubs</h2>
           <p className="max-w-sm text-white/50">
-            Showcase clubs, items, or collections you care about most on your
-            profile.
+            Showcase clubs or collections on your profile.
           </p>
-          <Button className="mt-2 rounded-full bg-white px-6 text-black hover:bg-white/90">
-            Get started
+
+          <Button
+            onClick={() => router.push(`/${user.username}/club/create`)}
+            className="mt-2 rounded-full bg-white px-6 text-black hover:bg-white/90"
+          >
+            <Plus /> Create club
           </Button>
         </div>
       </div>

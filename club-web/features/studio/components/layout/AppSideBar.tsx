@@ -1,24 +1,26 @@
-// AppSideBar.tsx
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Clock, FolderLock, Settings } from "lucide-react";
+import { BoxesIcon, HomeIcon, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { StudioLogo } from "../studio-logo";
+import { useAccountAuth } from "@/hooks/use-account-auth";
 
-const mainNavItems = [
-  { title: "History", url: "/history", icon: Clock },
-  { title: "Vault", url: "/vault", icon: FolderLock },
+const mainNavItems = (username: string) => [
+  { title: "Home", url: `/${username}`, icon: HomeIcon },
+  { title: "Clubs", url: `/${username}/club`, icon: BoxesIcon },
 ];
 
 const bottomNavItems = [{ title: "Settings", url: "/", icon: Settings }];
 
+type NavItemType = ReturnType<typeof mainNavItems>[number];
+
 export function AppSidebar() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
-
-  const NavItem = ({ item }: { item: (typeof mainNavItems)[0] }) => (
+  const { user } = useAccountAuth();
+  const NavItem = ({ item }: { item: NavItemType }) => (
     <Link
       href={item.url}
       className={cn(
@@ -50,7 +52,7 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-2">
-        {mainNavItems.map((item) => (
+        {mainNavItems(user.username).map((item) => (
           <NavItem key={item.title} item={item} />
         ))}
       </nav>

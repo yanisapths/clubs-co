@@ -10,7 +10,7 @@ interface ProvidersProps {
 }
 
 const ProvidersContent = ({ children }: Readonly<ProvidersProps>) => {
-  useNoScroll(true);
+  // useNoScroll(true);
 
   return <DashboardLayout>{children}</DashboardLayout>;
 };

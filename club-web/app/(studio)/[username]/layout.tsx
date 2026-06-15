@@ -2,7 +2,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import Providers from "../providers";
-
 interface Props {
   children: React.ReactNode;
   params: Promise<{ username: string }>;

@@ -84,7 +84,7 @@ export const UserDropdown = () => {
           </p>
           <nav className="mb-4 flex flex-col">
             {[
-              { href: `/${username}/clubs`, label: "My Clubs" },
+              { href: `/${username}/club`, label: "My Clubs" },
               { href: `/${username}`, label: "Creator Studio" },
               { href: "/", label: "Find Clubs" },
             ].map(({ href, label }) => (

@@ -1,10 +1,7 @@
 "use client";
 
 import { ArrowRight } from "@/design-system/components/icons/ArrowRight";
-import {
-  categories,
-  CategoryCard,
-} from "@/features/membership/components/homepage/category-card";
+import { CategoryCard } from "@/features/membership/components/homepage/category-card";
 import { ClubCard } from "@/features/membership/components/homepage/club-card";
 import { ClubsCarousel } from "@/features/membership/components/homepage/club-carousel";
 import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage/constants";
@@ -12,6 +9,7 @@ import { topics, clubs } from "@/features/membership/components/homepage/data";
 import { SearchModal } from "@/features/membership/components/homepage/search-club-modal";
 import { TopicCard } from "@/features/membership/components/homepage/topic-card";
 import { Input } from "@/features/shared/components/input/Input";
+import { categories } from "@/features/shared/constants";
 import { useBreakpoints } from "@/hooks/use-breakpoints";
 import { useModal } from "@/hooks/use-modal";
 
@@ -142,7 +140,7 @@ export default function Home() {
 
               {!lg && (
                 <button
-                  onClick={() => router.push("/clubs")}
+                  onClick={() => router.push("/club")}
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/20 text-white/70 text-sm hover:border-white/35 hover:text-white transition-colors lg:hidden"
                 >
                   View all clubs <ArrowRight size={14} />
