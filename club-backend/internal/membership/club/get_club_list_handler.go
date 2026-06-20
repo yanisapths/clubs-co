@@ -55,21 +55,14 @@ func (h *getClubListHandler) Handler(c *gin.Context) {
 
 		resp = append(resp, ClubResponse{
 			ID:             club.ID,
-			Owner:          club.Owner,
 			Name:           club.Name,
 			Description:    description,
 			ImageURL:       imageURL,
 			ClubType:       club.ClubType,
 			Visibility:     club.Visibility,
-			MaxSeats:       club.MaxSeats,
-			AllowFollowers: club.AllowFollowers,
-			Activate:       club.Activate,
-			SocialLinks:    club.SocialLinks,
-			SpaceIDs:       club.SpaceIDs,
 			CategoryName:   club.CategoryName,
 			Tags:           club.Tags,
 			CreatedAt:      club.CreatedAt.Unix(),
-			UpdatedAt:      club.UpdatedAt.Unix(),
 			IsMember:       club.IsMember,
 			MemberCount:    club.MemberCount,
 		})

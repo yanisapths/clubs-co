@@ -57,7 +57,7 @@ func Load() (*Config, error) {
 	v.SetDefault("database.host", "localhost")
 	v.SetDefault("database.port", "5432")
 	v.SetDefault("database.sslmode", "disable")
-	v.SetDefault("jwt.access_token_ttl", "15m")
+	v.SetDefault("jwt.access_token_ttl", "300m")
 	v.SetDefault("jwt.refresh_token_ttl", "168h")
 
 
