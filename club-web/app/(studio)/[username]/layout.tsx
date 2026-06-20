@@ -1,11 +1,15 @@
-// app/(studio)/[username]/layout.tsx
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import Providers from "../providers";
+import { DashboardLayout } from "@/features/studio/components/layout/DashboardLayout";
 interface Props {
   children: React.ReactNode;
   params: Promise<{ username: string }>;
 }
+
+export const metadata = {
+  title: "My Profile | Creator Studio",
+  description: "Create and customize your profile on Clubspace.",
+};
 
 export default async function UsernameLayout({ params, children }: Props) {
   const { username } = await params;
@@ -16,5 +20,5 @@ export default async function UsernameLayout({ params, children }: Props) {
 
   if (session.username !== username) notFound();
 
-  return <Providers>{children}</Providers>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

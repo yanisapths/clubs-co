@@ -1,6 +1,6 @@
 app:
   env: development
-  port: "8080"
+  port: "9090"
 
 database:
   host: localhost
@@ -12,5 +12,5 @@ database:
 
 jwt:
   secret: "change-me-to-a-long-random-secret-min-32-chars"
-  access_token_ttl: "15m"
+  access_token_ttl: "5h"
   refresh_token_ttl: "168h"

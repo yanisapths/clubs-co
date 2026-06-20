@@ -14,7 +14,7 @@ function ClubStudioPage() {
   const router = useRouter();
 
   return (
-    <div className="relative min-h-screen bg-black">
+    <div className="relative bg-black">
       <BackgroundCover />
       <StudioHeader />
       <div className="relative z-10 flex h-full w-full flex-col overflow-y-auto text-white">
@@ -57,41 +57,7 @@ function ClubStudioPage() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-6 overflow-x-auto border-b border-white/10 px-6">
-          {tabs.map((tab, i) => (
-            <button
-              key={tab}
-              className={`whitespace-nowrap pb-3 text-sm font-medium transition-colors ${
-                i === 0
-                  ? "border-b-2 border-white text-white"
-                  : "text-white/40 hover:text-white/70"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 text-center">
-          <div className="flex -space-x-6">
-            <div className="h-32 w-24 rotate-[-8deg] rounded-xl bg-sky-200" />
-            <div className="h-32 w-24 rounded-xl bg-rose-300" />
-            <div className="h-32 w-24 rotate-[8deg] rounded-xl bg-zinc-700" />
-          </div>
-          <h2 className="text-3xl font-bold">Feature your clubs</h2>
-          <p className="max-w-sm text-white/50">
-            Showcase clubs or collections on your profile.
-          </p>
-
-          <Button
-            onClick={() => router.push(`/${user.username}/club/create`)}
-            className="mt-2 rounded-full bg-white px-6 text-black hover:bg-white/90"
-          >
-            <Plus /> Create club
-          </Button>
-        </div>
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 text-center"></div>
       </div>
     </div>
   );

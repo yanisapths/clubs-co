@@ -1,9 +1,7 @@
 "use client";
 
 import { ToastProvider } from "@heroui/toast";
-
 import { type ReactNode, Suspense, useState } from "react";
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useOverflowDebugger } from "@/hooks/use-overflow-debugger";
 import { SessionProvider } from "next-auth/react";
@@ -56,8 +54,13 @@ const ProvidersContent = ({ children }: Readonly<ProvidersProps>) => {
           ),
         }}
       />
-
-      <SessionProvider>{children}</SessionProvider>
+      <SessionProvider
+        refetchOnWindowFocus={false}
+        refetchWhenOffline={false}
+        refetchInterval={0}
+      >
+        {children}
+      </SessionProvider>
     </QueryClientProvider>
   );
 };

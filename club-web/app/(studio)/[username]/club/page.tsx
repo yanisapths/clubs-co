@@ -1,52 +1,40 @@
 "use client";
 import { Button } from "@/design-system/components/button";
-import { Pencil, MoreHorizontal, Plus } from "lucide-react";
-import { Avatar } from "@/features/shared/components/avatar";
+import { Edit3Icon, Plus } from "lucide-react";
 import { BackgroundCover } from "@/features/studio/components/layout/background-cover";
 import { StudioHeader } from "@/features/studio/components/layout/header";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useRouter } from "next/navigation";
+import { useGetOwnerClubs } from "@/features/studio/hooks/use-club";
+import { ClubCard } from "@/features/studio/components/club/club-card";
+import { StickyFooter } from "@/features/studio/components/club/sticky-footer";
 
-const tabs = ["Clubs", "Portfolio", "Collections"];
+const tabs = ["Clubs"];
 
 function ClubStudioPage() {
   const { user } = useAccountAuth();
   const router = useRouter();
+  const { clubs } = useGetOwnerClubs();
+  const pathToCreateClub = `/${user.username}/club/create`;
 
   return (
-    <div className="relative min-h-screen bg-black">
+    <div className="relative bg-black">
       <BackgroundCover />
       <StudioHeader />
       <div className="relative z-10 flex h-full w-full flex-col overflow-y-auto text-white">
         <div className="px-6 pb-4 pt-4 mt-40">
-          <Avatar
-            firstName={user.firstName}
-            lastName={user.lastName}
-            size={64}
-          />
-
-          <div className="mt-3 flex items-center gap-2">
-            <h1 className="text-2xl font-bold">{user.username}</h1>
-            <Button iconOnly className="bg-transparent">
-              <Pencil className="h-4 w-4 text-white/60" />
-            </Button>
-            <Button iconOnly className="bg-transparent">
-              <MoreHorizontal className="h-4 w-4 text-white/60" />
-            </Button>
+          <div className="flex gap-3 text-4xl items-center">
+            <div className="flex items-center rounded-md bg-white/10 px-2.5 py-2.5 text-white/80 border border-white/20 backdrop-blur-sm">
+              <Edit3Icon />
+            </div>
+            Studio
           </div>
-
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/60">
-            <span className="rounded-md border border-white/10 px-2 py-1 uppercase tracking-wide">
-              Joined -
-            </span>
-          </div>
-
           <div className="mt-4 flex items-center justify-between text-sm">
             <span className="font-mono text-white/40"></span>
 
             <div className="flex items-center gap-8 text-right">
               <div>
-                <p className="text-xs uppercase text-white/40">Clubs</p>
+                <p className="text-xs uppercase text-white/40">Owned Clubs</p>
                 <p className="font-semibold">0</p>
               </div>
               <div>
@@ -57,7 +45,6 @@ function ClubStudioPage() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-6 overflow-x-auto border-b border-white/10 px-6">
           {tabs.map((tab, i) => (
             <button
@@ -73,25 +60,42 @@ function ClubStudioPage() {
           ))}
         </div>
 
-        {/* Content */}
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 text-center">
-          <div className="flex -space-x-6">
-            <div className="h-32 w-24 rotate-[-8deg] rounded-xl bg-sky-200" />
-            <div className="h-32 w-24 rounded-xl bg-rose-300" />
-            <div className="h-32 w-24 rotate-[8deg] rounded-xl bg-zinc-700" />
-          </div>
-          <h2 className="text-3xl font-bold">Feature your clubs</h2>
-          <p className="max-w-sm text-white/50">
-            Showcase clubs or collections on your profile.
-          </p>
+        {clubs?.length > 0 ? (
+          <div className="relative pb-20">
+            <div className="px-6 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {clubs.map((club) => (
+                <ClubCard
+                  key={club.id}
+                  club={club}
+                  onClick={() =>
+                    router.push(`/${user.username}/club/${club.id}`)
+                  }
+                />
+              ))}
+            </div>
 
-          <Button
-            onClick={() => router.push(`/${user.username}/club/create`)}
-            className="mt-2 rounded-full bg-white px-6 text-black hover:bg-white/90"
-          >
-            <Plus /> Create club
-          </Button>
-        </div>
+            <StickyFooter pathToCreateClub={pathToCreateClub} />
+          </div>
+        ) : (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 text-center">
+            <div className="flex -space-x-6">
+              <div className="h-32 w-24 rotate-[-8deg] rounded-xl bg-sky-200" />
+              <div className="h-32 w-24 rounded-xl bg-rose-300" />
+              <div className="h-32 w-24 rotate-[8deg] rounded-xl bg-zinc-700" />
+            </div>
+            <h2 className="text-3xl font-bold">Feature your clubs</h2>
+            <p className="max-w-sm text-white/50">
+              Showcase clubs or collections on your profile.
+            </p>
+
+            <Button
+              onClick={() => router.push(pathToCreateClub)}
+              className="mt-2 rounded-full bg-white px-6 text-black hover:bg-white/90"
+            >
+              <Plus /> Create club
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

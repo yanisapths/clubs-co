@@ -174,7 +174,7 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 			display_status
 		)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,false,NOW(),NOW(),$10)
-		RETURNING id, owner_id, name, description, club_type, visibility, max_seats, created_at, updated_at, display_status`
+		RETURNING id`
 
 	var club Club
 	err = tx.QueryRowContext(ctx, query,
@@ -212,6 +212,7 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 
 	return &club, nil
 }
+
 func resolveTagIDs(ctx context.Context, tx *sql.Tx, createdBy string, inputs []TagInput) ([]int64, error) {
 	var ids []int64
 	for _, t := range inputs {
@@ -413,7 +414,6 @@ func (r *clubRepository) InviteClubMember(ctx context.Context, inviterID string,
 
 	return nil
 }
-
 
 func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, error) {
 	query := `

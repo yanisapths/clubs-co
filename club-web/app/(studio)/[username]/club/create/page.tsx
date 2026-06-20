@@ -12,15 +12,62 @@ import {
   ClubPublishForm,
   ClubFormFooter,
   ClubFormHeader,
+  MAX_TAGS,
+  MAX_SEATS,
+  MAX_SPACES,
+  ClubVisibility,
 } from "@/features/studio/components/club/create";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { categories } from "@/features/shared/constants";
+import { useCreateClub } from "@/features/studio/hooks/use-club";
+import { toast } from "@heroui/react";
+
+const NAME_MAX_LENGTH = 100;
+const DESCRIPTION_MAX_LENGTH = 250;
+
+const TAG_REGEX = /^[a-zA-Z0-9 ]+$/;
+const isValidTag = (tag: string) =>
+  tag.length > 0 && tag.length <= 50 && TAG_REGEX.test(tag);
+
+const SPACE_REGEX = /^[a-zA-Z0-9 ]+$/;
+const isValidSpace = (space: { name: string; location: string }) =>
+  space.location.length > 0 &&
+  space.location.length <= 100 &&
+  SPACE_REGEX.test(space.location);
+
+function validateForm(data: ClubFormData): boolean {
+  if (!data.name.trim() || data.name.length > NAME_MAX_LENGTH) return false;
+
+  if (
+    !data.description.trim() ||
+    data.description.length > DESCRIPTION_MAX_LENGTH
+  )
+    return false;
+  if (data.category === null) return false;
+
+  if (data.tags.length > MAX_TAGS) return false;
+  if (data.tags.some((tag) => !isValidTag(tag))) return false;
+
+  if (data.spaces.length > MAX_SPACES) return false;
+  if (data.spaces.some((space) => !isValidSpace(space))) return false;
+
+  if (
+    !Number.isInteger(data.maxSeats) ||
+    data.maxSeats < 1 ||
+    data.maxSeats > MAX_SEATS
+  )
+    return false;
+  if (data.socialLinks.some((link) => !link.url.trim())) return false;
+
+  return true;
+}
 
 export default function CreateClubPage() {
   const router = useRouter();
   const { user } = useAccountAuth();
-  const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<ClubFormData>(initialClubFormData);
+
+  const { mutate: createClub, isPending: isCreating } = useCreateClub();
 
   const updateFormData = (updates: Partial<ClubFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -29,32 +76,48 @@ export default function CreateClubPage() {
   const handleImageChange = (file: File | null, preview: string | null) => {
     updateFormData({ image: file, imagePreview: preview });
   };
+  const handleCreate = () => {
+    const visibilityMap: Record<ClubVisibility, "Anyone" | "MemberOnly"> = {
+      Anyone: "Anyone",
+      "Club member only": "MemberOnly",
+    };
 
-  const handleCancel = () => {
-    router.back();
+    createClub(
+      {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        categoryId: formData.category!,
+        clubType: formData.clubType,
+        visibility: visibilityMap[formData.visibility],
+        maxSeats: formData.maxSeats,
+        tags: formData.tags.map((name) => ({ name })),
+        spaces: formData.spaces.map((s) => ({
+          id: Number(s.id),
+          name: s.name,
+          city: s.location,
+        })),
+      },
+      {
+        onSuccess: () => {
+          router.push(`/${user.username}/club`);
+          toast.success("club created successfully!");
+        },
+        onError: () => {
+          toast.danger("failed to create club");
+        },
+      },
+    );
   };
 
-  const handleCreate = async () => {
-    console.log(formData);
-    setIsCreating(true);
-    try {
-      // TODO: wire up to the clubs API once available
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      router.push(`/${user.username}/club`);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const selectedCategory = categories.find(
-    (category) => category.id === formData.category,
-  );
+  const selectedCategory = categories.find((c) => c.id === formData.category);
 
   const hasPreviewContent =
     Boolean(formData.name) ||
     Boolean(formData.description) ||
     formData.tags.length > 0 ||
     formData.spaces.length > 0;
+
+  const isValid = validateForm(formData);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#0c0c0c] text-white">
@@ -74,19 +137,13 @@ export default function CreateClubPage() {
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto lg:w-2/3">
-          <div className="flex flex-col gap-16 pb-10 px-20 pt-12">
+          <div className="flex flex-col gap-8 pb-10 px-20 pt-12">
             <section>
               <ClubBasicInfoForm data={formData} onUpdate={updateFormData} />
             </section>
-
-            <hr className="border-zinc-800" />
-
             <section>
               <ClubSettingsForm data={formData} onUpdate={updateFormData} />
             </section>
-
-            <hr className="border-zinc-800" />
-
             <section>
               <ClubPublishForm data={formData} onUpdate={updateFormData} />
             </section>
@@ -95,9 +152,10 @@ export default function CreateClubPage() {
       </div>
 
       <ClubFormFooter
-        onCancel={handleCancel}
+        onCancel={() => router.back()}
         onCreate={handleCreate}
         isCreating={isCreating}
+        isValid={isValid}
       />
     </div>
   );

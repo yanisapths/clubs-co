@@ -83,7 +83,7 @@ func main() {
 	studio := api.Group("/studio")
 	studio.Use(middleware.Auth(cfg.JWT.Secret))
 	studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
-	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo).Handler)
+	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo, logger).Handler)
 	studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo).Handler)
 	studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
 	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)
@@ -98,6 +98,7 @@ func main() {
 	)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo).Handler)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo).Handler)
+	mbr.GET("/club/:id", membershipclub.NewGetClubById(memberRepo, logger).Handler)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

@@ -6,14 +6,16 @@ import (
 	"club-backend/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type CreateClub struct {
 	repo CreateClubRepo
+	logger *zap.Logger
 }
 
-func NewCreateClub(repo CreateClubRepo) *CreateClub {
-	return &CreateClub{repo: repo}
+func NewCreateClub(repo CreateClubRepo,logger *zap.Logger) *CreateClub {
+	return &CreateClub{repo: repo,logger:logger}
 }
 
 func (s *CreateClub) Handler(c *gin.Context) {
@@ -29,13 +31,20 @@ func (s *CreateClub) Handler(c *gin.Context) {
 		return
 	}
 
-	if len(req.Tags) > 3 {
-		response.BadRequest(c, "cannot add more than 3 tags")
+	if len(req.Tags) > 6 {
+		response.BadRequest(c, "cannot add more than 5 tags")
 		return
 	}
 
 	club, err := s.repo.CreateClub(c.Request.Context(), claims.UserID.String(), req)
 	if err != nil {
+		s.logger.Error(
+			"failed : CreateClub",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+	
 		response.InternalServerError(c, err.Error())
 		return
 	}

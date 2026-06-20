@@ -23,3 +23,12 @@ type Club struct {
 	IsMember       bool      		 `db:"is_member"`
 	MemberCount    int64             `db:"member_count"`
 }
+
+type ClubMember struct {
+	MemberUsername  string 		`db:"username"`
+	MemberFirstame  string 		`db:"first_name"`
+	MemberLastname  string 		`db:"last_name"`
+	MemberID 		string 		`db:"id"`
+	Role     		string  	`db:"role"`
+	JoinedAt 		time.Time   `db:"joined_at"`
+}

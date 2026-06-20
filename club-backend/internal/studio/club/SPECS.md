@@ -11,6 +11,7 @@
 - [Create Club](#2-create-club)
 - [Update Club](#3-update-club)
 - [Delete Club](#4-delete-club)
+- [Get Club by Id](#5-get-club-by-id)
 - [Shared Schemas](#shared-schemas)
 
 ---
@@ -310,6 +311,78 @@ No request body.
 ```bash
 curl -X DELETE http://localhost:9090/api/v1/studio/club/1 \
   -H "Authorization: Bearer <token>"
+```
+
+---
+
+---
+
+### 5. GET `/studio/club/:id`
+
+Get club info by id.
+
+**Auth:** Required
+
+**Path params**
+
+| Param | Type | Description |
+| ----- | ---- | ----------- |
+| `id`  | int  | Club ID     |
+
+**Request body** — none
+
+**Request**
+
+```bash
+curl -X GET http://localhost:9090/api/v1/studio/club/:id \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response `200`**
+
+```json
+{
+  "code": 200,
+  "success": true,
+  "data": {
+    "clubInfo": {
+      "id": 3,
+      "owner": "janedoe",
+      "name": "Chess Club",
+      "description": "Strategic minds only",
+      "imageUrl": "",
+      "clubType": "Private",
+      "visibility": "MemberOnly",
+      "maxSeats": 50,
+      "allowFollowers": true,
+      "activate": true,
+      "socialLinks": [],
+      "spaceIds": [3],
+      "categoryName": "Sports",
+      "tags": [
+        {
+          "id": 6,
+          "name": "Gaming"
+        },
+        {
+          "id": 11,
+          "name": "Chess"
+        }
+      ],
+      "createdAt": 1781916575,
+      "updatedAt": 1781929628
+    },
+    "members": [
+      {
+        "username": "janedoe",
+        "id": "9e02958e-9a6d-41bc-9d9c-26d487906d67",
+        "role": "Founder",
+        "joinedAt": 1781922660
+      }
+    ]
+  }
+}
 ```
 
 ---

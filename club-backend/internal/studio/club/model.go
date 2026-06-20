@@ -8,7 +8,7 @@ type CreateClubRequest struct {
 	ClubType    string       `json:"clubType"    binding:"required,oneof=Public Private Exclusive"`
 	Visibility  string       `json:"visibility"  binding:"required,oneof=Anyone MemberOnly"`
 	CategoryID  int64        `json:"categoryId"  binding:"required"`
-	Tags        []TagInput   `json:"tags"        binding:"omitempty,max=3"`
+	Tags        []TagInput   `json:"tags"        binding:"omitempty,max=5"`
 	Spaces      []SpaceInput `json:"spaces"`
 	DisplayStatus  *bool        `json:"displayStatus"`
 }

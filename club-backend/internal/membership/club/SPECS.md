@@ -28,13 +28,13 @@ curl -X GET http://localhost:9090/api/v1/membership/club \
       "name": "Photography Club",
       "description": "For photography enthusiasts",
       "image_url": "https://example.com/image.jpg",
-      "club_type": "Public",
+      "clubType": "Public",
       "visibility": "Anyone",
-      "max_seats": 100,
-      "member_count": 42,
-      "allow_followers": true,
-      "category_name": "Arts",
-      "created_at": "2024-01-01T00:00:00Z"
+      "maxSeats": 100,
+      "memberCount": 42,
+      "allowFollowers": true,
+      "category": "Arts",
+      "createdAt": "2024-01-01T00:00:00Z"
     }
   ]
 }
@@ -122,6 +122,67 @@ curl -X DELETE http://localhost:9090/api/v1/membership/club/:id/leave \
 
 ```json
 { "message": "left club successfully" }
+```
+
+---
+
+### GET `/membership/club/:id`
+
+Get club info by id.
+
+**Auth:** Required
+
+**Path params**
+
+| Param | Type | Description |
+| ----- | ---- | ----------- |
+| `id`  | int  | Club ID     |
+
+**Request body** — none
+
+**Request**
+
+```bash
+curl -X GET http://localhost:9090/api/v1/membership/club/:id \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response `200`**
+
+```json
+{
+  "code": 200,
+  "success": true,
+  "data": [
+    {
+      "id": 3,
+      "name": "Chess Club",
+      "description": "Strategic minds only",
+      "imageUrl": "",
+      "clubType": "Private",
+      "visibility": "MemberOnly",
+      "category": "Sports",
+      "tags": null,
+      "createdAt": 1781916575,
+      "isMember": false,
+      "memberCount": 1
+    },
+    {
+      "id": 1,
+      "name": "Jane's Club",
+      "description": "A cozy test club",
+      "imageUrl": "",
+      "clubType": "Public",
+      "visibility": "Anyone",
+      "category": "Sports",
+      "tags": null,
+      "createdAt": 1781739788,
+      "isMember": false,
+      "memberCount": 1
+    }
+  ]
+}
 ```
 
 **Errors**

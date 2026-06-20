@@ -11,7 +11,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="bg-black flex h-full w-full overflow-hidden">
         <AppSidebar />
 
-        <main className="ml-16 h-screen min-h-0 flex-1 overflow-hidden">
+        <main className="ml-16 min-h-screen flex-1 overflow-hidden">
           {children}
         </main>
       </div>

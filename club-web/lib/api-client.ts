@@ -22,12 +22,13 @@ type RequestOptions = Omit<RequestInit, "body"> & {
 
 async function resolveToken(override?: string): Promise<string | undefined> {
   if (override) return override;
-  // getSession uses next-auth `auth()` — only works server-side
   if (typeof window === "undefined") {
+    // Server-side: use next-auth session
     const session = await getSession();
     return session?.accessToken;
   }
-  return undefined;
+  // Client-side: read from localStorage
+  return localStorage.getItem("accessToken") ?? undefined;
 }
 
 async function request<T>(

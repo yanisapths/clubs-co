@@ -2,6 +2,8 @@
 
 import { ClubFormData } from "./types";
 import { ToggleSwitch } from "./toggle-switch";
+import { SocialLinksModal } from "./social-link-modal";
+import { useModal } from "@/hooks/use-modal";
 
 interface ClubPublishFormProps {
   data: ClubFormData;
@@ -9,15 +11,20 @@ interface ClubPublishFormProps {
 }
 
 export function ClubPublishForm({ data, onUpdate }: ClubPublishFormProps) {
+  const { close, visible, show } = useModal();
+
   return (
     <div>
       <div>
         <h3 className="text-base font-semibold text-white">Social Links</h3>
         <button
           type="button"
+          onClick={show}
           className="mt-3 w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-5 py-4 text-left text-base text-zinc-300 transition-colors hover:border-zinc-600"
         >
-          Connect to your social accounts
+          {data.socialLinks.length === 0
+            ? "Connect to your social accounts"
+            : `${data.socialLinks.length} link${data.socialLinks.length !== 1 ? "s" : ""} connected`}
         </button>
       </div>
 
@@ -51,6 +58,14 @@ export function ClubPublishForm({ data, onUpdate }: ClubPublishFormProps) {
           label="Activate club"
         />
       </div>
+
+      {visible && (
+        <SocialLinksModal
+          links={data.socialLinks}
+          onSave={(links) => onUpdate({ socialLinks: links })}
+          onClose={close}
+        />
+      )}
     </div>
   );
 }
