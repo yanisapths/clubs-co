@@ -7,21 +7,22 @@ type CreateClubRepo interface {
 	CreateClub(ctx context.Context, ownerID string, req CreateClubRequest) (*Club, error)
 }
 
-
 type GetClubRepo interface {
 	GetListClubByOwnerID(ctx context.Context, ownerID string) ([]Club, error)
 }
-
 type UpdateClubRepo interface {
 	UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest) error
 }
 type DeleteClubRepo interface {
 	DeleteClub(ctx context.Context, ownerID string, clubID int64) error 
 }
-
+type InviteClubMemberRepo interface {
+	InviteClubMember(ctx context.Context, inviterID string, clubID int64, req InviteClubMemberRequest) error
+}
 type ClubRepository interface {
 	CreateClubRepo
 	GetClubRepo
 	UpdateClubRepo
 	DeleteClubRepo
+	InviteClubMemberRepo
 }

@@ -368,3 +368,59 @@ curl -X DELETE http://localhost:9090/api/v1/studio/club/1 \
 | ------------ | ---------------------------- |
 | `Anyone`     | Visible to all users         |
 | `MemberOnly` | Visible to club members only |
+
+---
+
+### POST `/studio/club/:id/invite`
+
+Sends a membership invitation to a user. Only the club owner (founder) can invite. Recipient role must be `co-founder` or `member` — founder cannot be invited.
+
+**Auth:** Required
+
+**Path params**
+
+| Param | Type | Description |
+| ----- | ---- | ----------- |
+| `id`  | int  | Club ID     |
+
+**Request body**
+
+```json
+{
+  "recipient_id": "uuid-of-user-to-invite",
+  "role_id": 2
+}
+```
+
+| Field          | Type | Required | Notes                                                           |
+| -------------- | ---- | -------- | --------------------------------------------------------------- |
+| `recipient_id` | uuid | ✅       | Must reference an existing user                                 |
+| `role_id`      | int  | ✅       | `2` = co-founder, `3` = member. Role `1` (founder) is rejected. |
+
+**Response `201`**
+
+```json
+{ "message": "invitation sent" }
+```
+
+**Errors**
+
+| Status | Reason                                                                |
+| ------ | --------------------------------------------------------------------- |
+| `400`  | Invalid club ID or `role_id` is founder (rank 1)                      |
+| `403`  | Authenticated user is not the club owner                              |
+| `404`  | Club not found                                                        |
+| `409`  | Recipient is already a member, or a pending invitation already exists |
+| `422`  | Validation failed (missing fields, invalid UUID)                      |
+
+**Invite lifecycle**
+
+```
+invite created (invitation_response = NULL / false)
+       │
+       ├── recipient accepts → row deleted, club_member row inserted
+       │
+       └── recipient declines → row deleted
+```
+
+---

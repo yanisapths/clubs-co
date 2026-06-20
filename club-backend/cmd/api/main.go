@@ -12,6 +12,7 @@ import (
 
 	"club-backend/internal/config"
 	"club-backend/internal/handler"
+	membershipclub "club-backend/internal/membership/club"
 	"club-backend/internal/middleware"
 	"club-backend/internal/repository"
 	"club-backend/internal/service"
@@ -19,6 +20,7 @@ import (
 	_ "club-backend/internal/validator"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -67,8 +69,15 @@ func main() {
 	protected.Use(middleware.Auth(cfg.JWT.Secret))
 	protected.GET("/me", authHandler.Me)
 
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logger.Sync()
+
 	// ── Repositories ──────────────────────────────────────────────────────────
 	studioClubRepo := studioclub.NewClubRepository(sqlDB)
+	memberRepo      := membershipclub.NewMembershipRepository(sqlDB)
 
 	// ── Routes ────────────────────────────────────────────────────────────────
 	studio := api.Group("/studio")
@@ -77,6 +86,18 @@ func main() {
 	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo).Handler)
 	studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo).Handler)
 	studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
+	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)
+	// studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo).Handler)
+	
+	// ── Routes ────────────────────────────────────────────────────────────────
+	mbr := api.Group("/membership")
+	mbr.Use(middleware.OptionalAuth(cfg.JWT.Secret))
+	mbr.GET(
+		"/club",
+		membershipclub.NewGetClubList(memberRepo, logger).Handler,
+	)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo).Handler)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo).Handler)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

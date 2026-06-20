@@ -59,3 +59,8 @@ type UpdateClubRequest struct {
 	Tags          []TagInput   `json:"tags"          binding:"omitempty,max=3"`
 	Spaces        []SpaceInput `json:"spaces"`
 }
+
+type InviteClubMemberRequest struct {
+	RecipientID string `json:"recipient_id" validate:"required,uuid"`
+	RoleID      int64  `json:"role_id"      validate:"required"` // co-founder or member only
+}

@@ -1,0 +1,11 @@
+package club
+
+import "errors"
+
+var (
+	ErrClubNotFound        = errors.New("club not found")
+	ErrNotClubOwner        = errors.New("not club owner")
+	ErrInvalidInviteRole   = errors.New("invalid invite role")
+	ErrAlreadyMember       = errors.New("already a member")
+	ErrInviteAlreadyPending = errors.New("invite already pending")
+)

@@ -47,5 +47,5 @@ func (s *UpdateClub) Handler(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "success")
+	response.OK(c,nil)
 }

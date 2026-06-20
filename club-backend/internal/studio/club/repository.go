@@ -1,6 +1,7 @@
 package club
 
 import (
+	"club-backend/internal/utils"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -172,7 +173,7 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 			activate, is_deleted, created_at, updated_at,
 			display_status
 		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,false,NOW(),NOW(), $10)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,false,NOW(),NOW(),$10)
 		RETURNING id, owner_id, name, description, club_type, visibility, max_seats, created_at, updated_at, display_status`
 
 	var club Club
@@ -194,13 +195,23 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		return nil, fmt.Errorf("insert club: %w", err)
 	}
 
+	const addFounderQuery = `
+		INSERT INTO public.club_member (club_id, user_id, role_id, joined_at)
+		SELECT $1, $2, id, NOW()
+		FROM   public.club_member_roles
+		WHERE  rank = 1
+		LIMIT  1`
+
+	if _, err = tx.ExecContext(ctx, addFounderQuery, club.ID, ownerID); err != nil {
+		return nil, fmt.Errorf("add founder member: %w", err)
+	}
+
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("commit: %w", err)
 	}
 
 	return &club, nil
 }
-
 func resolveTagIDs(ctx context.Context, tx *sql.Tx, createdBy string, inputs []TagInput) ([]int64, error) {
 	var ids []int64
 	for _, t := range inputs {
@@ -342,4 +353,63 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 	}
 
 	return tx.Commit()
+}
+
+func (r *clubRepository) InviteClubMember(ctx context.Context, inviterID string, clubID int64, req InviteClubMemberRequest) error {
+	var ownerID string
+	err := r.db.QueryRowContext(ctx,
+		`SELECT owner_id FROM public.club WHERE id = $1 AND is_deleted = false`,
+		clubID,
+	).Scan(&ownerID)
+	if err == sql.ErrNoRows {
+		return ErrClubNotFound
+	}
+	if err != nil {
+		return err
+	}
+	if ownerID != inviterID {
+		return ErrNotClubOwner
+	}
+
+	var rank int
+	err = r.db.QueryRowContext(ctx,
+		`SELECT rank FROM public.club_member_roles WHERE id = $1`,
+		req.RoleID,
+	).Scan(&rank)
+	if err == sql.ErrNoRows || rank == 1 {
+		return ErrInvalidInviteRole
+	}
+	if err != nil {
+		return err
+	}
+
+	var exists bool
+	err = r.db.QueryRowContext(ctx,
+		`SELECT EXISTS(
+			SELECT 1 FROM public.club_member
+			WHERE club_id = $1 AND user_id = $2
+		)`,
+		clubID, req.RecipientID,
+	).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return ErrAlreadyMember
+	}
+
+	_, err = r.db.ExecContext(ctx, `
+		INSERT INTO public.club_member_invite
+			(inviter_id, recipient_id, club_id, recipient_role_id, created_at)
+		VALUES ($1, $2, $3, $4, NOW())`,
+		inviterID, req.RecipientID, clubID, req.RoleID,
+	)
+	if err != nil {
+		if utils.IsUniqueViolation(err) {
+			return ErrInviteAlreadyPending
+		}
+		return err
+	}
+
+	return nil
 }
