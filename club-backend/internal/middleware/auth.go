@@ -1,3 +1,4 @@
+// internal/middleware/auth.go
 package middleware
 
 import (
@@ -35,6 +36,32 @@ func Auth(jwtSecret string) gin.HandlerFunc {
 		if claims.TokenType != auth.AccessToken {
 			response.Unauthorized(c, "access token required")
 			c.Abort()
+			return
+		}
+
+		c.Set("claims", claims)
+		c.Next()
+	}
+}
+
+
+func OptionalAuth(jwtSecret string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		header := c.GetHeader("Authorization")
+		if header == "" {
+			c.Next()
+			return
+		}
+
+		parts := strings.SplitN(header, " ", 2)
+		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+			c.Next()
+			return
+		}
+
+		claims, err := auth.ParseToken(parts[1], jwtSecret)
+		if err != nil || claims.TokenType != auth.AccessToken {
+			c.Next()
 			return
 		}
 

@@ -52,7 +52,7 @@ func (h *AuthHandler) SignUp(c *gin.Context) {
 		case errors.Is(err, service.ErrEmailTaken), errors.Is(err, service.ErrUsernameTaken):
 			response.Conflict(c, err.Error())
 		default:
-			response.InternalError(c, "signup failed")
+			response.InternalServerError(c, "signup failed")
 		}
 		return
 	}
@@ -86,7 +86,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		case errors.Is(err, service.ErrAccountInactive):
 			response.Unauthorized(c, "account is inactive")
 		default:
-			response.InternalError(c, "login failed")
+			response.InternalServerError(c, "login failed")
 		}
 		return
 	}

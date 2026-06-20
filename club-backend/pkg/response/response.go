@@ -40,6 +40,6 @@ func Conflict(c *gin.Context, msg string) {
 	c.JSON(409, ErrorBody{Success: false, Error: msg})
 }
 
-func InternalError(c *gin.Context, msg string) {
+func InternalServerError(c *gin.Context, msg string) {
 	c.JSON(500, ErrorBody{Success: false, Error: msg})
 }

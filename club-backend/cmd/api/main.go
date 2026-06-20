@@ -1,3 +1,4 @@
+// cmd/api/main.go
 package main
 
 import (
@@ -14,6 +15,7 @@ import (
 	"club-backend/internal/middleware"
 	"club-backend/internal/repository"
 	"club-backend/internal/service"
+	studioclub "club-backend/internal/studio/club"
 	_ "club-backend/internal/validator"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +25,6 @@ import (
 )
 
 func main() {
-
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
@@ -38,6 +39,12 @@ func main() {
 
 	if err := repository.AutoMigrate(db); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
+	}
+
+	// Extract *sql.DB from gorm for repositories that use database/sql directly.
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("failed to get underlying *sql.DB: %v", err)
 	}
 
 	userRepo := repository.NewUserRepository(db)
@@ -60,6 +67,16 @@ func main() {
 	protected.Use(middleware.Auth(cfg.JWT.Secret))
 	protected.GET("/me", authHandler.Me)
 
+	// ── Repositories ──────────────────────────────────────────────────────────
+	studioClubRepo := studioclub.NewClubRepository(sqlDB)
+
+	// ── Routes ────────────────────────────────────────────────────────────────
+	studio := api.Group("/studio")
+	studio.Use(middleware.Auth(cfg.JWT.Secret))
+	studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
+	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo).Handler)
+	// studio.PUT("/club",    updateClubHandler.Handler)
+	// studio.DELETE("/club", deleteClubHandler.Handler)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
