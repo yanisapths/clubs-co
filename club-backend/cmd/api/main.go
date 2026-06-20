@@ -87,7 +87,7 @@ func main() {
 	studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo).Handler)
 	studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
 	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)
-	// studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo).Handler)
+	studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
 	
 	// ── Routes ────────────────────────────────────────────────────────────────
 	mbr := api.Group("/membership")

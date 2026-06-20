@@ -31,12 +31,23 @@ func (s *GetClub) Handler(c *gin.Context) {
 
 	result := make([]ClubResponse, 0, len(clubs))
 	for _, club := range clubs {
+		description := ""
+		if club.Description != nil {
+			description = *club.Description
+		}
+
+		imageURL := ""
+		if club.ImageURL != nil {
+			imageURL = *club.ImageURL
+		}
+		
+		
 		item := ClubResponse{
 			ID:             club.ID,
 			Owner:          club.Owner,
 			Name:           club.Name,
-			Description:    club.Description,
-			ImageURL:       club.ImageURL,
+			Description:    description,
+			ImageURL:       imageURL,
 			ClubType:       club.ClubType,
 			Visibility:     club.Visibility,
 			MaxSeats:       club.MaxSeats,

@@ -8,8 +8,8 @@ import (
 type Club struct {
 	ID             int64             `db:"id"`
 	Name           string            `db:"name"`
-	Description    string            `db:"description"`
-	ImageURL       string            `db:"image_url"`
+	Description    *string            `db:"description"`
+	ImageURL       *string            `db:"image_url"`
 	ClubType       string            `db:"club_type"`
 	Visibility     string            `db:"visibility"`
 	MaxSeats       int               `db:"max_seats"`
@@ -23,4 +23,13 @@ type Club struct {
 	OwnerID        string            `db:"owner_id"`
 	CategoryName   string            `db:"category_name"`
 	Tags           []Tag             `db:"tags"`
+}
+
+type ClubMember struct {
+	MemberUsername  string 		`db:"username"`
+	MemberFirstame  string 		`db:"first_name"`
+	MemberLastname  string 		`db:"last_name"`
+	MemberID 		string 		`db:"id"`
+	Role     		string  	`db:"role"`
+	JoinedAt 		time.Time   `db:"joined_at"`
 }

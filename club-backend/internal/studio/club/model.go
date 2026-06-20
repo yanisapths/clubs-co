@@ -64,3 +64,17 @@ type InviteClubMemberRequest struct {
 	RecipientID string `json:"recipient_id" validate:"required,uuid"`
 	RoleID      int64  `json:"role_id"      validate:"required"` // co-founder or member only
 }
+
+type GetClubByIDResponse struct {
+	ClubInfo ClubResponse `json:"clubInfo"`
+	Members  []Member `json:"members"`
+}
+
+type Member struct {
+	MemberUsername  string `json:"username"`
+	// MemberFirstame  string `json:"firstName"`
+	// MemberLastname  string `json:"lastName"`
+	MemberID 		string `json:"id"`
+	Role    		string `json:"role"`
+	JoinedAt		int64  `json:"joinedAt"`
+}

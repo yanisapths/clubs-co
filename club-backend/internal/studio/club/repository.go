@@ -413,3 +413,161 @@ func (r *clubRepository) InviteClubMember(ctx context.Context, inviterID string,
 
 	return nil
 }
+
+
+func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, error) {
+	query := `
+		SELECT
+			c.id,
+			c.name,
+			c.description,
+			c.image_url,
+			c.club_type,
+			c.visibility,
+			c.max_seats,
+			c.allow_followers,
+			c.activate,
+			c.social_links,
+			COALESCE(ARRAY_TO_JSON(c.space_ids)::text, '[]') AS space_ids,
+			COALESCE(ARRAY_TO_JSON(c.tag_ids)::text, '[]') AS tag_ids,
+			c.created_at,
+			c.updated_at,
+			u.username AS owner,
+			c.owner_id,
+			COALESCE(cg.name, '') AS category_name,
+			COALESCE(
+				JSON_AGG(
+					JSON_BUILD_OBJECT(
+						'id', t.id,
+						'name', t.name
+					)
+				) FILTER (WHERE t.id IS NOT NULL),
+				'[]'
+			) AS tags
+		FROM public.club c
+		LEFT JOIN public.category cg ON cg.id = c.category_id
+		LEFT JOIN public.tag t ON t.id = ANY(c.tag_ids)
+		LEFT JOIN public.users u ON u.id = c.owner_id
+		WHERE c.id = $1
+		  AND c.is_deleted = false
+		GROUP BY
+			c.id,
+			c.name,
+			c.description,
+			c.image_url,
+			c.club_type,
+			c.visibility,
+			c.max_seats,
+			c.allow_followers,
+			c.activate,
+			c.social_links,
+			c.space_ids,
+			c.tag_ids,
+			c.created_at,
+			c.updated_at,
+			c.owner_id,
+			cg.name,
+			u.username
+	`
+
+	var club Club
+
+	var (
+		socialLinksRaw []byte
+		spaceIDsRaw    []byte
+		tagIDsRaw      []byte
+		tagsRaw        []byte
+	)
+
+	err := r.db.QueryRowContext(ctx, query, clubID).Scan(
+		&club.ID,
+		&club.Name,
+		&club.Description,
+		&club.ImageURL,
+		&club.ClubType,
+		&club.Visibility,
+		&club.MaxSeats,
+		&club.AllowFollowers,
+		&club.Activate,
+		&socialLinksRaw,
+		&spaceIDsRaw,
+		&tagIDsRaw,
+		&club.CreatedAt,
+		&club.UpdatedAt,
+		&club.Owner,
+		&club.OwnerID,
+		&club.CategoryName,
+		&tagsRaw,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(socialLinksRaw, &club.SocialLinks); err != nil {
+		return nil, fmt.Errorf("unmarshal social_links: %w", err)
+	}
+
+	if err := json.Unmarshal(spaceIDsRaw, &club.SpaceIDs); err != nil {
+		return nil, fmt.Errorf("unmarshal space_ids: %w", err)
+	}
+
+	if err := json.Unmarshal(tagsRaw, &club.Tags); err != nil {
+		return nil, fmt.Errorf("unmarshal tags: %w", err)
+	}
+
+	return &club, nil
+}
+
+func (r *clubRepository) GetClubMemberByClubID(
+	ctx context.Context,
+	clubID int64,
+) ([]ClubMember, error) {
+
+	query := `
+		SELECT
+			u.username,
+			u.first_name,
+			u.last_name,
+			u.id,
+			r.name AS role,
+			cm.joined_at
+		FROM public.club_member cm
+		INNER JOIN public.users u
+			ON u.id = cm.user_id
+		INNER JOIN public.club_member_roles r
+			ON r.id = cm.role_id
+		WHERE cm.club_id = $1
+		ORDER BY cm.joined_at ASC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, clubID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var members []ClubMember
+
+	for rows.Next() {
+		var member ClubMember
+
+		if err := rows.Scan(
+			&member.MemberUsername,
+			&member.MemberFirstame,
+			&member.MemberLastname,
+			&member.MemberID,
+			&member.Role,
+			&member.JoinedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		members = append(members, member)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return members, nil
+}

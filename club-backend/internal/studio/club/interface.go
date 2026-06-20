@@ -2,11 +2,9 @@
 package club
 
 import "context"
-
 type CreateClubRepo interface {
 	CreateClub(ctx context.Context, ownerID string, req CreateClubRequest) (*Club, error)
 }
-
 type GetClubRepo interface {
 	GetListClubByOwnerID(ctx context.Context, ownerID string) ([]Club, error)
 }
@@ -19,10 +17,17 @@ type DeleteClubRepo interface {
 type InviteClubMemberRepo interface {
 	InviteClubMember(ctx context.Context, inviterID string, clubID int64, req InviteClubMemberRequest) error
 }
+
+type GetClubByIdRepo interface {
+	GetClubByID(ctx context.Context, clubID int64) (*Club, error)
+	GetClubMemberByClubID(ctx context.Context, clubID int64) ([]ClubMember, error)
+}
+
 type ClubRepository interface {
 	CreateClubRepo
 	GetClubRepo
 	UpdateClubRepo
 	DeleteClubRepo
 	InviteClubMemberRepo
+	GetClubByIdRepo
 }
