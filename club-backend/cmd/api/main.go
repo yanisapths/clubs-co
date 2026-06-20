@@ -75,8 +75,8 @@ func main() {
 	studio.Use(middleware.Auth(cfg.JWT.Secret))
 	studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
 	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo).Handler)
-	// studio.PUT("/club",    updateClubHandler.Handler)
-	// studio.DELETE("/club", deleteClubHandler.Handler)
+	studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo).Handler)
+	studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

@@ -11,18 +11,17 @@ type CreateClubRepo interface {
 type GetClubRepo interface {
 	GetListClubByOwnerID(ctx context.Context, ownerID string) ([]Club, error)
 }
- 
-// type UpdateClubRepo interface {
-// 	UpdateClub(ctx context.Context, ownerID string, req UpdateClubRequest) (*Club, error)
-// }
 
+type UpdateClubRepo interface {
+	UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest) error
+}
 type DeleteClubRepo interface {
-	DeleteClub(ctx context.Context, ownerID string) error
+	DeleteClub(ctx context.Context, ownerID string, clubID int64) error 
 }
 
 type ClubRepository interface {
 	CreateClubRepo
 	GetClubRepo
-	// UpdateClubRepo
+	UpdateClubRepo
 	DeleteClubRepo
 }

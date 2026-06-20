@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 )
 
 type clubRepository struct {
@@ -127,15 +126,26 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 	return clubs, nil
 }
 
-func (r *clubRepository) DeleteClub(ctx context.Context, ownerID string) error {
+func (r *clubRepository) DeleteClub(ctx context.Context, ownerID string, clubID int64) error {
 	query := `
-		UPDATE public.club
-		SET is_deleted = true, updated_at = $1
-		WHERE owner_id = $2
-		  AND is_deleted = false`
+		DELETE FROM public.club
+		WHERE id       = $1
+		  AND owner_id = $2`
 
-	_, err := r.db.ExecContext(ctx, query, time.Now(), ownerID)
-	return err
+	result, err := r.db.ExecContext(ctx, query, clubID, ownerID)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return fmt.Errorf("club not found or not owned by user")
+	}
+
+	return nil
 }
 
 func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req CreateClubRequest) (*Club, error) {
@@ -159,10 +169,11 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		INSERT INTO public.club (
 			owner_id, name, description, club_type, visibility,
 			max_seats, category_id, tag_ids, space_ids,
-			activate, is_deleted, created_at, updated_at
+			activate, is_deleted, created_at, updated_at,
+			display_status
 		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,false,NOW(),NOW())
-		RETURNING id, owner_id, name, description, club_type, visibility, max_seats, created_at, updated_at`
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,false,NOW(),NOW(), $10)
+		RETURNING id, owner_id, name, description, club_type, visibility, max_seats, created_at, updated_at, display_status`
 
 	var club Club
 	err = tx.QueryRowContext(ctx, query,
@@ -175,16 +186,9 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		req.CategoryID,
 		int64SliceToArray(tagIDs),
 		int64SliceToArray(spaceIDs),
+		req.DisplayStatus,
 	).Scan(
 		&club.ID,
-		&club.OwnerID,
-		&club.Name,
-		&club.Description,
-		&club.ClubType,
-		&club.Visibility,
-		&club.MaxSeats,
-		&club.CreatedAt,
-		&club.UpdatedAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("insert club: %w", err)
@@ -278,4 +282,64 @@ func int64SliceToArray(ids []int64) string {
 		result += fmt.Sprintf("%d", id)
 	}
 	return result + "}"
+}
+
+func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
+	if err != nil {
+		return fmt.Errorf("resolve tags: %w", err)
+	}
+
+	spaceIDs, err := resolveSpaceIDs(ctx, tx, ownerID, req.Spaces)
+	if err != nil {
+		return fmt.Errorf("resolve spaces: %w", err)
+	}
+
+	query := `
+		UPDATE public.club SET
+			name           = COALESCE($1, name),
+			description    = COALESCE($2, description),
+			club_type      = COALESCE($3, club_type),
+			visibility     = COALESCE($4, visibility),
+			max_seats      = COALESCE($5, max_seats),
+			category_id    = COALESCE($6, category_id),
+			display_status = COALESCE($7, display_status),
+			tag_ids        = $8,
+			space_ids      = $9,
+			updated_at     = NOW()
+		WHERE id       = $10
+		  AND owner_id = $11`
+
+	result, err := tx.ExecContext(ctx, query,
+		req.Name,
+		req.Description,
+		req.ClubType,
+		req.Visibility,
+		req.MaxSeats,
+		req.CategoryID,
+		req.DisplayStatus,
+		int64SliceToArray(tagIDs),
+		int64SliceToArray(spaceIDs),
+		clubID,
+		ownerID,
+	)
+	if err != nil {
+		return fmt.Errorf("update club: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return fmt.Errorf("club not found or not owned by user")
+	}
+
+	return tx.Commit()
 }
