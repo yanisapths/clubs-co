@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { MAX_TAGS } from "./types";
+import { MAX_TAGS } from "../constants";
 
 interface TagInputProps {
   tags: string[];

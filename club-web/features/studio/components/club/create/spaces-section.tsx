@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Plus, X, Search } from "lucide-react";
-import { ClubSpace, MAX_SPACES } from "./types";
+import { ClubSpace } from "./types";
+import { MAX_SPACES } from "../constants";
 
 interface SpacesSectionProps {
   spaces: ClubSpace[];
