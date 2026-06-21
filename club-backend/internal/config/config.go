@@ -14,6 +14,7 @@ type Config struct {
 	App      AppConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
+	GCP      GCPConfig
 }
 
 type AppConfig struct {
@@ -46,6 +47,10 @@ type JWTConfig struct {
 	Secret          string
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
+}
+
+type GCPConfig struct {
+    ProjectID string `env:"GCP_PROJECT_ID,required"`
 }
 
 func Load() (*Config, error) {

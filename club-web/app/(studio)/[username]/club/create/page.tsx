@@ -19,9 +19,13 @@ import { useAccountAuth } from "@/hooks/use-account-auth";
 import { categories } from "@/features/shared/constants";
 import { useCreateClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
-import { validateForm } from "@/features/studio/components/club/constants";
+import {
+  validateForm,
+  visibilityMap,
+} from "@/features/studio/components/club/constants";
 import { ApiError } from "@/lib/api-types";
-import { addToast } from "@heroui/toast";
+import { getStoredToken } from "@/lib/storage";
+import { uploadFile } from "@/features/studio/api/file";
 
 export default function CreateClubPage() {
   const router = useRouter();
@@ -37,38 +41,51 @@ export default function CreateClubPage() {
   const handleImageChange = (file: File | null, preview: string | null) => {
     updateFormData({ image: file, imagePreview: preview });
   };
-  const handleCreate = () => {
-    const visibilityMap: Record<ClubVisibility, "Anyone" | "MemberOnly"> = {
-      Anyone: "Anyone",
-      "Club member only": "MemberOnly",
-    };
 
-    createClub(
-      {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        categoryId: formData.category!,
-        clubType: formData.clubType,
-        visibility: visibilityMap[formData.visibility],
-        maxSeats: formData.maxSeats,
-        tags: formData.tags.map((name) => ({ name })),
-        spaces: formData.spaces.map((s) => ({
-          id: Number(s.id),
-          name: s.name,
-        })),
-      },
-      {
-        onSuccess: () => {
-          router.push(`/${user.username}/club`);
-          toast.success("Club created successfully!");
+  const handleCreate = async () => {
+    try {
+      let thumbnailUrl: string | undefined;
+
+      if (formData.image) {
+        const ext = formData.image.name.split(".").pop();
+
+        const filename = `club_${Date.now()}_thumbnail.${ext}`;
+
+        const uploadResult = await uploadFile(
+          getStoredToken()!,
+          formData.image,
+          filename,
+          "club/images",
+        );
+
+        thumbnailUrl = uploadResult.url;
+      }
+
+      createClub(
+        {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          categoryId: formData.category!,
+          clubType: formData.clubType,
+          visibility: visibilityMap[formData.visibility],
+          maxSeats: formData.maxSeats,
+          tags: formData.tags.map((name) => ({ name })),
+          spaces: formData.spaces.map((s) => ({
+            id: Number(s.id),
+          })),
+          activate: formData.activate,
+          thumbnailImage: thumbnailUrl,
         },
-        onError: (error) => {
-          const message =
-            error instanceof ApiError ? error.message : "Failed to create club";
-          toast.danger(message);
+        {
+          onSuccess: () => {
+            router.push(`/${user.username}/club`);
+            toast.success("Club created successfully!");
+          },
         },
-      },
-    );
+      );
+    } catch (error) {
+      toast.danger("Failed to upload image");
+    }
   };
 
   const selectedCategory = categories.find((c) => c.id === formData.category);

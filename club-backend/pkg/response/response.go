@@ -1,6 +1,10 @@
 package response
 
-import "github.com/gin-gonic/gin"
+import (
+	"errors"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Body struct {
 	Code    int         `json:"code,omitempty"`
@@ -8,6 +12,10 @@ type Body struct {
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 }
+
+var (
+	ErrSomethingWentWrong = errors.New("something went wrong")
+)
 
 func OK(c *gin.Context, data ...interface{}) {
 	resp := Body{

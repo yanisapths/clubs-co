@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"club-backend/internal/config"
+	"club-backend/internal/file"
 	"club-backend/internal/handler"
 	membershipclub "club-backend/internal/membership/club"
 	"club-backend/internal/middleware"
@@ -19,6 +20,9 @@ import (
 	studioclub "club-backend/internal/studio/club"
 	_ "club-backend/internal/validator"
 
+	filePkg "club-backend/internal/file"
+
+	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
@@ -49,6 +53,12 @@ func main() {
 		log.Fatalf("failed to get underlying *sql.DB: %v", err)
 	}
 
+	gcsClient, err := storage.NewClient(context.Background())
+	if err != nil {
+		log.Fatalf("failed to create GCS client: %v", err)
+	}
+	defer gcsClient.Close()
+	
 	userRepo := repository.NewUserRepository(db)
 	authSvc := service.NewAuthService(userRepo, cfg.JWT)
 	authHandler := handler.NewAuthHandler(authSvc)
@@ -75,6 +85,12 @@ func main() {
 	}
 	defer logger.Sync()
 
+	uploadSvc := file.NewUploadService(gcsClient, cfg.GCP.ProjectID)
+
+	fileGroup := api.Group("/file")
+	fileGroup.Use(middleware.Auth(cfg.JWT.Secret))
+	fileGroup.PUT("/upload", filePkg.NewUploadHandler(uploadSvc,logger).Handler)
+
 	// ── Repositories ──────────────────────────────────────────────────────────
 	studioClubRepo := studioclub.NewClubRepository(sqlDB)
 	memberRepo      := membershipclub.NewMembershipRepository(sqlDB)
@@ -83,7 +99,7 @@ func main() {
 	studio := api.Group("/studio")
 	studio.Use(middleware.Auth(cfg.JWT.Secret))
 	studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
-	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo, logger).Handler)
+	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo, uploadSvc, logger).Handler)
 	studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo).Handler)
 	studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
 	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)

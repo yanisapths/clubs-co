@@ -178,10 +178,11 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		INSERT INTO public.club (
 			owner_id, name, description, club_type, visibility,
 			max_seats, category_id, tag_ids, space_ids,
+			image_url,
 			activate, is_deleted, created_at, updated_at,
 			display_status
 		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,false,NOW(),NOW(),$10)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true,false,NOW(),NOW(),$11)
 		RETURNING id`
 
 	var club Club
@@ -195,10 +196,9 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		req.CategoryID,
 		int64SliceToArray(tagIDs),
 		int64SliceToArray(spaceIDs),
-		req.DisplayStatus,
-	).Scan(
-		&club.ID,
-	)
+		req.ThumbnailImage,  
+		req.Activate,
+	).Scan(&club.ID)
 	if err != nil {
 		return nil, fmt.Errorf("insert club: %w", err)
 	}

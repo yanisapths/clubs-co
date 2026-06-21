@@ -1,4 +1,4 @@
-import { apiFetch, ApiResponse } from "@/lib/api-types";
+import { apiFetch } from "@/lib/api-types";
 
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/studio/club`;
 
@@ -39,13 +39,15 @@ export interface Club {
 
 export interface CreateClubPayload {
   name: string;
-  description?: string;
+  description: string;
   clubType: "Public" | "Private" | "Exclusive";
   visibility: "Anyone" | "MemberOnly";
   maxSeats: number;
   categoryId: number;
   tags?: Tag[];
   spaces?: Space[];
+  activate: boolean;
+  thumbnailImage?: string;
 }
 
 export interface UpdateClubPayload {

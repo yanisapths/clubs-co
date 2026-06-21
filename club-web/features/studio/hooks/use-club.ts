@@ -10,16 +10,12 @@ import {
   type Club,
 } from "../api/club";
 import { useAccountAuth } from "@/hooks/use-account-auth";
+import { getStoredToken } from "@/lib/storage";
 
 const CLUB_KEYS = {
   all: ["clubs"] as const,
   detail: (id: number) => ["clubs", id] as const,
 };
-
-function getStoredToken(): string | undefined {
-  if (typeof window === "undefined") return undefined;
-  return localStorage.getItem("accessToken") ?? undefined;
-}
 
 export const useGetOwnerClubs = () => {
   const { isLoggedIn } = useAccountAuth();

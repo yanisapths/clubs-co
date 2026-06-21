@@ -3,6 +3,7 @@ package club
 
 type CreateClubRequest struct {
 	Name        string       `json:"name"        binding:"required,min=2,max=100"`
+	ThumbnailImage string    `json:"thumbnailImage"   binding:"omitempty"`
 	Description string       `json:"description" binding:"max=250"`
 	MaxSeats    int          `json:"maxSeats"    binding:"required,min=1,max=200"`
 	ClubType    string       `json:"clubType"    binding:"required,oneof=Public Private Exclusive"`
@@ -10,7 +11,7 @@ type CreateClubRequest struct {
 	CategoryID  int64        `json:"categoryId"  binding:"required"`
 	Tags        []TagInput   `json:"tags"        binding:"omitempty,max=5"`
 	Spaces      []SpaceInput `json:"spaces"`
-	DisplayStatus  *bool        `json:"displayStatus"`
+    Activate *bool `json:"activate"`
 }
 type CreateClubResponse struct {
 	ID             int64               `json:"id"`

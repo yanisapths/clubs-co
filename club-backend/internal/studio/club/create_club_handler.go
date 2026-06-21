@@ -1,21 +1,24 @@
-// internal/studio/club/create_club_handler.go
 package club
 
 import (
 	"club-backend/internal/auth"
+	"club-backend/internal/file"
 	"club-backend/pkg/response"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
+const clubImageDestPath = "club/images"
+
 type CreateClub struct {
-	repo CreateClubRepo
-	logger *zap.Logger
+	repo      CreateClubRepo
+	uploadSvc *file.UploadService
+	logger    *zap.Logger
 }
 
-func NewCreateClub(repo CreateClubRepo,logger *zap.Logger) *CreateClub {
-	return &CreateClub{repo: repo,logger:logger}
+func NewCreateClub(repo CreateClubRepo, uploadSvc *file.UploadService, logger *zap.Logger) *CreateClub {
+	return &CreateClub{repo: repo, uploadSvc: uploadSvc, logger: logger}
 }
 
 func (s *CreateClub) Handler(c *gin.Context) {
@@ -26,8 +29,8 @@ func (s *CreateClub) Handler(c *gin.Context) {
 	}
 
 	var req CreateClubRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+	if err := c.ShouldBind(&req); err != nil {
+		response.BadRequest(c, response.ErrSomethingWentWrong.Error())
 		return
 	}
 
@@ -38,18 +41,16 @@ func (s *CreateClub) Handler(c *gin.Context) {
 
 	club, err := s.repo.CreateClub(c.Request.Context(), claims.UserID.String(), req)
 	if err != nil {
-		s.logger.Error(
-			"failed : CreateClub",
+		s.logger.Error("failed : CreateClub",
 			zap.Error(err),
 			zap.String("path", c.Request.URL.Path),
 			zap.String("method", c.Request.Method),
 		)
-	
-		response.InternalServerError(c, err.Error())
+		response.InternalServerError(c, response.ErrSomethingWentWrong.Error())
 		return
 	}
 
 	response.OK(c, CreateClubResponse{
-		ID:          club.ID,
+		ID: club.ID,
 	})
 }
