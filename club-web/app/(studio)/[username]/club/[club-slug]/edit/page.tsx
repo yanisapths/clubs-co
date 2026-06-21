@@ -1,9 +1,9 @@
 "use client";
 
 import { Space } from "@/features/studio/api/club";
+import { visibilityReverseMap } from "@/features/studio/components/club/constants";
 import {
   ClubFormData,
-  ClubVisibility,
   initialClubFormData,
   SocialPlatform,
 } from "@/features/studio/components/club/create";
@@ -12,10 +12,6 @@ import { useGetClubById } from "@/features/studio/hooks/use-club";
 import { useParams, usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-const visibilityReverseMap: Record<"Anyone" | "MemberOnly", ClubVisibility> = {
-  Anyone: "Anyone",
-  MemberOnly: "Club member only",
-};
 export default function EditClubPage() {
   const params = useParams();
   const clubId = Number(params["club-slug"]);

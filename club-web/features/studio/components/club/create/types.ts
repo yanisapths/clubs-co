@@ -1,3 +1,5 @@
+import { MAX_SEATS } from "../constants";
+
 export type ClubType = "Public" | "Private" | "Exclusive";
 export type ClubVisibility = "Anyone" | "Club member only";
 
@@ -11,7 +13,7 @@ export type SocialPlatform = "Website" | "X" | "Meta" | "Instagram";
 export interface SocialLink {
   id: string;
   platform: SocialPlatform;
-  url: string; //validate valid url
+  url: string;
 }
 
 export interface ClubFormData {
@@ -29,10 +31,6 @@ export interface ClubFormData {
   allowFollowers: boolean;
   activate: boolean;
 }
-
-export const MAX_TAGS = 5; // validate max 50 characters per tag, English only, allow space, not allow any special characters.
-export const MAX_SPACES = 3; // validate max 100 characters per space, English only.
-export const MAX_SEATS = 200;
 
 export const initialClubFormData: ClubFormData = {
   image: null,

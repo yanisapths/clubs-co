@@ -11,11 +11,6 @@ import {
   ClubPublishForm,
   ClubFormFooter,
   ClubFormHeader,
-  MAX_TAGS,
-  MAX_SEATS,
-  MAX_SPACES,
-  ClubVisibility,
-  ClubSpace,
 } from "@/features/studio/components/club/create";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { categories } from "@/features/shared/constants";
@@ -24,45 +19,7 @@ import {
   useUpdateClub,
 } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
-
-const NAME_MAX_LENGTH = 100;
-const DESCRIPTION_MAX_LENGTH = 250;
-
-const TAG_REGEX = /^[a-zA-Z0-9 ]+$/;
-const isValidTag = (tag: string) =>
-  tag.length > 0 && tag.length <= 50 && TAG_REGEX.test(tag);
-
-const isValidSpace = (space: ClubSpace) =>
-  space.name.length > 0 &&
-  space.name.length <= 100 &&
-  /^[a-zA-Z0-9 ]+$/.test(space.name);
-
-function validateForm(data: ClubFormData): boolean {
-  if (!data.name.trim() || data.name.length > NAME_MAX_LENGTH) return false;
-  if (
-    !data.description.trim() ||
-    data.description.length > DESCRIPTION_MAX_LENGTH
-  )
-    return false;
-  if (data.category === null) return false;
-  if (data.tags.length > MAX_TAGS) return false;
-  if (data.tags.some((tag) => !isValidTag(tag))) return false;
-  if (data.spaces.length > MAX_SPACES) return false;
-  if (data.spaces.some((space) => !isValidSpace(space))) return false;
-  if (
-    !Number.isInteger(data.maxSeats) ||
-    data.maxSeats < 1 ||
-    data.maxSeats > MAX_SEATS
-  )
-    return false;
-  if (data.socialLinks.some((link) => !link.url.trim())) return false;
-  return true;
-}
-
-const visibilityMap: Record<ClubVisibility, "Anyone" | "MemberOnly"> = {
-  Anyone: "Anyone",
-  "Club member only": "MemberOnly",
-};
+import { visibilityMap, validateForm } from "../constants";
 
 export function EditClubForm({
   clubId,

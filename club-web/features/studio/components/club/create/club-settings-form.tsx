@@ -1,8 +1,9 @@
 "use client";
 
 import { ChangeEvent } from "react";
-import { ClubFormData, ClubType, ClubVisibility, MAX_SEATS } from "./types";
+import { ClubFormData, ClubType, ClubVisibility } from "./types";
 import { SpacesSection } from "./spaces-section";
+import { MAX_SEATS } from "../constants";
 
 interface ClubSettingsFormProps {
   data: ClubFormData;
