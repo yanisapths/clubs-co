@@ -423,7 +423,7 @@ func (r *clubRepository) InviteClubMember(ctx context.Context, inviterID string,
 	return nil
 }
 
-func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, error) {
+func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error) {
 	query := `
 		SELECT
 			c.id,
@@ -458,6 +458,7 @@ func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, 
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
 		WHERE c.id = $1
+		  AND c.owner_id = $2
 		  AND c.is_deleted = false
 		GROUP BY
 			c.id,
@@ -490,7 +491,7 @@ func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, 
 		tagsRaw        []byte
 	)
 
-	err := r.db.QueryRowContext(ctx, query, clubID).Scan(
+	err := r.db.QueryRowContext(ctx, query, clubID, ownerID).Scan(
 		&club.ID,
 		&club.Name,
 		&club.Description,

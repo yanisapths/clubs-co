@@ -23,7 +23,7 @@ func NewGetClubById(repo GetClubByIdRepo, 	logger *zap.Logger) *GetClubById {
 }
 
 func (s *GetClubById) Handler(c *gin.Context) {
-	_, ok := c.MustGet("claims").(*auth.Claims)
+	claims, ok := c.MustGet("claims").(*auth.Claims)
 	if !ok {
 		response.Unauthorized(c, "invalid token claims")
 		return
@@ -35,7 +35,7 @@ func (s *GetClubById) Handler(c *gin.Context) {
 		return
 	}
 
-	clubInfo, err := s.repo.GetClubByID(c.Request.Context(), clubID)
+	clubInfo, err := s.repo.GetClubByIDByOwnerId(c.Request.Context(), clubID, claims.UserID.String())
 	if err != nil {
 		s.logger.Error(
 			"failed : GetClubByID",

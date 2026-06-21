@@ -9,9 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@heroui/react": "^3.1.0",
-    "@heroui/styles": "^3.1.0",
-    "@heroui/toast": "^2.0.22",
+    "@heroui/react": "3.2.1",
+    "@heroui/styles": "3.2.1",
     "@heroui/tooltip": "^2.2.29",
     "@hookform/resolvers": "^5.4.0",
     "@tabler/icons-react": "^3.44.0",

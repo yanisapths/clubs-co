@@ -76,7 +76,6 @@ export const useUpdateClub = (id: number) => {
       updateClubById(getStoredToken()!, id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLUB_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.detail(id) });
     },
   });
 };

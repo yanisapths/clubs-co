@@ -19,7 +19,7 @@ type InviteClubMemberRepo interface {
 }
 
 type GetClubByIdRepo interface {
-	GetClubByID(ctx context.Context, clubID int64) (*Club, error)
+	GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error)
 	GetClubMemberByClubID(ctx context.Context, clubID int64) ([]ClubMember, error)
 }
 

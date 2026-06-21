@@ -1,3 +1,5 @@
+import { apiFetch, ApiResponse } from "@/lib/api-types";
+
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/studio/club`;
 
 export interface Tag {
@@ -58,11 +60,6 @@ export interface UpdateClubPayload {
   spaces?: Space[];
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-}
-
 export interface ClubDetail {
   clubInfo: Club;
   members: {
@@ -75,64 +72,44 @@ export interface ClubDetail {
 
 // --- API Functions ---
 
-export const getClubList = (token: string): Promise<ApiResponse<Club[]>> => {
-  return fetch(baseApi, {
+export const getClubList = (token: string) =>
+  apiFetch<Club[]>(baseApi, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((res) => res.json());
-};
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
-export const createClub = (
-  token: string,
-  payload: CreateClubPayload,
-): Promise<ApiResponse<Club>> => {
-  return fetch(baseApi, {
+export const createClub = (token: string, payload: CreateClubPayload) =>
+  apiFetch<Club>(baseApi, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
-  }).then((res) => res.json());
-};
+  });
 
 export const updateClubById = (
   token: string,
   id: number,
   payload: UpdateClubPayload,
-): Promise<ApiResponse<string>> => {
-  return fetch(`${baseApi}/${id}`, {
+) =>
+  apiFetch<string>(`${baseApi}/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
-  }).then((res) => res.json());
-};
+  });
 
-export const getClubById = (
-  token: string,
-  id: number,
-): Promise<ApiResponse<ClubDetail>> => {
-  return fetch(`${baseApi}/${id}`, {
+export const getClubById = (token: string, id: number) =>
+  apiFetch<ClubDetail>(`${baseApi}/${id}`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((res) => res.json());
-};
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
-export const deleteClubById = (
-  token: string,
-  id: number,
-): Promise<ApiResponse<null>> => {
-  return fetch(`${baseApi}/${id}`, {
+export const deleteClubById = (token: string, id: number) =>
+  apiFetch<null>(`${baseApi}/${id}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((res) => res.json());
-};
+    headers: { Authorization: `Bearer ${token}` },
+  });

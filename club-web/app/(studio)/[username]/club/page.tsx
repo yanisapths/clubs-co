@@ -77,7 +77,7 @@ function ClubStudioPage() {
             <StickyFooter pathToCreateClub={pathToCreateClub} />
           </div>
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 mt-28 text-center">
             <div className="flex -space-x-6">
               <div className="h-32 w-24 rotate-[-8deg] rounded-xl bg-sky-200" />
               <div className="h-32 w-24 rounded-xl bg-rose-300" />

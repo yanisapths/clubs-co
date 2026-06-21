@@ -20,14 +20,12 @@ export const GlobalStyle = () => {
 
     const style = document.createElement("style");
 
-    style.setAttribute("aster-design-system", "v1.0");
-
     style.innerHTML = `
       :root {
-${createSpacingCssVariables().join("\n")}
-${createColorCssVariables().join("\n")}
-${createBorderRadiusCssVariables().join("\n")}
-${createEffectCssVariables().join("\n")}
+      ${createSpacingCssVariables().join("\n")}
+      ${createColorCssVariables().join("\n")}
+      ${createBorderRadiusCssVariables().join("\n")}
+      ${createEffectCssVariables().join("\n")}
       }
     `;
 

@@ -20,6 +20,8 @@ import { categories } from "@/features/shared/constants";
 import { useCreateClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import { validateForm } from "@/features/studio/components/club/constants";
+import { ApiError } from "@/lib/api-types";
+import { addToast } from "@heroui/toast";
 
 export default function CreateClubPage() {
   const router = useRouter();
@@ -58,10 +60,12 @@ export default function CreateClubPage() {
       {
         onSuccess: () => {
           router.push(`/${user.username}/club`);
-          toast.success("club created successfully!");
+          toast.success("Club created successfully!");
         },
-        onError: () => {
-          toast.danger("failed to create club");
+        onError: (error) => {
+          const message =
+            error instanceof ApiError ? error.message : "Failed to create club";
+          toast.danger(message);
         },
       },
     );

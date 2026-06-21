@@ -20,6 +20,7 @@ import {
 } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import { visibilityMap, validateForm } from "../constants";
+import { ApiError } from "@/lib/api-types";
 
 export function EditClubForm({
   clubId,
@@ -63,10 +64,12 @@ export function EditClubForm({
       {
         onSuccess: () => {
           router.push(`/${user.username}/club`);
-          toast.success("Club updated successfully!");
+          toast.success("Club edit successfully!");
         },
-        onError: () => {
-          toast.danger("Failed to update club");
+        onError: (error: Error) => {
+          const message =
+            error instanceof ApiError ? error.message : "Failed to edit club";
+          toast.danger(message);
         },
       },
     );
