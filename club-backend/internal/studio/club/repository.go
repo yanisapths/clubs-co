@@ -330,24 +330,34 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 			max_seats      = COALESCE($5, max_seats),
 			category_id    = COALESCE($6, category_id),
 			display_status = COALESCE($7, display_status),
-			tag_ids        = $8,
-			space_ids      = $9,
+			image_url  = CASE
+								WHEN $8::boolean THEN $9
+								ELSE image_url
+							END,
+			tag_ids        = $10,
+			space_ids      = $11,
 			updated_at     = NOW()
-		WHERE id       = $10
-		  AND owner_id = $11`
+		WHERE id         = $12
+		AND owner_id   = $13::uuid
+		AND is_deleted = false`
 
+	thumbnailChanged := req.ThumbnailImage.Present
+	thumbnailValue := req.ThumbnailImage.Value
+	
 	result, err := tx.ExecContext(ctx, query,
-		req.Name,
-		req.Description,
-		req.ClubType,
-		req.Visibility,
-		req.MaxSeats,
-		req.CategoryID,
+		req.Name,       
+		req.Description,   
+		req.ClubType,    
+		req.Visibility, 
+		req.MaxSeats,   
+		req.CategoryID,   
 		req.DisplayStatus,
-		int64SliceToArray(tagIDs),
-		int64SliceToArray(spaceIDs),
-		clubID,
-		ownerID,
+		thumbnailChanged,  
+		thumbnailValue,  
+		int64SliceToArray(tagIDs),   
+		int64SliceToArray(spaceIDs),  
+		clubID,       
+		ownerID,         
 	)
 	if err != nil {
 		return fmt.Errorf("update club: %w", err)
@@ -584,4 +594,16 @@ func (r *clubRepository) GetClubMemberByClubID(
 	}
 
 	return members, nil
+}
+
+func (r *clubRepository) GetClubImageURL(ctx context.Context, clubID int64, ownerID string) (*string, error) {
+	var imageURL *string
+	err := r.db.QueryRowContext(ctx,
+		`SELECT image_url FROM public.club WHERE id = $1 AND owner_id = $2::uuid AND is_deleted = false`,
+		clubID, ownerID,
+	).Scan(&imageURL)
+	if err != nil {
+		return nil, fmt.Errorf("get club image url: %w", err)
+	}
+	return imageURL, nil
 }

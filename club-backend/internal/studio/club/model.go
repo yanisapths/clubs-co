@@ -1,9 +1,11 @@
 // internal/studio/club/model.go
 package club
 
+import "club-backend/internal/utils"
+
 type CreateClubRequest struct {
 	Name        string       `json:"name"        binding:"required,min=2,max=100"`
-	ThumbnailImage string    `json:"thumbnailImage"   binding:"omitempty"`
+	ThumbnailImage *string    `json:"thumbnailImage"   binding:"omitempty"`
 	Description string       `json:"description" binding:"max=250"`
 	MaxSeats    int          `json:"maxSeats"    binding:"required,min=1,max=200"`
 	ClubType    string       `json:"clubType"    binding:"required,oneof=Public Private Exclusive"`
@@ -70,6 +72,7 @@ type UpdateClubRequest struct {
 	DisplayStatus *string      `json:"displayStatus"`
 	Tags          []TagInput   `json:"tags"          binding:"omitempty,max=3"`
 	Spaces        []SpaceInput `json:"spaces"`
+	ThumbnailImage utils.NullableString `json:"thumbnailImage"`
 }
 
 type InviteClubMemberRequest struct {

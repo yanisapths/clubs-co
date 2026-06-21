@@ -67,3 +67,16 @@ func (s *UploadService) Upload(ctx context.Context, input UploadInput) (*UploadR
 		Filename: input.Filename,
 	}, nil
 }
+
+func (s *UploadService) Delete(ctx context.Context, publicURL string) error {
+	prefix := fmt.Sprintf("https://storage.googleapis.com/%s/", bucketName)
+	objectPath := strings.TrimPrefix(publicURL, prefix)
+	if objectPath == publicURL {
+		return fmt.Errorf("unrecognised GCS URL: %s", publicURL)
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+
+	return s.gcs.Bucket(bucketName).UserProject(s.projectID).Object(objectPath).Delete(ctx)
+}

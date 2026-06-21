@@ -20,6 +20,7 @@ import { categories } from "@/features/shared/constants";
 import { useCreateClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import {
+  buildClubThumbnailFilename,
   validateForm,
   visibilityMap,
 } from "@/features/studio/components/club/constants";
@@ -44,13 +45,11 @@ export default function CreateClubPage() {
 
   const handleCreate = async () => {
     try {
-      let thumbnailUrl: string | undefined;
+      let thumbnailImage: string | undefined;
 
       if (formData.image) {
         const ext = formData.image.name.split(".").pop();
-
-        const filename = `club_${Date.now()}_thumbnail.${ext}`;
-
+        const filename = buildClubThumbnailFilename(Date.now(), ext);
         const uploadResult = await uploadFile(
           getStoredToken()!,
           formData.image,
@@ -58,7 +57,7 @@ export default function CreateClubPage() {
           "club/images",
         );
 
-        thumbnailUrl = uploadResult.url;
+        thumbnailImage = uploadResult.url;
       }
 
       createClub(
@@ -74,7 +73,7 @@ export default function CreateClubPage() {
             id: Number(s.id),
           })),
           activate: formData.activate,
-          thumbnailImage: thumbnailUrl,
+          thumbnailImage: thumbnailImage,
         },
         {
           onSuccess: () => {

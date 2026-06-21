@@ -60,6 +60,7 @@ export interface UpdateClubPayload {
   displayStatus?: string;
   tags?: Tag[];
   spaces?: Space[];
+  thumbnailImage?: string | null;
 }
 
 export interface ClubDetail {

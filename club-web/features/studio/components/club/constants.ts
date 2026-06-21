@@ -50,3 +50,8 @@ export const visibilityReverseMap: Record<
   Anyone: "Anyone",
   MemberOnly: "Club member only",
 };
+
+export const buildClubThumbnailFilename = (date: number, ext?: string) => {
+  const filename = `club_${date}_thumbnail.${ext}`;
+  return filename;
+};

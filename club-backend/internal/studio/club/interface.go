@@ -9,6 +9,7 @@ type GetClubRepo interface {
 	GetListClubByOwnerID(ctx context.Context, ownerID string) ([]Club, error)
 }
 type UpdateClubRepo interface {
+	GetClubImageURL(ctx context.Context, clubID int64, ownerID string) (*string, error)
 	UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest) error
 }
 type DeleteClubRepo interface {

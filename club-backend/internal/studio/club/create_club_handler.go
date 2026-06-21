@@ -2,7 +2,6 @@ package club
 
 import (
 	"club-backend/internal/auth"
-	"club-backend/internal/file"
 	"club-backend/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -13,12 +12,11 @@ const clubImageDestPath = "club/images"
 
 type CreateClub struct {
 	repo      CreateClubRepo
-	uploadSvc *file.UploadService
 	logger    *zap.Logger
 }
 
-func NewCreateClub(repo CreateClubRepo, uploadSvc *file.UploadService, logger *zap.Logger) *CreateClub {
-	return &CreateClub{repo: repo, uploadSvc: uploadSvc, logger: logger}
+func NewCreateClub(repo CreateClubRepo, logger *zap.Logger) *CreateClub {
+	return &CreateClub{repo: repo, logger: logger}
 }
 
 func (s *CreateClub) Handler(c *gin.Context) {

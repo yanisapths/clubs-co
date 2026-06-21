@@ -19,8 +19,14 @@ import {
   useUpdateClub,
 } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
-import { visibilityMap, validateForm } from "../constants";
+import {
+  visibilityMap,
+  validateForm,
+  buildClubThumbnailFilename,
+} from "../constants";
 import { ApiError } from "@/lib/api-types";
+import { uploadFile } from "@/features/studio/api/file";
+import { getStoredToken } from "@/lib/storage";
 
 export function EditClubForm({
   clubId,
@@ -46,7 +52,29 @@ export function EditClubForm({
     updateFormData({ image: file, imagePreview: preview });
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
+    let thumbnailImage: string | null | undefined = undefined;
+
+    if (formData.image) {
+      const ext = formData.image.name.split(".").pop();
+
+      const filename = buildClubThumbnailFilename(Date.now(), ext);
+      const form = new FormData();
+      form.append("file", formData.image);
+      form.append("filename", filename);
+      form.append("dest_path", "club/images");
+
+      const uploadRes = await uploadFile(
+        getStoredToken()!,
+        formData.image,
+        filename,
+        "club/images",
+      );
+      thumbnailImage = uploadRes.url;
+    } else if (formData.imagePreview === null) {
+      thumbnailImage = null;
+    }
+
     updateClub(
       {
         name: formData.name.trim(),
@@ -60,15 +88,16 @@ export function EditClubForm({
           id: Number(s.id),
           name: s.name,
         })),
+        ...(thumbnailImage !== undefined && { thumbnailImage }),
       },
       {
         onSuccess: () => {
           router.push(`/${user.username}/club`);
-          toast.success("Club edit successfully!");
+          toast.success("Club updated successfully!");
         },
         onError: (error: Error) => {
           const message =
-            error instanceof ApiError ? error.message : "Failed to edit club";
+            error instanceof ApiError ? error.message : "Failed to update club";
           toast.danger(message);
         },
       },
