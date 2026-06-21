@@ -1,3 +1,4 @@
+//  app/(studio)/[username]/club/page.tsx
 "use client";
 import { Button } from "@/design-system/components/button";
 import { Edit3Icon, Plus } from "lucide-react";

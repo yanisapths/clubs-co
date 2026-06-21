@@ -55,3 +55,6 @@ export const buildClubThumbnailFilename = (date: number, ext?: string) => {
   const filename = `club_${date}_thumbnail.${ext}`;
   return filename;
 };
+
+export const NOW_SECONDS = Date.now() / 1000;
+export const SEVEN_DAYS = 7 * 86400;

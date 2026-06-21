@@ -358,8 +358,20 @@ curl -X GET http://localhost:9090/api/v1/studio/club/:id \
       "allowFollowers": true,
       "activate": true,
       "socialLinks": [],
-      "spaceIds": [3],
-      "categoryName": "Sports",
+      "spaces": [
+        {
+          "id": 6,
+          "name": "London"
+        },
+        {
+          "id": 11,
+          "name": "Bangkok"
+        }
+      ],
+      "category": {
+        "id": 1,
+        "name": "Sports"
+      },
       "tags": [
         {
           "id": 6,
