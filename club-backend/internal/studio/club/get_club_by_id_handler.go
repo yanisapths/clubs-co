@@ -84,8 +84,11 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			AllowFollowers: clubInfo.AllowFollowers,
 			Activate:       clubInfo.Activate,
 			SocialLinks:    clubInfo.SocialLinks,
-			SpaceIDs:       clubInfo.SpaceIDs,
-			CategoryName:   clubInfo.CategoryName,
+			Spaces:       clubInfo.Spaces,
+			Category:   ClubCategory{
+				ID: 	 clubInfo.CategoryID,
+				Name: 	 clubInfo.CategoryName,
+			},
 			Tags:           clubInfo.Tags,
 			CreatedAt:      clubInfo.CreatedAt.Unix(),
 			UpdatedAt:      clubInfo.UpdatedAt.Unix(),
@@ -96,8 +99,6 @@ func (s *GetClubById) Handler(c *gin.Context) {
 	for _, m := range members {
 		resp.Members = append(resp.Members, Member{
 			MemberUsername: m.MemberUsername,
-			// MemberFirstame: m.MemberFirstame,
-			// MemberLastname: m.MemberLastname,
 			MemberID:       m.MemberID,
 			Role:           m.Role,
 			JoinedAt:       m.JoinedAt.Unix(),

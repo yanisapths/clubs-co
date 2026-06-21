@@ -2,9 +2,15 @@ import { ChevronLeft } from "lucide-react";
 
 interface ClubFormHeaderProps {
   onBack?: () => void;
+  isEdit?: boolean;
+  clubName?: string;
 }
 
-export function ClubFormHeader({ onBack }: ClubFormHeaderProps) {
+export function ClubFormHeader({
+  onBack,
+  isEdit = false,
+  clubName,
+}: ClubFormHeaderProps) {
   return (
     <header className="border-b border-zinc-800 py-4 px-8">
       <div className="flex items-center gap-4">
@@ -17,8 +23,9 @@ export function ClubFormHeader({ onBack }: ClubFormHeaderProps) {
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-xl text-zinc-400">
-          creator studio <span className="mx-2 text-zinc-600">/</span>{" "}
-          <span className="text-white">create a club</span>
+          creator studio <span className="mx-2 text-zinc-600">/</span>
+          {isEdit ? `${clubName} / ` : null}
+          <span className="text-white">{`${isEdit ? "edit" : "create a club"}`}</span>
         </h1>
       </div>
     </header>

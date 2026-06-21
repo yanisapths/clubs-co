@@ -5,11 +5,14 @@ export interface Tag {
   name?: string;
 }
 
+export interface ClubCategory {
+  id?: number;
+  name?: string;
+}
+
 export interface Space {
   id?: number;
   name?: string;
-  country?: string;
-  city?: string;
 }
 
 export interface Club {
@@ -25,8 +28,8 @@ export interface Club {
   allowFollowers: boolean;
   activate: boolean;
   socialLinks: Record<string, string>[];
-  spaceIds: number[];
-  categoryName: string;
+  spaces: Space[];
+  category: ClubCategory;
   tags: Tag[];
   createdAt: number;
   updatedAt: number;

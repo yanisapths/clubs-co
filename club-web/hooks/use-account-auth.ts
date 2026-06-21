@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-
 interface AccountSession {
   user: { email: string; id: string };
   expires: string;
@@ -36,9 +35,16 @@ export const useAccountAuth = () => {
     fullName: s ? `${s.firstName} ${s.lastName}`.trim() : "",
   };
 
+  const handleLogout = async () => {
+    await signOut({
+      callbackUrl: "/",
+    });
+    localStorage.removeItem("accessToken");
+  };
+
   return {
     isLoggedIn,
-    logout: () => signOut({ callbackUrl: "/" }),
+    logout: handleLogout,
     user,
     session,
   };

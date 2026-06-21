@@ -49,7 +49,7 @@ export function ClubPreviewCard({ data }: ClubPreviewCardProps) {
           {visibleSpaces.map((space) => (
             <span key={space.id} className="flex items-center gap-1.5">
               <MapPin className="h-4 w-4" aria-hidden="true" />
-              {space.location}
+              {space.name}
             </span>
           ))}
           {extraSpaces > 0 && <span>+{extraSpaces} more</span>}

@@ -8,12 +8,17 @@ import { categories } from "@/features/shared/constants";
 interface ClubBasicInfoFormProps {
   data: ClubFormData;
   onUpdate: (updates: Partial<ClubFormData>) => void;
+  isEdit?: boolean;
 }
 
 const NAME_MAX_LENGTH = 100;
 const DESCRIPTION_MAX_LENGTH = 250;
 
-export function ClubBasicInfoForm({ data, onUpdate }: ClubBasicInfoFormProps) {
+export function ClubBasicInfoForm({
+  data,
+  onUpdate,
+  isEdit = false,
+}: ClubBasicInfoFormProps) {
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     onUpdate({ name: event.target.value.slice(0, NAME_MAX_LENGTH) });
   };
@@ -27,10 +32,10 @@ export function ClubBasicInfoForm({ data, onUpdate }: ClubBasicInfoFormProps) {
   return (
     <div>
       <h1 className="text-2xl font-semibold text-white">
-        Start with your club
+        {isEdit ? "Edit your club" : "Start with your club"}
       </h1>
       <p className="mt-1 text-base text-zinc-400">
-        Create a club where people can share commons.
+        {isEdit ? null : "Create a club where people can share commons."}
       </p>
 
       <div className="mt-6">
@@ -68,7 +73,7 @@ export function ClubBasicInfoForm({ data, onUpdate }: ClubBasicInfoFormProps) {
           value={data.description}
           onChange={handleDescriptionChange}
           placeholder="Add a club description"
-          rows={6}
+          rows={2}
           className="mt-3 w-full resize-none rounded-2xl border border-zinc-700 bg-zinc-900 px-5 py-4 text-base text-white placeholder-zinc-500 outline-none focus:border-zinc-500"
         />
         <div className="mt-2 flex items-center justify-end text-sm text-zinc-500">
@@ -88,6 +93,7 @@ export function ClubBasicInfoForm({ data, onUpdate }: ClubBasicInfoFormProps) {
         <div className="relative mt-3">
           <select
             id="club-category"
+            value={data.category ?? ""}
             onChange={(event) =>
               onUpdate({ category: Number(event.target.value) })
             }

@@ -16,11 +16,12 @@ type Club struct {
 	AllowFollowers bool              `db:"allow_followers"`
 	Activate       bool              `db:"activate"`
 	SocialLinks    []map[string]string `db:"social_links"`
-	SpaceIDs       []int64           `db:"space_ids"`
+	Spaces         []Space           `db:"spaces"`
 	CreatedAt      time.Time         `db:"created_at"`
 	UpdatedAt      time.Time         `db:"updated_at"`
 	Owner          string            `db:"owner"`
 	OwnerID        string            `db:"owner_id"`
+	CategoryID     int               `db:"category_id"`
 	CategoryName   string            `db:"category_name"`
 	Tags           []Tag             `db:"tags"`
 }

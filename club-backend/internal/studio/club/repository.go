@@ -36,16 +36,20 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			c.updated_at,
 			u.username as owner,
 			c.owner_id,
+			cg.id AS category_id,
 			COALESCE(cg.name, '') AS category_name,
-			COALESCE(
-				JSON_AGG(
-					JSON_BUILD_OBJECT('id', t.id, 'name', t.name)
-				) FILTER (WHERE t.id IS NOT NULL),
-				'[]'
-			) AS tags
+			(
+				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', t.id, 'name', t.name)), '[]')
+				FROM public.tag t
+				WHERE t.id = ANY(c.tag_ids)
+			) AS tags,
+			(
+				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', s.id, 'name', s.name)), '[]')
+				FROM public.space s
+				WHERE s.id = ANY(c.space_ids)
+			) AS spaces
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
-		LEFT JOIN public.tag t ON t.id = ANY(c.tag_ids)
 		LEFT JOIN public.users u ON u.id = c.owner_id
 		WHERE c.owner_id = $1
 		  AND c.is_deleted = false
@@ -66,6 +70,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			c.updated_at,
 			c.owner_id,
 			cg.name,
+			cg.id,
 		    u.username 
 		ORDER BY c.created_at DESC`
 
@@ -81,6 +86,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 		var (
 			socialLinksRaw []byte
 			spaceIDsRaw    []byte
+			spacesRaw      []byte
 			tagIDsRaw      []byte
 			tagsRaw        []byte
 		)
@@ -102,8 +108,10 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			&club.UpdatedAt,
 			&club.Owner,
 			&club.OwnerID,
+			&club.CategoryID,
 			&club.CategoryName,
 			&tagsRaw,
+			&spacesRaw,
 		); err != nil {
 			return nil, err
 		}
@@ -111,7 +119,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 		if err := json.Unmarshal(socialLinksRaw, &club.SocialLinks); err != nil {
 			return nil, fmt.Errorf("unmarshal social_links: %w", err)
 		}
-		if err := json.Unmarshal(spaceIDsRaw, &club.SpaceIDs); err != nil {
+		if err := json.Unmarshal(spacesRaw, &club.Spaces); err != nil {
 			return nil, fmt.Errorf("unmarshal space_ids: %w", err)
 		}
 		if err := json.Unmarshal(tagsRaw, &club.Tags); err != nil {
@@ -434,19 +442,20 @@ func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, 
 			c.updated_at,
 			u.username AS owner,
 			c.owner_id,
+			cg.id AS category_id,
 			COALESCE(cg.name, '') AS category_name,
-			COALESCE(
-				JSON_AGG(
-					JSON_BUILD_OBJECT(
-						'id', t.id,
-						'name', t.name
-					)
-				) FILTER (WHERE t.id IS NOT NULL),
-				'[]'
-			) AS tags
+			(
+				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', t.id, 'name', t.name)), '[]')
+				FROM public.tag t
+				WHERE t.id = ANY(c.tag_ids)
+			) AS tags,
+			(
+				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', s.id, 'name', s.name)), '[]')
+				FROM public.space s
+				WHERE s.id = ANY(c.space_ids)
+			) AS spaces
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
-		LEFT JOIN public.tag t ON t.id = ANY(c.tag_ids)
 		LEFT JOIN public.users u ON u.id = c.owner_id
 		WHERE c.id = $1
 		  AND c.is_deleted = false
@@ -467,6 +476,7 @@ func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, 
 			c.updated_at,
 			c.owner_id,
 			cg.name,
+			cg.id,
 			u.username
 	`
 
@@ -475,6 +485,7 @@ func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, 
 	var (
 		socialLinksRaw []byte
 		spaceIDsRaw    []byte
+		spacesRaw      []byte
 		tagIDsRaw      []byte
 		tagsRaw        []byte
 	)
@@ -496,8 +507,10 @@ func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, 
 		&club.UpdatedAt,
 		&club.Owner,
 		&club.OwnerID,
+		&club.CategoryID,
 		&club.CategoryName,
 		&tagsRaw,
+		&spacesRaw,
 	)
 	if err != nil {
 		return nil, err
@@ -507,8 +520,8 @@ func (r *clubRepository) GetClubByID(ctx context.Context, clubID int64) (*Club, 
 		return nil, fmt.Errorf("unmarshal social_links: %w", err)
 	}
 
-	if err := json.Unmarshal(spaceIDsRaw, &club.SpaceIDs); err != nil {
-		return nil, fmt.Errorf("unmarshal space_ids: %w", err)
+	if err := json.Unmarshal(spacesRaw, &club.Spaces); err != nil {
+		return nil, fmt.Errorf("unmarshal spaces: %w", err)
 	}
 
 	if err := json.Unmarshal(tagsRaw, &club.Tags); err != nil {

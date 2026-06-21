@@ -1,11 +1,9 @@
-// app/(studio)/[username]/club/create/page.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ClubFormData,
-  initialClubFormData,
   ClubImageUpload,
   ClubPreviewCard,
   ClubBasicInfoForm,
@@ -17,10 +15,14 @@ import {
   MAX_SEATS,
   MAX_SPACES,
   ClubVisibility,
+  ClubSpace,
 } from "@/features/studio/components/club/create";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { categories } from "@/features/shared/constants";
-import { useCreateClub } from "@/features/studio/hooks/use-club";
+import {
+  useGetClubById,
+  useUpdateClub,
+} from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 
 const NAME_MAX_LENGTH = 100;
@@ -30,28 +32,23 @@ const TAG_REGEX = /^[a-zA-Z0-9 ]+$/;
 const isValidTag = (tag: string) =>
   tag.length > 0 && tag.length <= 50 && TAG_REGEX.test(tag);
 
-const SPACE_REGEX = /^[a-zA-Z0-9 ]+$/;
-const isValidSpace = (space: { name: string; location: string }) =>
-  space.location.length > 0 &&
-  space.location.length <= 100 &&
-  SPACE_REGEX.test(space.location);
+const isValidSpace = (space: ClubSpace) =>
+  space.name.length > 0 &&
+  space.name.length <= 100 &&
+  /^[a-zA-Z0-9 ]+$/.test(space.name);
 
 function validateForm(data: ClubFormData): boolean {
   if (!data.name.trim() || data.name.length > NAME_MAX_LENGTH) return false;
-
   if (
     !data.description.trim() ||
     data.description.length > DESCRIPTION_MAX_LENGTH
   )
     return false;
   if (data.category === null) return false;
-
   if (data.tags.length > MAX_TAGS) return false;
   if (data.tags.some((tag) => !isValidTag(tag))) return false;
-
   if (data.spaces.length > MAX_SPACES) return false;
   if (data.spaces.some((space) => !isValidSpace(space))) return false;
-
   if (
     !Number.isInteger(data.maxSeats) ||
     data.maxSeats < 1 ||
@@ -59,16 +56,29 @@ function validateForm(data: ClubFormData): boolean {
   )
     return false;
   if (data.socialLinks.some((link) => !link.url.trim())) return false;
-
   return true;
 }
 
-export default function CreateClubPage() {
+const visibilityMap: Record<ClubVisibility, "Anyone" | "MemberOnly"> = {
+  Anyone: "Anyone",
+  "Club member only": "MemberOnly",
+};
+
+export function EditClubForm({
+  clubId,
+  initialData,
+  isEdit,
+}: {
+  clubId: number;
+  initialData: ClubFormData;
+  isEdit: boolean;
+}) {
   const router = useRouter();
   const { user } = useAccountAuth();
-  const [formData, setFormData] = useState<ClubFormData>(initialClubFormData);
+  const { club } = useGetClubById(clubId);
+  const { mutate: updateClub, isPending: isUpdating } = useUpdateClub(clubId);
 
-  const { mutate: createClub, isPending: isCreating } = useCreateClub();
+  const [formData, setFormData] = useState<ClubFormData>(initialData);
 
   const updateFormData = (updates: Partial<ClubFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -77,13 +87,9 @@ export default function CreateClubPage() {
   const handleImageChange = (file: File | null, preview: string | null) => {
     updateFormData({ image: file, imagePreview: preview });
   };
-  const handleCreate = () => {
-    const visibilityMap: Record<ClubVisibility, "Anyone" | "MemberOnly"> = {
-      Anyone: "Anyone",
-      "Club member only": "MemberOnly",
-    };
 
-    createClub(
+  const handleUpdate = () => {
+    updateClub(
       {
         name: formData.name.trim(),
         description: formData.description.trim(),
@@ -95,16 +101,15 @@ export default function CreateClubPage() {
         spaces: formData.spaces.map((s) => ({
           id: Number(s.id),
           name: s.name,
-          city: s.location,
         })),
       },
       {
         onSuccess: () => {
           router.push(`/${user.username}/club`);
-          toast.success("club created successfully!");
+          toast.success("Club updated successfully!");
         },
         onError: () => {
-          toast.danger("failed to create club");
+          toast.danger("Failed to update club");
         },
       },
     );
@@ -122,7 +127,11 @@ export default function CreateClubPage() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#0c0c0c] text-white">
-      <ClubFormHeader onBack={() => router.back()} />
+      <ClubFormHeader
+        onBack={() => router.back()}
+        isEdit={isEdit}
+        clubName={club?.name}
+      />
 
       <div className="flex min-h-0 flex-1 flex-col gap-12 overflow-hidden lg:flex-row lg:gap-16">
         <div className="shrink-0 lg:w-1/3 bg-[#141415] border-r border-white/20">
@@ -140,7 +149,11 @@ export default function CreateClubPage() {
         <div className="min-h-0 flex-1 overflow-y-auto lg:w-2/3">
           <div className="flex flex-col gap-8 pb-10 px-20 pt-12">
             <section>
-              <ClubBasicInfoForm data={formData} onUpdate={updateFormData} />
+              <ClubBasicInfoForm
+                data={formData}
+                onUpdate={updateFormData}
+                isEdit={isEdit}
+              />
             </section>
             <section>
               <ClubSettingsForm data={formData} onUpdate={updateFormData} />
@@ -154,9 +167,10 @@ export default function CreateClubPage() {
 
       <ClubFormFooter
         onCancel={() => router.back()}
-        onCreate={handleCreate}
-        isCreating={isCreating}
+        onCreate={handleUpdate}
+        isCreating={isUpdating}
         isValid={isValid}
+        isEdit={isEdit}
       />
     </div>
   );

@@ -12,10 +12,10 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
   const visibleTags = club.tags.slice(0, 3);
   const extraTags = club.tags.length - visibleTags.length;
 
-  const visibleSpaces = club.spaceIds.slice(0, 2);
-  const extraSpaces = club.spaceIds.length - visibleSpaces.length;
+  const visibleSpaces = club.spaces.slice(0, 2);
+  const extraSpaces = club.spaces.length - visibleSpaces.length;
 
-  const category = categories.find((c) => c.category === club.categoryName);
+  const category = categories.find((c) => c.category === club.category.name);
 
   const gradientMap: Record<string, string> = {
     sports: "linear-gradient(160deg, #4a5a1a 0%, #7a8a2a 40%, #b8aa30 100%)",
@@ -55,7 +55,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
               className="text-xs font-black uppercase tracking-widest"
               style={{ color: "rgba(255,220,180,0.5)" }}
             >
-              {club.categoryName}
+              {club.category.name}
             </p>
 
             <p className="mt-1 text-2xl font-black uppercase tracking-wide text-white/70 line-clamp-3 leading-tight">
@@ -72,7 +72,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
 
         <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-xs font-medium text-white/80 border border-white/20 backdrop-blur-sm">
           {category?.icon}
-          {club.categoryName}
+          {club.category.name}
         </span>
       </div>
 
@@ -101,15 +101,15 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
           </div>
         )}
         {/* Spaces */}
-        {club.spaceIds.length > 0 && (
+        {club.spaces.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-            {visibleSpaces.map((id) => (
+            {visibleSpaces.map((space) => (
               <span
-                key={id}
+                key={space.id}
                 className="flex items-center gap-1 text-sm text-white/40"
               >
                 <MapPin className="h-3.5 w-3.5" aria-hidden />
-                Space {id}
+                {space.name}
               </span>
             ))}
             {extraSpaces > 0 && (

@@ -22,10 +22,7 @@ export function SpacesSection({ spaces, onChange }: SpacesSectionProps) {
       return;
     }
     if (spaces.length < MAX_SPACES) {
-      onChange([
-        ...spaces,
-        { id: crypto.randomUUID(), name: trimmed, location: trimmed },
-      ]);
+      onChange([...spaces, { id: crypto.randomUUID(), name: trimmed }]);
     }
     setQuery("");
     setIsSearching(false);
@@ -39,8 +36,8 @@ export function SpacesSection({ spaces, onChange }: SpacesSectionProps) {
     <div>
       <h3 className="text-base font-semibold text-white">Spaces</h3>
       <p className="mt-1 text-sm text-zinc-500">
-        Locations that a club is primary active. Maximum {MAX_SPACES} spaces
-        can be added.
+        Locations that a club is primary active. Maximum {MAX_SPACES} spaces can
+        be added.
       </p>
 
       {spaces.length > 0 && (

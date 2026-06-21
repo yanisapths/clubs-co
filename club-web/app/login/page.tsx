@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "@heroui/react";
 import Link from "next/link";
@@ -114,8 +114,12 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
       setServerError("Invalid email or password");
       return;
     }
-    router.push("/");
-    toast.success("login successfully!");
+    const session = await getSession();
+    if (session) {
+      router.back();
+      localStorage.setItem("accessToken", session?.accessToken);
+      toast.success("login successfully!");
+    }
   };
 
   return (
