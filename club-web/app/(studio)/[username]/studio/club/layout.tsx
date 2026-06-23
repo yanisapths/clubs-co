@@ -5,7 +5,7 @@ interface RootLayoutProps {
 }
 
 export const metadata = {
-  title: "My Clubs | Creator Studio",
+  title: "Clubs | Creator Studio",
   description: "Create and customize your club on Clubspace.",
 };
 

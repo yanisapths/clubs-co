@@ -84,7 +84,7 @@ function CreatorHomePage() {
             <div className="w-full flex justify-center">
               {hasSetUpProfile ? (
                 <ProfileInfo
-                  bio={user?.firstName}
+                  user={user}
                   clubsFounded={clubs?.length}
                   clubMembership={clubs?.reduce(
                     (sum, c) => sum + c.maxSeats,
@@ -102,7 +102,7 @@ function CreatorHomePage() {
             </div>
           ) : (
             <div>
-              <AccountSettingTab />
+              <AccountSettingTab user={user} />
             </div>
           )}
         </div>
