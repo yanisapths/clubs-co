@@ -11,7 +11,7 @@ export const StudioHeader = () => {
   const { close, visible, show } = useModal();
 
   return (
-    <header className="absolute z-5 flex h-20 inset-x-0 pl-6 pr-6 w-full items-center justify-between bg-transparent">
+    <header className="absolute z-30 flex h-20 inset-x-0 pl-6 pr-6 w-full items-center justify-between bg-transparent">
       <div className="w-full lg:w-[350px]">
         <Input
           onClick={show}

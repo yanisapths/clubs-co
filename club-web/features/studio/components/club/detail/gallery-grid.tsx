@@ -14,6 +14,7 @@ export function GalleryGrid({
 }) {
   const visibleUrls = galleryUrls.slice(0, TOTAL_SLOTS - 1);
   const emptySlots = TOTAL_SLOTS - 1 - visibleUrls.length;
+  const fourthImage = galleryUrls[TOTAL_SLOTS - 1];
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-12">
@@ -32,7 +33,6 @@ export function GalleryGrid({
         </div>
       ))}
 
-      {/* Empty placeholder slots to fill up to 3 */}
       {Array.from({ length: emptySlots }).map((_, i) => (
         <div
           key={`empty-${i}`}
@@ -40,12 +40,25 @@ export function GalleryGrid({
         />
       ))}
 
-      {/* 4th slot — always "Add more images" */}
       <div
-        className="relative aspect-video overflow-hidden rounded-xl bg-white/5 border border-dashed border-white/20 flex items-center justify-center cursor-pointer group hover:bg-white/10 hover:border-white/40 transition-all"
         onClick={onAddClick}
+        className="relative aspect-video overflow-hidden rounded-xl border border-dashed border-white/20 flex items-center justify-center cursor-pointer group transition-all"
       >
-        <div className="flex flex-col items-center gap-2 text-white/40 group-hover:text-white/70 transition-colors">
+        {fourthImage ? (
+          <>
+            <img
+              src={fourthImage}
+              alt="Gallery image 4"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+
+            <div className="absolute inset-0 bg-black/80 group-hover:bg-black/70 transition-colors" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
+        )}
+
+        <div className="relative z-10 flex flex-col items-center gap-2 text-white/40 group-hover:text-white/70 transition-colors">
           <Plus className="h-5 w-5" />
           <span className="text-xs">Add more images</span>
         </div>

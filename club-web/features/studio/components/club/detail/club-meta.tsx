@@ -34,15 +34,6 @@ export function ClubBanner({
           {categoryDef.category}
         </span>
       )}
-      {isOwner && (
-        <button
-          onClick={onEdit}
-          className="cursor-pointer absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/50 px-3 py-1.5 text-sm text-white/70 backdrop-blur hover:bg-white/10 transition-colors"
-        >
-          <Edit3Icon className="h-3.5 w-3.5" />
-          edit a club
-        </button>
-      )}
     </div>
   );
 }

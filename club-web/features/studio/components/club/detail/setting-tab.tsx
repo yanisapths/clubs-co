@@ -25,14 +25,14 @@ export function SettingTab({ username, club }: SettingTabProps) {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4 m-auto py-20 mt-10">
+    <div className="mx-auto w-4xl space-y-4 m-auto py-20 mt-10">
       <div className="rounded-2xl bg-zinc-900 px-6 py-5">
         <div className="flex items-start justify-between gap-6">
           <div>
             <h3 className="text-base font-semibold text-white/80">
               Deactivate this club
             </h3>
-            <p className="mt-1 text-sm text-white/60">
+            <p className="mt-1 text-sm text-white/60 w-[450px]">
               Deactivating is temporary, and it means your club will be hidden
               from public view on Clubspace until you reactivate it.
             </p>

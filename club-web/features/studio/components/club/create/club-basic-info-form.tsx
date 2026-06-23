@@ -73,7 +73,7 @@ export function ClubBasicInfoForm({
           value={data.description}
           onChange={handleDescriptionChange}
           placeholder="Add a club description"
-          rows={2}
+          rows={3}
           className="mt-3 w-full resize-none rounded-2xl border border-zinc-700 bg-zinc-900 px-5 py-4 text-base text-white placeholder-zinc-500 outline-none focus:border-zinc-500"
         />
         <div className="mt-2 flex items-center justify-end text-sm text-zinc-500">

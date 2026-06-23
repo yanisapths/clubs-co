@@ -59,7 +59,7 @@ export function MembersTab({
                   {!pending &&
                     member.joinedAt &&
                     NOW_SECONDS - member.joinedAt < SEVEN_DAYS && (
-                      <span className="rounded border border-white/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                      <span className="rounded bg-[#2F8CFF]/12 border border-[#2F8CFF]/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#2F8CFF]/80">
                         New Member
                       </span>
                     )}
