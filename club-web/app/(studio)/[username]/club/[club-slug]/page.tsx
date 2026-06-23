@@ -12,8 +12,9 @@ import {
 } from "@/features/studio/components/club/detail/club-meta";
 import { MembersTab } from "@/features/studio/components/club/detail/member-tab";
 import { ClubDetailsTab } from "@/features/studio/components/club/detail/detail-tab";
+import { SettingTab } from "@/features/studio/components/club/detail/setting-tab";
 
-const TABS = ["General", "Members"] as const;
+const TABS = ["General", "Members", "Settings"] as const;
 type Tab = (typeof TABS)[number];
 
 const ClubDetailPage = () => {
@@ -65,7 +66,7 @@ const ClubDetailPage = () => {
     <div className="relative min-h-screen bg-black">
       <StudioHeader />
 
-      <div className="relative z-10 flex flex-col text-white">
+      <div className="relative flex flex-col text-white">
         <div className="pt-20" />
         <ClubBanner
           club={club}
@@ -93,19 +94,16 @@ const ClubDetailPage = () => {
 
         {activeTab === "General" ? (
           <ClubDetailsTab club={club} />
-        ) : (
+        ) : activeTab === "Members" ? (
           <MembersTab
             members={members ?? []}
             isOwner={isOwner}
             onInvite={showInvite}
           />
+        ) : (
+          <SettingTab club={club} username={user.username} />
         )}
       </div>
-
-      {/* ── Invite modal */}
-      {/* {inviteOpen && (
-        <InviteMemberModal clubId={club.id} onClose={closeInvite} />
-      )} */}
     </div>
   );
 };

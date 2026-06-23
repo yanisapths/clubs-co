@@ -1,0 +1,82 @@
+import { Plus } from "lucide-react";
+import { Button } from "@/design-system/components";
+
+const TOTAL_SLOTS = 4;
+
+export function GalleryGrid({
+  galleryUrls,
+  onAddClick,
+  onImageClick,
+}: {
+  galleryUrls: string[];
+  onAddClick: () => void;
+  onImageClick: (index: number) => void;
+}) {
+  const visibleUrls = galleryUrls.slice(0, TOTAL_SLOTS - 1);
+  const emptySlots = TOTAL_SLOTS - 1 - visibleUrls.length;
+
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-12">
+      {visibleUrls.map((url, i) => (
+        <div
+          key={url}
+          className="relative aspect-video overflow-hidden rounded-xl border border-white/10 cursor-pointer group"
+          onClick={() => onImageClick(i)}
+        >
+          <img
+            src={url}
+            alt={`Gallery image ${i + 1}`}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+        </div>
+      ))}
+
+      {/* Empty placeholder slots to fill up to 3 */}
+      {Array.from({ length: emptySlots }).map((_, i) => (
+        <div
+          key={`empty-${i}`}
+          className="relative aspect-video overflow-hidden rounded-xl bg-white/5 border border-white/10"
+        />
+      ))}
+
+      {/* 4th slot — always "Add more images" */}
+      <div
+        className="relative aspect-video overflow-hidden rounded-xl bg-white/5 border border-dashed border-white/20 flex items-center justify-center cursor-pointer group hover:bg-white/10 hover:border-white/40 transition-all"
+        onClick={onAddClick}
+      >
+        <div className="flex flex-col items-center gap-2 text-white/40 group-hover:text-white/70 transition-colors">
+          <Plus className="h-5 w-5" />
+          <span className="text-xs">Add more images</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function GalleryEmptyState({ onAddClick }: { onAddClick: () => void }) {
+  return (
+    <div className="relative flex flex-col justify-center place-content-center mx-auto w-full">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-12">
+        {Array.from({ length: TOTAL_SLOTS }).map((_, i) => (
+          <div
+            key={i}
+            className="relative aspect-video overflow-hidden rounded-xl bg-white/5 border border-white/10"
+          />
+        ))}
+      </div>
+      <div className="pointer-events-none absolute left-0 bottom-0 h-60 w-full z-10 bg-gradient-to-t from-black to-transparent transition-opacity duration-200" />
+      <div className="absolute z-20 inset-0 top-20">
+        <div className="flex flex-col w-full items-center gap-4">
+          <h2 className="text-2xl font-bold">Featured galleries</h2>
+          <Button
+            onClick={onAddClick}
+            className="rounded-md border border-white/30 bg-black/80 py-4 px-6 text-white/90 hover:bg-white/10 backdrop-blur-md"
+          >
+            Add gallery
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

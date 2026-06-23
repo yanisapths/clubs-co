@@ -2,13 +2,15 @@ import { Club } from "@/features/studio/api/club";
 import { MapPin } from "lucide-react";
 import { SocialIcon } from "./social-icons";
 import { Tag } from "@/features/shared/components/tag";
-import { Button } from "@/design-system/components";
 import { StickyFooter } from "./sticky-footer";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
 import { AddGalleryModal } from "./add-gallery-modal";
 import { usePatchClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
+import { useState } from "react";
+import { GalleryGrid, GalleryEmptyState } from "./gallery-grid";
+import { GalleryPreview } from "./gallery-preview";
 
 export function ClubDetailsTab({ club }: { club: Club }) {
   const { user } = useAccountAuth();
@@ -21,6 +23,8 @@ export function ClubDetailsTab({ club }: { club: Club }) {
   const { visible, show, close } = useModal();
   const patchClub = usePatchClub(club.id);
 
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
   const normalisedLinks = (club.socialLinks ?? []).map((link) => {
     if ("platform" in link && "url" in link) {
       return { platform: link.platform as string, url: link.url as string };
@@ -30,7 +34,6 @@ export function ClubDetailsTab({ club }: { club: Club }) {
   });
 
   const pathToEdit = `/${user.username}/club/${club.id}/edit`;
-
   const galleryUrls = club.galleryUrls ?? [];
 
   const handleGallerySave = ({
@@ -40,9 +43,7 @@ export function ClubDetailsTab({ club }: { club: Club }) {
     tempUrlsToAdd: string[];
     existingUrlsToRemove: string[];
   }) => {
-    if (tempUrlsToAdd.length === 0 && existingUrlsToRemove.length === 0) {
-      return;
-    }
+    if (tempUrlsToAdd.length === 0 && existingUrlsToRemove.length === 0) return;
 
     patchClub.mutate(
       {
@@ -122,45 +123,16 @@ export function ClubDetailsTab({ club }: { club: Club }) {
 
       <div>
         {galleryUrls.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-12">
-            {galleryUrls.map((url, i) => (
-              <div
-                key={url}
-                className="relative aspect-video overflow-hidden rounded-xl border border-white/10"
-              >
-                <img
-                  src={url}
-                  alt={`Gallery image ${i + 1}`}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
+          <GalleryGrid
+            galleryUrls={galleryUrls}
+            onAddClick={show}
+            onImageClick={setLightboxIndex}
+          />
         ) : (
-          <div className="relative flex flex-col justify-center place-content-center mx-auto w-full">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-12">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="relative aspect-video overflow-hidden rounded-xl bg-white/5 border border-white/10"
-                />
-              ))}
-            </div>
-            <div className="pointer-events-none absolute left-0 bottom-0 h-60 w-full z-10 bg-gradient-to-t from-black to-transparent transition-opacity duration-200" />
-            <div className="absolute z-20 inset-0 top-20">
-              <div className="flex flex-col w-full items-center gap-4">
-                <h2 className="text-2xl font-bold">Feature galleries</h2>
-                <Button
-                  onClick={show}
-                  className="rounded-md border border-white/30 bg-black/80 py-4 px-6 text-white/90 hover:bg-white/10 backdrop-blur-md"
-                >
-                  Add gallery
-                </Button>
-              </div>
-            </div>
-          </div>
+          <GalleryEmptyState onAddClick={show} />
         )}
       </div>
+
       {visible && (
         <AddGalleryModal
           existingImages={galleryUrls.map((url: string) => ({ url }))}
@@ -168,6 +140,15 @@ export function ClubDetailsTab({ club }: { club: Club }) {
           onClose={close}
         />
       )}
+
+      {lightboxIndex !== null && (
+        <GalleryPreview
+          images={galleryUrls}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
+
       <StickyFooter pathToEdit={pathToEdit} />
     </div>
   );

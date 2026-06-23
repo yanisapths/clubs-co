@@ -84,7 +84,7 @@ function ClubStudioPage() {
               <div className="h-32 w-24 rounded-xl bg-rose-300" />
               <div className="h-32 w-24 rotate-[8deg] rounded-xl bg-zinc-700" />
             </div>
-            <h2 className="text-3xl font-bold">Feature your clubs</h2>
+            <h2 className="text-3xl font-bold">Featured your clubs</h2>
             <p className="max-w-sm text-white/50">
               Showcase clubs or collections on your profile.
             </p>
