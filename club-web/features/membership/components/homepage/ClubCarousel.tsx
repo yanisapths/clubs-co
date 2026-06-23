@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ClubCard, Club } from "./club-card";
+import { ClubCard, Club } from "./ClubCard";
 
 interface ClubsCarouselProps {
   clubs: Club[];

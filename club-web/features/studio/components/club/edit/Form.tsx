@@ -2,16 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ClubFormData,
-  ClubImageUpload,
-  ClubPreviewCard,
-  ClubBasicInfoForm,
-  ClubSettingsForm,
-  ClubPublishForm,
-  ClubFormFooter,
-  ClubFormHeader,
-} from "@/features/studio/components/club/create";
+import { ClubFormData } from "@/features/studio/components/club/create";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { categories } from "@/features/shared/constants";
 import {
@@ -27,6 +18,13 @@ import {
 import { ApiError } from "@/lib/api-types";
 import { uploadFile } from "@/features/studio/api/file";
 import { getStoredToken } from "@/lib/storage";
+import { ClubFormHeader } from "../create/ClubFormHeader";
+import { ClubImageUpload } from "../create/ClubImageUpload";
+import { ClubPreviewCard } from "../create/ClubPreviewCard";
+import { ClubBasicInfoForm } from "../create/ClubBasicInfoForm";
+import { ClubSettingsForm } from "../create/ClubSettingsForm";
+import { ClubPublishForm } from "../create/ClubPublishForm";
+import { ClubFormFooter } from "../create/ClubFormFooter";
 
 export function EditClubForm({
   clubId,

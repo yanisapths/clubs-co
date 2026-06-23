@@ -7,7 +7,7 @@ import {
   IconLayoutGrid,
 } from "@tabler/icons-react";
 import { CircuitBoardIcon } from "lucide-react";
-import { Category } from "../membership/components/homepage/category-card";
+import { Category } from "../membership/components/homepage/CategoryCard";
 
 export const categories: Category[] = [
   {

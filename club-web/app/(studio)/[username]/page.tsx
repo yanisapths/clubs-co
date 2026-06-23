@@ -2,17 +2,17 @@
 "use client";
 import { Button } from "@/design-system/components/button";
 import { Pencil, MoreHorizontal } from "lucide-react";
-import { Avatar } from "@/features/shared/components/avatar";
-import { BackgroundCover } from "@/features/studio/components/layout/background-cover";
-import { StudioHeader } from "@/features/studio/components/layout/header";
+import { Avatar } from "@/features/shared/components/Avatar";
+import { StudioHeader } from "@/features/studio/components/layout/Header";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useState } from "react";
-import { FirstStart } from "@/features/studio/components/home/first-start";
-import { ClubTab } from "@/features/studio/components/home/club-tab/club-tab";
-import { AccountSettingTab } from "@/features/studio/components/home/account-tab/account-setting-tab";
 import { useGetOwnerClubs } from "@/features/studio/hooks/use-club";
-import { ProfileInfo } from "@/features/studio/components/home/profile/profile-info";
 import { Spinner } from "@heroui/react";
+import { AccountSettingTab } from "@/features/studio/components/home/account-tab/AccountSettingTab";
+import { ClubTab } from "@/features/studio/components/home/club-tab/ClubTab";
+import { FirstStart } from "@/features/studio/components/home/FirstStart";
+import { ProfileInfo } from "@/features/studio/components/home/profile/ProfileInfo";
+import { BackgroundCover } from "@/features/studio/components/layout/BackgroundCover";
 
 const TABS = ["Home", "Clubs", "Account Settings"] as const;
 type Tab = (typeof TABS)[number];

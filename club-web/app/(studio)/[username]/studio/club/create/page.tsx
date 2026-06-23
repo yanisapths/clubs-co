@@ -3,18 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ClubFormData,
-  initialClubFormData,
-  ClubImageUpload,
-  ClubPreviewCard,
-  ClubBasicInfoForm,
-  ClubSettingsForm,
-  ClubPublishForm,
-  ClubFormFooter,
-  ClubFormHeader,
-  ClubVisibility,
-} from "@/features/studio/components/club/create";
+
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { categories } from "@/features/shared/constants";
 import { useCreateClub } from "@/features/studio/hooks/use-club";
@@ -24,9 +13,20 @@ import {
   validateForm,
   visibilityMap,
 } from "@/features/studio/components/club/constants";
-import { ApiError } from "@/lib/api-types";
+
 import { getStoredToken } from "@/lib/storage";
 import { uploadFile } from "@/features/studio/api/file";
+import {
+  ClubFormData,
+  initialClubFormData,
+} from "@/features/studio/components/club/create";
+import { ClubBasicInfoForm } from "@/features/studio/components/club/create/ClubBasicInfoForm";
+import { ClubFormFooter } from "@/features/studio/components/club/create/ClubFormFooter";
+import { ClubFormHeader } from "@/features/studio/components/club/create/ClubFormHeader";
+import { ClubImageUpload } from "@/features/studio/components/club/create/ClubImageUpload";
+import { ClubPreviewCard } from "@/features/studio/components/club/create/ClubPreviewCard";
+import { ClubPublishForm } from "@/features/studio/components/club/create/ClubPublishForm";
+import { ClubSettingsForm } from "@/features/studio/components/club/create/ClubSettingsForm";
 
 export default function CreateClubPage() {
   const router = useRouter();

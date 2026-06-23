@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { BoxesIcon, HomeIcon, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { StudioLogo } from "../studio-logo";
+import { StudioLogo } from "../StudioLogo";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 
 const mainNavItems = (username: string) => [

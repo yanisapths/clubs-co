@@ -1,9 +1,8 @@
-import { getGradient } from "@/features/shared/components/avatar";
-import { Tag } from "@/features/shared/components/tag";
+import { getGradient } from "@/features/shared/components/Avatar";
+import { Tag } from "@/features/shared/components/Tag";
 import { categories } from "@/features/shared/constants";
 import { Club } from "@/features/studio/api/club";
 import { formatUnixDate } from "@/lib/utils";
-import { Edit3Icon } from "lucide-react";
 
 export function ClubBanner({
   club,

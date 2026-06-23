@@ -7,7 +7,7 @@ import {
   initialClubFormData,
   SocialPlatform,
 } from "@/features/studio/components/club/create";
-import { EditClubForm } from "@/features/studio/components/club/edit/form";
+import { EditClubForm } from "@/features/studio/components/club/edit/Form";
 import { useGetClubById } from "@/features/studio/hooks/use-club";
 import { ApiError } from "@/lib/api-types";
 import { useParams, usePathname } from "next/navigation";

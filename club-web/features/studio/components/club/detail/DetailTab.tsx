@@ -1,16 +1,16 @@
 import { Club } from "@/features/studio/api/club";
 import { MapPin } from "lucide-react";
-import { SocialIcon } from "./social-icons";
-import { Tag } from "@/features/shared/components/tag";
-import { StickyFooter } from "./sticky-footer";
+import { SocialIcon } from "./SocialIcons";
+import { Tag } from "@/features/shared/components/Tag";
+import { StickyFooter } from "./StickyFooter";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
-import { AddGalleryModal } from "./add-gallery-modal";
+import { AddGalleryModal } from "./AddGalleryModal";
 import { usePatchClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import { useState } from "react";
-import { GalleryGrid, GalleryEmptyState } from "./gallery-grid";
-import { GalleryPreview } from "./gallery-preview";
+import { GalleryGrid, GalleryEmptyState } from "./GalleryGrid";
+import { GalleryPreview } from "./GalleryPreview";
 
 export function ClubDetailsTab({ club }: { club: Club }) {
   const { user } = useAccountAuth();

@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { StudioHeader } from "@/features/studio/components/layout/header";
+import { StudioHeader } from "@/features/studio/components/layout/Header";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useGetClubById } from "@/features/studio/hooks/use-club";
 import { useModal } from "@/hooks/use-modal";
+import { MembersTab } from "@/features/studio/components/club/detail/MemberTab";
+import { SettingTab } from "@/features/studio/components/club/detail/SettingTab";
 import {
   ClubBanner,
   ClubMeta,
-} from "@/features/studio/components/club/detail/club-meta";
-import { MembersTab } from "@/features/studio/components/club/detail/member-tab";
-import { ClubDetailsTab } from "@/features/studio/components/club/detail/detail-tab";
-import { SettingTab } from "@/features/studio/components/club/detail/setting-tab";
+} from "@/features/studio/components/club/detail/ClubMeta";
+import { ClubDetailsTab } from "@/features/studio/components/club/detail/DetailTab";
 
 const TABS = ["General", "Members", "Settings"] as const;
 type Tab = (typeof TABS)[number];

@@ -3,7 +3,7 @@
 import { Logo } from "../Logo";
 import Link from "next/link";
 import { Button } from "@/design-system/components/button";
-import { UserDropdown } from "./user-dropdown";
+import { UserDropdown } from "./UserDropdown";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 
 export const Header = () => {

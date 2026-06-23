@@ -2,7 +2,7 @@
 
 import { ChangeEvent } from "react";
 import { ClubFormData } from "./types";
-import { TagInput } from "./tag-input";
+import { TagInput } from "./TagInput";
 import { categories } from "@/features/shared/constants";
 
 interface ClubBasicInfoFormProps {

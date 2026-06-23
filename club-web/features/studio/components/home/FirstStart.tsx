@@ -9,10 +9,7 @@ import {
 import { UserInfo } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
 import { useRouter } from "next/navigation";
-import {
-  EditProfileModal,
-  ProfileFormData,
-} from "./profile/edit-profile-modal";
+import { EditProfileModal, ProfileFormData } from "./profile/EditProfileModal";
 
 interface FirstStart {
   user: UserInfo;

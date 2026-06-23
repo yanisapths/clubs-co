@@ -1,13 +1,13 @@
 "use client";
 
 import { ArrowRight } from "@/design-system/components/icons/ArrowRight";
-import { CategoryCard } from "@/features/membership/components/homepage/category-card";
-import { ClubCard } from "@/features/membership/components/homepage/club-card";
-import { ClubsCarousel } from "@/features/membership/components/homepage/club-carousel";
+import { CategoryCard } from "@/features/membership/components/homepage/CategoryCard";
+import { ClubCard } from "@/features/membership/components/homepage/ClubCard";
+import { ClubsCarousel } from "@/features/membership/components/homepage/ClubCarousel";
 import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage/constants";
 import { topics, clubs } from "@/features/membership/components/homepage/data";
-import { SearchModal } from "@/features/membership/components/homepage/search-club-modal";
-import { TopicCard } from "@/features/membership/components/homepage/topic-card";
+import { SearchModal } from "@/features/membership/components/homepage/SearchClubModal";
+import { TopicCard } from "@/features/membership/components/homepage/TopicCard";
 import { Input } from "@/features/shared/components/input/Input";
 import { categories } from "@/features/shared/constants";
 import { useBreakpoints } from "@/hooks/use-breakpoints";

@@ -2,7 +2,7 @@
 
 import { ChangeEvent } from "react";
 import { ClubFormData, ClubType, ClubVisibility } from "./types";
-import { SpacesSection } from "./spaces-section";
+import { SpacesSection } from "./SpacesSection";
 import { MAX_SEATS } from "../constants";
 
 interface ClubSettingsFormProps {

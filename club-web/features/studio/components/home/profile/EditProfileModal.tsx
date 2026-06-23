@@ -3,15 +3,15 @@
 import { useRef, useState, ChangeEvent } from "react";
 import { Pencil, Globe, AlertCircle } from "lucide-react";
 import {
+  FormInput,
+  FormTextarea,
+} from "@/features/shared/components/input/FormInput";
+import {
   ModalShell,
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from "@/features/shared/components/modal/modal";
-import {
-  FormInput,
-  FormTextarea,
-} from "@/features/shared/components/input/FormInput";
+} from "@/features/shared/components/modal";
 
 interface SocialLink {
   platform: "Website" | "X" | "Meta" | "Instagram";

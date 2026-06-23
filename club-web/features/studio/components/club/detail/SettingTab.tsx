@@ -2,7 +2,7 @@ import { Club } from "@/features/studio/api/club";
 import { useDeleteClub } from "@/features/studio/hooks/use-club";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ToggleSwitch } from "../create/toggle-switch";
+import { ToggleSwitch } from "../create/ToggleSwitch";
 import { Button } from "@/design-system/components/button";
 
 interface SettingTabProps {

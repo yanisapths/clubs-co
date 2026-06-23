@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAccountAuth } from "@/hooks/use-account-auth";
-import { Avatar } from "../avatar";
+import { Avatar } from "../Avatar";
 
 export const UserDropdown = () => {
   const { isLoggedIn, user, logout } = useAccountAuth();

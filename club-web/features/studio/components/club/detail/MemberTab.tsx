@@ -2,7 +2,7 @@ import { formatUnixDate } from "@/lib/utils";
 import { Button } from "@heroui/react";
 import { UserPlus, MoreHorizontal, LogOut, RefreshCw } from "lucide-react";
 import { useState } from "react";
-import { ClubMember, MemberAvatar } from "./member-avatar";
+import { ClubMember, MemberAvatar } from "./MemberAvatar";
 import { NOW_SECONDS, SEVEN_DAYS } from "../constants";
 
 export function MembersTab({

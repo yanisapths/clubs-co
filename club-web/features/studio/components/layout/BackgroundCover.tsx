@@ -1,6 +1,6 @@
 "use client";
 
-import { getGradient } from "@/features/shared/components/avatar";
+import { getGradient } from "@/features/shared/components/Avatar";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 
 export const BackgroundCover = () => {

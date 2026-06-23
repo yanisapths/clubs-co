@@ -2,14 +2,13 @@
 "use client";
 import { Button } from "@/design-system/components/button";
 import { Edit3Icon, Plus } from "lucide-react";
-import { BackgroundCover } from "@/features/studio/components/layout/background-cover";
-import { StudioHeader } from "@/features/studio/components/layout/header";
+import { StudioHeader } from "@/features/studio/components/layout/Header";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useRouter } from "next/navigation";
 import { useGetOwnerClubs } from "@/features/studio/hooks/use-club";
-import { ClubCard } from "@/features/studio/components/club/club-card";
-import { StickyFooter } from "@/features/studio/components/club/sticky-footer";
-
+import { BackgroundCover } from "@/features/studio/components/layout/BackgroundCover";
+import { ClubCard } from "@/features/studio/components/club/ClubCard";
+import { StickyFooter } from "@/features/studio/components/club/StickyFooter";
 const tabs = ["Clubs"];
 
 function ClubStudioPage() {

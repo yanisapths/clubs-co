@@ -1,4 +1,4 @@
-import { Club } from "./club-card";
+import { Club } from "./ClubCard";
 
 export const clubs: Club[] = [
   {

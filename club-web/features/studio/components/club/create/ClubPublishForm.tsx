@@ -1,8 +1,8 @@
 "use client";
 
 import { ClubFormData } from "./types";
-import { ToggleSwitch } from "./toggle-switch";
-import { SocialLinksModal } from "./social-link-modal";
+import { ToggleSwitch } from "./ToggleSwitch";
+import { SocialLinksModal } from "./SocialLinkModal";
 import { useModal } from "@/hooks/use-modal";
 
 interface ClubPublishFormProps {

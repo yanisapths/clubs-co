@@ -1,8 +1,8 @@
 "use client";
 
-import { SearchModal } from "@/features/membership/components/homepage/search-club-modal";
+import { SearchModal } from "@/features/membership/components/homepage/SearchClubModal";
 import { Input } from "@/features/shared/components/input/Input";
-import { UserDropdown } from "@/features/shared/components/navigation/user-dropdown";
+import { UserDropdown } from "@/features/shared/components/navigation/UserDropdown";
 
 import { useModal } from "@/hooks/use-modal";
 import { Search } from "lucide-react";
