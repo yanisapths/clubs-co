@@ -80,3 +80,59 @@ func (s *UploadService) Delete(ctx context.Context, publicURL string) error {
 
 	return s.gcs.Bucket(bucketName).UserProject(s.projectID).Object(objectPath).Delete(ctx)
 }
+
+
+// MoveObject promotes an object from one location in the bucket to another —
+// e.g. from a "club/temp" staging path to its permanent "club/gallery" home —
+// by issuing a server-side copy followed by a delete of the source object.
+//
+// GCS has no atomic rename, so this is a copy+delete. If the delete of the
+// source fails after a successful copy, the destination object is still
+// valid and the error is returned so the caller can log/retry cleanup of the
+// now-orphaned temp object; the operation is NOT rolled back, since leaving
+// a stale temp file around is far less harmful than losing the promoted copy.
+func (s *UploadService) MoveObject(ctx context.Context, fromURL string, destPath string, destFilename string) (*UploadResult, error) {
+	srcObjectPath, err := s.objectPathFromURL(fromURL)
+	if err != nil {
+		return nil, fmt.Errorf("parse source url: %w", err)
+	}
+ 
+	destPath = strings.Trim(destPath, "/")
+	dstObjectPath := filepath.Join(destPath, destFilename)
+ 
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+ 
+	bucket := s.gcs.Bucket(bucketName).UserProject(s.projectID)
+	src := bucket.Object(srcObjectPath)
+	dst := bucket.Object(dstObjectPath)
+ 
+	copier := dst.CopierFrom(src)
+	copier.ContentType = "image/png"
+	copier.CacheControl = "public, max-age=86400"
+ 
+	if _, err := copier.Run(ctx); err != nil {
+		return nil, fmt.Errorf("copy %s -> %s: %w", srcObjectPath, dstObjectPath, err)
+	}
+ 
+	if err := src.Delete(ctx); err != nil {
+		return &UploadResult{
+				URL:      fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, dstObjectPath),
+				Filename: destFilename,
+			}, fmt.Errorf("copy succeeded but failed to delete source %s: %w", srcObjectPath, err)
+	}
+ 
+	return &UploadResult{
+		URL:      fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, dstObjectPath),
+		Filename: destFilename,
+	}, nil
+}
+ 
+func (s *UploadService) objectPathFromURL(publicURL string) (string, error) {
+	prefix := fmt.Sprintf("https://storage.googleapis.com/%s/", bucketName)
+	objectPath := strings.TrimPrefix(publicURL, prefix)
+	if objectPath == publicURL {
+		return "", fmt.Errorf("unrecognised GCS URL: %s", publicURL)
+	}
+	return objectPath, nil
+}

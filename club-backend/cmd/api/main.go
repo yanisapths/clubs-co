@@ -92,7 +92,7 @@ func main() {
 	fileGroup.PUT("/upload", filePkg.NewUploadHandler(uploadSvc,logger).Handler)
 
 	// ── Repositories ──────────────────────────────────────────────────────────
-	studioClubRepo := studioclub.NewClubRepository(sqlDB)
+	studioClubRepo := studioclub.NewClubRepository(sqlDB, uploadSvc)
 	memberRepo      := membershipclub.NewMembershipRepository(sqlDB)
 
 	// ── Routes ────────────────────────────────────────────────────────────────
@@ -104,6 +104,7 @@ func main() {
 	studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
 	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)
 	studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
+	studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
 	
 	// ── Routes ────────────────────────────────────────────────────────────────
 	mbr := api.Group("/membership")

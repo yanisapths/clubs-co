@@ -8,6 +8,8 @@ import {
   CreateClubPayload,
   UpdateClubPayload,
   type Club,
+  patchClubById,
+  PatchClubPayload,
 } from "../api/club";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { getStoredToken } from "@/lib/storage";
@@ -70,6 +72,18 @@ export const useUpdateClub = (id: number) => {
   return useMutation({
     mutationFn: (payload: UpdateClubPayload) =>
       updateClubById(getStoredToken()!, id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.all });
+    },
+  });
+};
+
+export const usePatchClub = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: PatchClubPayload) =>
+      patchClubById(getStoredToken()!, id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLUB_KEYS.all });
     },

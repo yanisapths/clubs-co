@@ -1,20 +1,24 @@
 package club
 
 import (
+	"club-backend/internal/file"
 	"club-backend/internal/utils"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/lib/pq"
 )
 
 type clubRepository struct {
 	db *sql.DB
+	uploadSvc *file.UploadService
 }
 
-func NewClubRepository(db *sql.DB) ClubRepository {
-	return &clubRepository{db: db}
+func NewClubRepository(db *sql.DB,uploadSvc *file.UploadService) ClubRepository {
+	return &clubRepository{db: db, uploadSvc: uploadSvc}
 }
 
 func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID string) ([]Club, error) {
@@ -24,6 +28,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			c.name,
 			c.description,
 			c.image_url,
+			COALESCE(ARRAY_TO_JSON(c.gallery_urls)::text, '[]') AS gallery_urls,
 			c.club_type,
 			c.visibility,
 			c.max_seats,
@@ -58,6 +63,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			c.name,
 			c.description,
 			c.image_url,
+			c.gallery_urls,
 			c.club_type,
 			c.visibility,
 			c.max_seats,
@@ -85,6 +91,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 		var club Club
 		var (
 			socialLinksRaw []byte
+			galleryRaw     []byte
 			spaceIDsRaw    []byte
 			spacesRaw      []byte
 			tagIDsRaw      []byte
@@ -96,6 +103,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			&club.Name,
 			&club.Description,
 			&club.ImageURL,
+			&galleryRaw,
 			&club.ClubType,
 			&club.Visibility,
 			&club.MaxSeats,
@@ -118,6 +126,9 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 
 		if err := json.Unmarshal(socialLinksRaw, &club.SocialLinks); err != nil {
 			return nil, fmt.Errorf("unmarshal social_links: %w", err)
+		}
+		if err := json.Unmarshal(galleryRaw, &club.GalleryURLs); err != nil {
+			return nil, fmt.Errorf("unmarshal gallery_urls: %w", err)
 		}
 		if err := json.Unmarshal(spacesRaw, &club.Spaces); err != nil {
 			return nil, fmt.Errorf("unmarshal space_ids: %w", err)
@@ -440,6 +451,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 			c.name,
 			c.description,
 			c.image_url,
+			COALESCE(ARRAY_TO_JSON(c.gallery_urls)::text, '[]') AS gallery_urls,
 			c.club_type,
 			c.visibility,
 			c.max_seats,
@@ -475,6 +487,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 			c.name,
 			c.description,
 			c.image_url,
+			c.gallery_urls,
 			c.club_type,
 			c.visibility,
 			c.max_seats,
@@ -495,6 +508,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 
 	var (
 		socialLinksRaw []byte
+		galleryRaw     []byte
 		spaceIDsRaw    []byte
 		spacesRaw      []byte
 		tagIDsRaw      []byte
@@ -506,6 +520,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 		&club.Name,
 		&club.Description,
 		&club.ImageURL,
+		&galleryRaw,
 		&club.ClubType,
 		&club.Visibility,
 		&club.MaxSeats,
@@ -529,6 +544,10 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 
 	if err := json.Unmarshal(socialLinksRaw, &club.SocialLinks); err != nil {
 		return nil, fmt.Errorf("unmarshal social_links: %w", err)
+	}
+
+	if err := json.Unmarshal(galleryRaw, &club.GalleryURLs); err != nil {
+		return nil, fmt.Errorf("unmarshal gallery_urls: %w", err)
 	}
 
 	if err := json.Unmarshal(spacesRaw, &club.Spaces); err != nil {
@@ -606,4 +625,208 @@ func (r *clubRepository) GetClubImageURL(ctx context.Context, clubID int64, owne
 		return nil, fmt.Errorf("get club image url: %w", err)
 	}
 	return imageURL, nil
+}
+
+func (r *clubRepository) PatchClub(
+	ctx context.Context,
+	ownerID string,
+	clubID int64,
+	req PatchClubRequest,
+) (*PatchClubResult, error) {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("begin tx: %w", err)
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
+	if err != nil {
+		return nil, fmt.Errorf("resolve tags: %w", err)
+	}
+	if tagIDs == nil {
+		tagIDs = []int64{}
+	}
+	
+	spaceIDs, err := resolveSpaceIDs(ctx, tx, ownerID, req.Spaces)
+	if err != nil {
+		return nil, fmt.Errorf("resolve spaces: %w", err)
+	}
+	if spaceIDs == nil {
+		spaceIDs = []int64{}
+	}
+
+	var (
+		clubName       string
+		currentGallery []string
+	)
+	err = tx.QueryRowContext(
+		ctx,
+		`SELECT
+			name,
+			COALESCE(gallery_urls, ARRAY[]::text[])
+		FROM public.club
+		WHERE id = $1
+		  AND owner_id = $2::uuid
+		  AND is_deleted = false
+		FOR UPDATE`,
+		clubID,
+		ownerID,
+	).Scan(
+		&clubName,
+		pq.Array(&currentGallery),
+	)
+	
+	if err == sql.ErrNoRows {
+		return nil, ErrClubNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("lock club for gallery update: %w", err)
+	}
+
+	removeSet := make(map[string]struct{}, len(req.GalleriesToRemove))
+	for _, u := range req.GalleriesToRemove {
+		removeSet[u] = struct{}{}
+	}
+
+	nextGallery := make([]string, 0, len(currentGallery)+len(req.GalleriesToAdd))
+	for _, u := range currentGallery {
+		if _, removed := removeSet[u]; !removed {
+			nextGallery = append(nextGallery, u)
+		}
+	}
+
+	var promoted []promotedGalleryImage
+
+	for _, tempURL := range req.GalleriesToAdd {
+		ext := extFromURL(tempURL)
+		filename := GalleryFilename(clubName, clubID, ext)
+
+		result, moveErr := r.uploadSvc.MoveObject(ctx, tempURL, "club/gallery", filename)
+		if moveErr != nil && result == nil {
+			return nil, fmt.Errorf("promote gallery image %s: %w", tempURL, moveErr)
+		}
+
+		if moveErr != nil {
+			promoted = append(promoted, promotedGalleryImage{
+				URL:     result.URL,
+				Warning: moveErr,
+			})
+			continue
+		}
+
+		promoted = append(promoted, promotedGalleryImage{
+			URL: result.URL,
+		})
+	}
+
+	if len(nextGallery)+len(promoted) > MaxGalleryImages {
+		return nil, fmt.Errorf("%w: limit is %d", ErrTooManyGalleryImages, MaxGalleryImages)
+	}
+
+	for _, p := range promoted {
+		nextGallery = append(nextGallery, p.URL)
+	}
+	
+	if nextGallery == nil {
+		nextGallery = []string{}
+	}
+
+	query := `
+		UPDATE public.club SET
+			name           = COALESCE($1, name),
+			description    = COALESCE($2, description),
+			club_type      = COALESCE($3, club_type),
+			visibility     = COALESCE($4, visibility),
+			max_seats      = COALESCE($5, max_seats),
+			category_id    = COALESCE($6, category_id),
+			display_status = COALESCE($7, display_status),
+			image_url      = CASE
+								WHEN $8::boolean THEN $9
+								ELSE image_url
+							 END,
+			tag_ids        = $10,
+			space_ids      = $11,
+			gallery_urls   = $12,
+			updated_at     = NOW()
+		WHERE id = $13
+		  AND owner_id = $14::uuid
+		  AND is_deleted = false`
+
+	thumbnailChanged := req.ThumbnailImage.Present
+	thumbnailValue := req.ThumbnailImage.Value
+
+	result, err := tx.ExecContext(
+		ctx,
+		query,
+		req.Name,
+		req.Description,
+		req.ClubType,
+		req.Visibility,
+		req.MaxSeats,
+		req.CategoryID,
+		req.DisplayStatus,
+		thumbnailChanged,
+		thumbnailValue,
+		pq.Array(tagIDs),
+		pq.Array(spaceIDs),
+		pq.Array(nextGallery),
+		clubID,
+		ownerID,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("update club: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rows == 0 {
+		return nil, fmt.Errorf("club not found or not owned by user")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("commit: %w", err)
+	}
+
+	var warnings []error
+	for _, p := range promoted {
+		if p.Warning != nil {
+			warnings = append(warnings, p.Warning)
+		}
+	}
+
+	return &PatchClubResult{
+		GalleryURLsToDelete: req.GalleriesToRemove,
+		PromotionWarnings:   warnings,
+	}, nil
+}
+
+func extFromURL(rawURL string) string {
+	idx := strings.LastIndex(rawURL, ".")
+	if idx == -1 || idx == len(rawURL)-1 {
+		return "png"
+	}
+	return rawURL[idx+1:]
+}
+
+
+func (r *clubRepository) GetClubGalleryURLs(ctx context.Context, clubID int64, ownerID string) ([]string, error) {
+	var raw []byte
+	err := r.db.QueryRowContext(ctx,
+		`SELECT COALESCE(ARRAY_TO_JSON(gallery_urls)::text, '[]')
+		 FROM public.club WHERE id = $1 AND owner_id = $2::uuid AND is_deleted = false`,
+		clubID, ownerID,
+	).Scan(&raw)
+	if err != nil {
+		return nil, fmt.Errorf("get club gallery urls: %w", err)
+	}
+	var urls []string
+	if err := json.Unmarshal(raw, &urls); err != nil {
+		return nil, fmt.Errorf("unmarshal gallery_urls: %w", err)
+	}
+	return urls, nil
 }

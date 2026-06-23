@@ -25,3 +25,15 @@ func slugify(s string) string {
 	s = nonAlphanumRe.ReplaceAllString(s, "_")
 	return strings.Trim(s, "_")
 }
+
+func GalleryFilename(clubName string, clubID int64, ext string) string {
+	slug := slugify(clubName)
+	if slug == "" {
+		slug = "club"
+	}
+	ext = strings.TrimPrefix(strings.ToLower(ext), ".")
+	if ext == "" {
+		ext = "png"
+	}
+	return fmt.Sprintf("club_%s_%d_%s_gallery.%s", slug, clubID, uuid.NewString(), ext)
+}

@@ -42,6 +42,7 @@ type ClubInfoResponse struct {
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
 	ImageURL       string              `json:"imageUrl"`
+	GalleryURLs    []string            `json:"galleryUrls"`
 	ClubType       string              `json:"clubType"`
     Visibility     string  			   `json:"visibility"`
 	MaxSeats       int                 `json:"maxSeats"`

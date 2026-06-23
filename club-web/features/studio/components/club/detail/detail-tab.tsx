@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @next/next/no-img-element */
 import { Club } from "@/features/studio/api/club";
 import { MapPin } from "lucide-react";
 import { SocialIcon } from "./social-icons";
@@ -7,7 +5,10 @@ import { Tag } from "@/features/shared/components/tag";
 import { Button } from "@/design-system/components";
 import { StickyFooter } from "./sticky-footer";
 import { useAccountAuth } from "@/hooks/use-account-auth";
-import Image from "next/image";
+import { useModal } from "@/hooks/use-modal";
+import { AddGalleryModal } from "./add-gallery-modal";
+import { usePatchClub } from "@/features/studio/hooks/use-club";
+import { toast } from "@heroui/react";
 
 export function ClubDetailsTab({ club }: { club: Club }) {
   const { user } = useAccountAuth();
@@ -17,6 +18,8 @@ export function ClubDetailsTab({ club }: { club: Club }) {
   const extraTags = Math.max(0, (club.tags ?? []).length - MAX_TAGS);
   const visibleSpaces = (club.spaces ?? []).slice(0, MAX_SPACES);
   const extraSpaces = Math.max(0, (club.spaces ?? []).length - MAX_SPACES);
+  const { visible, show, close } = useModal();
+  const patchClub = usePatchClub(club.id);
 
   const normalisedLinks = (club.socialLinks ?? []).map((link) => {
     if ("platform" in link && "url" in link) {
@@ -28,9 +31,34 @@ export function ClubDetailsTab({ club }: { club: Club }) {
 
   const pathToEdit = `/${user.username}/club/${club.id}/edit`;
 
+  const galleryUrls = club.galleryUrls ?? [];
+
+  const handleGallerySave = ({
+    tempUrlsToAdd,
+    existingUrlsToRemove,
+  }: {
+    tempUrlsToAdd: string[];
+    existingUrlsToRemove: string[];
+  }) => {
+    if (tempUrlsToAdd.length === 0 && existingUrlsToRemove.length === 0) {
+      return;
+    }
+
+    patchClub.mutate(
+      {
+        galleriesToAdd: tempUrlsToAdd,
+        galleriesToRemove: existingUrlsToRemove,
+      },
+      {
+        onError: () => {
+          toast.danger("Couldn't save gallery changes. Please try again.");
+        },
+      },
+    );
+  };
+
   return (
     <div className="px-6 py-6 space-y-6">
-      {/* About */}
       <div>
         <p className="text-sm text-white/50 mb-2">About this club</p>
         <p className="text-white/80 leading-relaxed whitespace-pre-line line-clamp-3 max-w-[800px]">
@@ -93,17 +121,17 @@ export function ClubDetailsTab({ club }: { club: Club }) {
       </div>
 
       <div>
-        {mockGalleries.length > 0 ? (
+        {galleryUrls.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-12">
-            {mockGalleries.map((gallery) => (
+            {galleryUrls.map((url, i) => (
               <div
-                key={gallery.id}
+                key={url}
                 className="relative aspect-video overflow-hidden rounded-xl border border-white/10"
               >
                 <img
-                  src={gallery.src}
-                  alt={`Gallery ${gallery.id}`}
-                  className="absolute inset-0 h-auto w-full object-cover"
+                  src={url}
+                  alt={`Gallery image ${i + 1}`}
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
             ))}
@@ -122,7 +150,10 @@ export function ClubDetailsTab({ club }: { club: Club }) {
             <div className="absolute z-20 inset-0 top-20">
               <div className="flex flex-col w-full items-center gap-4">
                 <h2 className="text-2xl font-bold">Feature galleries</h2>
-                <Button className="rounded-md border border-white/30 bg-black/80 py-4 px-6 text-white/90 hover:bg-white/10 backdrop-blur-md">
+                <Button
+                  onClick={show}
+                  className="rounded-md border border-white/30 bg-black/80 py-4 px-6 text-white/90 hover:bg-white/10 backdrop-blur-md"
+                >
                   Add gallery
                 </Button>
               </div>
@@ -130,26 +161,14 @@ export function ClubDetailsTab({ club }: { club: Club }) {
           </div>
         )}
       </div>
+      {visible && (
+        <AddGalleryModal
+          existingImages={galleryUrls.map((url: string) => ({ url }))}
+          onSave={handleGallerySave}
+          onClose={close}
+        />
+      )}
       <StickyFooter pathToEdit={pathToEdit} />
     </div>
   );
 }
-
-const mockGalleries: any[] = [
-  // {
-  //   id: 1,
-  //   src: "/images/gallery/1.png",
-  // },
-  // {
-  //   id: 2,
-  //   src: "/images/gallery/2.png",
-  // },
-  // {
-  //   id: 3,
-  //   src: "/images/gallery/3.png",
-  // },
-  // {
-  //   id: 4,
-  //   src: "/images/gallery/4.png",
-  // },
-];

@@ -24,6 +24,7 @@ type Club struct {
 	CategoryID     int               `db:"category_id"`
 	CategoryName   string            `db:"category_name"`
 	Tags           []Tag             `db:"tags"`
+	GalleryURLs    []string 		 `db:"gallery_urls"`
 }
 
 type ClubMember struct {

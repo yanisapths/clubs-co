@@ -23,6 +23,11 @@ type GetClubByIdRepo interface {
 	GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error)
 	GetClubMemberByClubID(ctx context.Context, clubID int64) ([]ClubMember, error)
 }
+type PatchClubByIdRepo interface {
+	GetClubImageURL(ctx context.Context, clubID int64, ownerID string) (*string, error)
+	GetClubGalleryURLs(ctx context.Context, clubID int64, ownerID string) ([]string, error)
+	PatchClub(ctx context.Context, ownerID string, clubID int64, req PatchClubRequest) (*PatchClubResult, error) 
+}
 
 type ClubRepository interface {
 	CreateClubRepo
@@ -31,4 +36,5 @@ type ClubRepository interface {
 	DeleteClubRepo
 	InviteClubMemberRepo
 	GetClubByIdRepo
+	PatchClubByIdRepo
 }

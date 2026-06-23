@@ -1,6 +1,8 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+)
 
 func IsUniqueViolation(err error) bool {
 	if err == nil {

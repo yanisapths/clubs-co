@@ -8,4 +8,5 @@ var (
 	ErrInvalidInviteRole   = errors.New("invalid invite role")
 	ErrAlreadyMember       = errors.New("already a member")
 	ErrInviteAlreadyPending = errors.New("invite already pending")
+	ErrTooManyGalleryImages = errors.New("too many gallery images")
 )

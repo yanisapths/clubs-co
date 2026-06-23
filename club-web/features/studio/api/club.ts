@@ -35,6 +35,7 @@ export interface Club {
   tags: Tag[];
   createdAt: number;
   updatedAt: number;
+  galleryUrls?: string[];
 }
 
 export interface CreateClubPayload {
@@ -115,4 +116,38 @@ export const deleteClubById = (token: string, id: number) =>
   apiFetch<null>(`${baseApi}/${id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
+  });
+
+export interface PatchClubPayload {
+  name?: string;
+  description?: string;
+  clubType?: "Public" | "Private" | "Exclusive";
+  visibility?: "Anyone" | "MemberOnly";
+  maxSeats?: number;
+  categoryId?: number;
+  displayStatus?: string;
+  tags?: Tag[];
+  spaces?: Space[];
+  // `null` clears the thumbnail; `undefined`/omitted leaves it untouched —
+  // mirrors the backend's NullableString "present vs absent" semantics.
+  thumbnailImage?: string | null;
+  // Temp-storage URLs (returned from uploading to club/temp) that should be
+  // promoted to club/gallery and appended on save.
+  galleriesToAdd?: string[];
+  // Existing permanent club/gallery URLs to delete on save.
+  galleriesToRemove?: string[];
+}
+
+export const patchClubById = (
+  token: string,
+  id: number,
+  payload: PatchClubPayload,
+) =>
+  apiFetch<string>(`${baseApi}/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
   });

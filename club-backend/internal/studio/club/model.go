@@ -35,6 +35,7 @@ type ClubResponse struct {
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
 	ImageURL       string              `json:"imageUrl"`
+	GalleryURLs    []string            `json:"galleryUrls"`
 	ClubType       string              `json:"clubType"`
     Visibility     string  			   `json:"visibility"`
 	MaxSeats       int                 `json:"maxSeats"`
@@ -90,4 +91,28 @@ type Member struct {
 	MemberID 		string `json:"id"`
 	Role    		string `json:"role"`
 	JoinedAt		int64  `json:"joinedAt"`
+}
+
+const MaxGalleryImages = 20
+type PatchClubRequest struct {
+	Name          *string      `json:"name"          binding:"omitempty,min=2,max=100"`
+	Description   *string      `json:"description"   binding:"omitempty,max=250"`
+	MaxSeats      *int         `json:"maxSeats"      binding:"omitempty,min=1,max=200"`
+	ClubType      *string      `json:"clubType"      binding:"omitempty,oneof=Public Private Exclusive"`
+	Visibility    *string      `json:"visibility"    binding:"omitempty,oneof=Anyone MemberOnly"`
+	CategoryID    *int64       `json:"categoryId"`
+	DisplayStatus *string      `json:"displayStatus"`
+	Tags          []TagInput   `json:"tags"          binding:"omitempty,max=3"`
+	Spaces        []SpaceInput `json:"spaces"`
+	ThumbnailImage utils.NullableString `json:"thumbnailImage"`
+	GalleriesToAdd []string `json:"galleriesToAdd" binding:"omitempty,dive,url"`
+	GalleriesToRemove []string `json:"galleriesToRemove" binding:"omitempty,dive,url"`
+}
+type promotedGalleryImage struct {
+	URL     string
+	Warning error
+}
+type PatchClubResult struct {
+	GalleryURLsToDelete []string
+	PromotionWarnings   []error
 }

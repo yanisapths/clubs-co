@@ -79,6 +79,7 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			Name:           clubInfo.Name,
 			Description:    description,
 			ImageURL:       imageURL,
+			GalleryURLs: 	clubInfo.GalleryURLs,
 			ClubType:       clubInfo.ClubType,
 			Visibility:     clubInfo.Visibility,
 			MaxSeats:       clubInfo.MaxSeats,
