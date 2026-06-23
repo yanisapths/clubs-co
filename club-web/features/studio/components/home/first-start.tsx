@@ -51,7 +51,7 @@ export function FirstStart({ user }: FirstStart) {
           description="Become a founder of a club and invite members to join!"
           onClick={() => {
             if (!finished) {
-              router.push(`/${user.username}/club/create`);
+              router.push(`/${user.username}/studio/club/create`);
             }
           }}
           finished

@@ -62,19 +62,18 @@ export const UserDropdown = () => {
             account
           </p>
           <nav className="mb-4 flex flex-col ">
-            {[
-              { href: `/${username}`, label: "Profile" },
-              { href: `/${username}/account`, label: "Account" },
-            ].map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="hover:bg-white/5 -mx-4 py-2 text-[15px] text-white/60 hover:text-white transition-all duration-300 hover:cursor-pointer hover:rounded-lg"
-              >
-                <div className="px-4">{label}</div>
-              </Link>
-            ))}
+            {[{ href: `/${username}`, label: "Profile and Account" }].map(
+              ({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className="hover:bg-white/5 -mx-4 py-2 text-[15px] text-white/60 hover:text-white transition-all duration-300 hover:cursor-pointer hover:rounded-lg"
+                >
+                  <div className="px-4">{label}</div>
+                </Link>
+              ),
+            )}
           </nav>
 
           <p className="mb-2 text-[11px] uppercase tracking-wide text-white/30">
@@ -82,7 +81,10 @@ export const UserDropdown = () => {
           </p>
           <nav className="mb-4 flex flex-col">
             {[
-              { href: `/${username}/club`, label: "Club Creator Studio" },
+              {
+                href: `/${username}/studio/club`,
+                label: "Club Creator Studio",
+              },
               { href: "/", label: "Find Clubs" },
             ].map(({ href, label }) => (
               <Link

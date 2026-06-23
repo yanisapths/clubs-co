@@ -92,7 +92,7 @@ export function EditClubForm({
       },
       {
         onSuccess: () => {
-          router.push(`/${user.username}/club`);
+          router.push(`/${user.username}/studio/club`);
           toast.success("Club updated successfully!");
         },
         onError: (error: Error) => {

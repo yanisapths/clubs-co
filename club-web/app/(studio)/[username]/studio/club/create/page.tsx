@@ -77,7 +77,7 @@ export default function CreateClubPage() {
         },
         {
           onSuccess: () => {
-            router.push(`/${user.username}/club`);
+            router.push(`/${user.username}/studio/club`);
             toast.success("Club created successfully!");
           },
         },

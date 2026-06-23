@@ -16,7 +16,7 @@ function ClubStudioPage() {
   const { user } = useAccountAuth();
   const router = useRouter();
   const { clubs } = useGetOwnerClubs();
-  const pathToCreateClub = `/${user.username}/club/create`;
+  const pathToCreateClub = `/${user.username}/studio/club/create`;
 
   return (
     <div className="relative bg-black">
@@ -69,7 +69,7 @@ function ClubStudioPage() {
                   key={club.id}
                   club={club}
                   onClick={() =>
-                    router.push(`/${user.username}/club/${club.id}`)
+                    router.push(`/${user.username}/studio/club/${club.id}`)
                   }
                 />
               ))}

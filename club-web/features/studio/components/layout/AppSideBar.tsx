@@ -9,7 +9,7 @@ import { useAccountAuth } from "@/hooks/use-account-auth";
 
 const mainNavItems = (username: string) => [
   { title: "Home", url: `/${username}`, icon: HomeIcon },
-  { title: "Studio", url: `/${username}/club`, icon: BoxesIcon },
+  { title: "Studio", url: `/${username}/studio/club`, icon: BoxesIcon },
 ];
 
 const bottomNavItems = [{ title: "Settings", url: "/", icon: Settings }];

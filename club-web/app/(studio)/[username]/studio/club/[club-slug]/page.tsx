@@ -70,7 +70,9 @@ const ClubDetailPage = () => {
         <ClubBanner
           club={club}
           isOwner={isOwner}
-          onEdit={() => router.push(`/${params.username}/club/${clubId}/edit`)}
+          onEdit={() =>
+            router.push(`/${params.username}/studio/club/${clubId}/edit`)
+          }
         />
 
         <ClubMeta club={club} />

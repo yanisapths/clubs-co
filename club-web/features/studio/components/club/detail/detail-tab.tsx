@@ -33,7 +33,7 @@ export function ClubDetailsTab({ club }: { club: Club }) {
     return { platform, url };
   });
 
-  const pathToEdit = `/${user.username}/club/${club.id}/edit`;
+  const pathToEdit = `/${user.username}/studio/club/${club.id}/edit`;
   const galleryUrls = club.galleryUrls ?? [];
 
   const handleGallerySave = ({

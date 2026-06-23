@@ -19,7 +19,7 @@ export function SettingTab({ username, club }: SettingTabProps) {
   const handleDelete = () => {
     deleteClub.mutate(club.id, {
       onSuccess: () => {
-        router.push(`/${username}/club`);
+        router.push(`/${username}/studio/club`);
       },
     });
   };
