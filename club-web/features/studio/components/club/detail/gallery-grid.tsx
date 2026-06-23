@@ -58,7 +58,7 @@ export function GalleryGrid({
           <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
         )}
 
-        <div className="relative z-10 flex flex-col items-center gap-2 text-white/40 group-hover:text-white/70 transition-colors">
+        <div className="cursor-pointer relative z-10 flex flex-col items-center gap-2 text-white/40 group-hover:text-white/70 transition-colors">
           <Plus className="h-5 w-5" />
           <span className="text-xs">Add more images</span>
         </div>

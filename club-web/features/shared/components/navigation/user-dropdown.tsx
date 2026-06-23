@@ -58,14 +58,13 @@ export const UserDropdown = () => {
             </button>
           </div>
 
-          {/* Account section */}
           <p className="mb-2 text-[11px] uppercase tracking-wide text-white/30">
             account
           </p>
           <nav className="mb-4 flex flex-col ">
             {[
-              { href: "/profile", label: "Profile" },
-              { href: "/account", label: "Account" },
+              { href: `/${username}`, label: "Profile" },
+              { href: `/${username}/account`, label: "Account" },
             ].map(({ href, label }) => (
               <Link
                 key={href}
@@ -78,14 +77,12 @@ export const UserDropdown = () => {
             ))}
           </nav>
 
-          {/* Clubs section */}
           <p className="mb-2 text-[11px] uppercase tracking-wide text-white/30">
             clubs
           </p>
           <nav className="mb-4 flex flex-col">
             {[
-              { href: `/${username}/club`, label: "My Clubs" },
-              { href: `/${username}`, label: "Creator Studio" },
+              { href: `/${username}/club`, label: "Club Creator Studio" },
               { href: "/", label: "Find Clubs" },
             ].map(({ href, label }) => (
               <Link

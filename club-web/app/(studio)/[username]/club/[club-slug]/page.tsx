@@ -67,7 +67,6 @@ const ClubDetailPage = () => {
       <StudioHeader />
 
       <div className="relative flex flex-col text-white">
-        <div className="pt-20" />
         <ClubBanner
           club={club}
           isOwner={isOwner}

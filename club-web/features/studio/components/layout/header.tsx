@@ -11,17 +11,19 @@ export const StudioHeader = () => {
   const { close, visible, show } = useModal();
 
   return (
-    <header className="absolute z-30 flex h-20 inset-x-0 pl-6 pr-6 w-full items-center justify-between bg-transparent">
-      <div className="w-full lg:w-[350px]">
-        <Input
-          onClick={show}
-          placeholder="Search clubs, spaces, communities"
-          leftSection={<Search size={24} className="text-white/50" />}
-        />
-        <SearchModal isOpen={visible} onClose={close} />
-      </div>
+    <div className="relative p-6">
+      <header className="flex w-full items-center justify-between bg-transparent">
+        <div className="w-full lg:w-[350px]">
+          <Input
+            onClick={show}
+            placeholder="Search clubs, spaces, communities"
+            leftSection={<Search size={24} className="text-white/50" />}
+          />
+          <SearchModal isOpen={visible} onClose={close} />
+        </div>
 
-      <UserDropdown />
-    </header>
+        <UserDropdown />
+      </header>
+    </div>
   );
 };

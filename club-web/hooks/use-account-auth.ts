@@ -11,13 +11,16 @@ interface AccountSession {
   refreshToken: string;
 }
 
-interface UserInfo {
+export interface UserInfo {
   id?: string;
   email: string;
   username: string;
   firstName: string;
   lastName: string;
   fullName: string;
+  displayName?: string;
+  bio?: string;
+  profileImage?: string;
 }
 
 export const useAccountAuth = () => {
