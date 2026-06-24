@@ -8,6 +8,8 @@ export function SocialIcon({ platform }: { platform: string }) {
       return <SiInstagram className={cls} />;
     case "facebook":
       return <SiFacebook className={cls} />;
+    case "meta":
+      return <SiFacebook className={cls} />;
     case "x":
     case "twitter":
       return <SiX className={cls} />;
