@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { Avatar } from "../Avatar";
 import { useGetUserProfile } from "@/features/studio/hooks/use-profile";
-import { Spinner } from "@heroui/react";
 
 export const UserDropdown = () => {
   const { isLoggedIn, user, logout } = useAccountAuth();

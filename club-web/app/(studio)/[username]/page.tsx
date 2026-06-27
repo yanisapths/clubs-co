@@ -184,6 +184,7 @@ function CreatorHomePage() {
                   clubsFounded={userClubs?.stats.clubFounded || 0}
                   clubMembership={userClubs?.stats.clubMembership || 0}
                   clubsJoined={userClubs?.stats.clubJoined || 0}
+                  onEditProfile={show}
                 />
               ) : (
                 <FirstStart

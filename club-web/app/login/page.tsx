@@ -9,6 +9,7 @@ import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "@heroui/react";
 import Link from "next/link";
+import { setStoredToken } from "@/lib/storage";
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
@@ -53,6 +54,7 @@ async function apiSignup(data: Omit<SignupValues, "confirm_password">) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.message ?? "Signup failed");
   }
+
   return res.json();
 }
 
@@ -117,7 +119,7 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     const session = await getSession();
     if (session) {
       router.back();
-      localStorage.setItem("accessToken", session?.accessToken);
+      setStoredToken(session.accessToken);
       toast.success("login successfully!");
     }
   };
@@ -202,9 +204,16 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
         redirect: false,
       });
       if (result?.error) {
-        onSwitch(); // fallback: go to login
+        onSwitch();
         return;
       }
+      const session = await getSession();
+
+      if (session?.accessToken) {
+        setStoredToken(session.accessToken);
+      }
+
+      toast.success("Account created successfully!");
       router.push("/");
     } catch (err) {
       setServerError(

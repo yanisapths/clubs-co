@@ -11,8 +11,6 @@ import {
   Profile,
   ProfileClub,
 } from "../api/profile";
-import { useRouter } from "next/navigation";
-
 const PROFILE_KEYS = {
   all: ["profile"] as const,
   profile: ["profile", "me"] as const,

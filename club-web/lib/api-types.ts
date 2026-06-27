@@ -1,4 +1,4 @@
-import { clearStoredToken } from "./storage";
+import { clearStoredToken, getStoredToken } from "./storage";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ApiResponse<T> {
@@ -26,18 +26,23 @@ export async function apiFetch<T>(
   const json: ApiResponse<T> = await res.json();
 
   if (res.status === 401) {
+    const token = getStoredToken();
+
     clearStoredToken();
 
-    if (typeof window !== "undefined") {
+    if (token && typeof window !== "undefined") {
       window.location.replace("/login");
     }
-    throw new Error("Unauthorized: session expired");
+
+    throw new ApiError("Unauthorized: session expired", 401);
   }
+
   if (!json.success) {
     throw new ApiError(
       json.message ?? "Something went wrong",
       json.code ?? res.status,
     );
   }
+
   return json;
 }

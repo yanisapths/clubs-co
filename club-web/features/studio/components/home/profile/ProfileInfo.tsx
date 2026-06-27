@@ -2,8 +2,10 @@
 
 import { Card } from "@/features/shared/components/card/Card";
 import { Profile } from "@/features/studio/api/profile";
-import { ChevronRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronRight, Edit3Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type ProfileInfoProps = {
   profile?: Profile | undefined;
@@ -11,6 +13,7 @@ type ProfileInfoProps = {
   clubMembership: number;
   clubsJoined: number;
   hasSetUpProfile?: boolean;
+  onEditProfile: () => void;
 };
 
 export function ProfileInfo({
@@ -19,9 +22,11 @@ export function ProfileInfo({
   clubsFounded,
   clubMembership,
   clubsJoined,
+  onEditProfile,
 }: ProfileInfoProps) {
   const setUpProfileButNoClub = hasSetUpProfile && clubsFounded < 1;
   const router = useRouter();
+  const [isHovering, setIsHovering] = useState(false);
 
   return (
     <div className="flex flex-col gap-5">
@@ -51,7 +56,61 @@ export function ProfileInfo({
               {profile?.bio}
             </p>
           </Card>
-        ) : null}
+        ) : (
+          <motion.div
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+            onClick={onEditProfile}
+            animate={{
+              scale: isHovering ? 1.01 : 1,
+            }}
+            transition={{ duration: 0.2 }}
+            className="cursor-pointer"
+          >
+            <Card className="bg-zinc-900 min-h-24 border border-white/10  px-5 py-5 transition-colors">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-md font-medium text-white/90">
+                    Tell people about yourself
+                  </p>
+
+                  <p className="mt-1 text-sm text-white/50">
+                    Add a short bio so others know who you are.
+                  </p>
+                </div>
+
+                <AnimatePresence>
+                  {isHovering && (
+                    <motion.div
+                      initial={{
+                        opacity: 0,
+                        x: 8,
+                        scale: 0.95,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        x: 0,
+                        scale: 1,
+                      }}
+                      exit={{
+                        opacity: 0,
+                        x: 8,
+                        scale: 0.95,
+                      }}
+                      transition={{
+                        duration: 0.2,
+                      }}
+                      className="flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-xs text-blue-300 whitespace-nowrap"
+                    >
+                      <Edit3Icon className="h-3.5 w-3.5" />
+                      Edit profile →
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         <div className="grid grid-cols-3 gap-4">
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">

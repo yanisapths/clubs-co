@@ -2,12 +2,14 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/design-system/components/button";
-import { UserInfo } from "@/hooks/use-account-auth";
 import { useDeleteUser } from "@/features/studio/hooks/use-profile";
 import { toast } from "@heroui/react";
+import { clearStoredToken } from "@/lib/storage";
+import { useAccountAuth } from "@/hooks/use-account-auth";
 
 export function AccountSettingTab() {
   const router = useRouter();
+  const { logout } = useAccountAuth();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const deleteUser = useDeleteUser();
@@ -15,8 +17,10 @@ export function AccountSettingTab() {
   const handleDelete = () => {
     deleteUser.mutate(undefined, {
       onSuccess: () => {
+        logout();
         toast.success("Your account has been deleted.");
-        router.push("/");
+        clearStoredToken();
+        router.replace("/");
       },
       onError: (error) => {
         toast.danger(
