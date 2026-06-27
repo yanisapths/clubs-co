@@ -12,7 +12,7 @@ interface AccountSession {
 }
 
 export interface UserInfo {
-  id?: string;
+  id: string;
   email: string;
   username: string;
   firstName: string;
@@ -21,6 +21,7 @@ export interface UserInfo {
   displayName?: string;
   bio?: string;
   profileImage?: string;
+  bannerUrl?: string;
 }
 
 export const useAccountAuth = () => {
@@ -30,7 +31,7 @@ export const useAccountAuth = () => {
   const s = session as AccountSession | null;
 
   const user: UserInfo = {
-    id: s?.user.id,
+    id: s?.user.id ?? "",
     email: s?.user.email ?? "",
     username: s?.username ?? "",
     firstName: s?.firstName ?? "",

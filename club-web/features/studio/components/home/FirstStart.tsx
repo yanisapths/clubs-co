@@ -9,22 +9,20 @@ import {
 import { UserInfo } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
 import { useRouter } from "next/navigation";
-import { EditProfileModal, ProfileFormData } from "./profile/EditProfileModal";
-
+import {
+  EditProfileModal,
+  ProfileFormData,
+  ProfileSaveData,
+} from "./profile/EditProfileModal";
 interface FirstStart {
   user: UserInfo;
+  profileData: ProfileFormData;
+  onSave: (data: ProfileSaveData) => Promise<void>;
 }
 
-export function FirstStart({ user }: FirstStart) {
+export function FirstStart({ user, profileData, onSave }: FirstStart) {
   const router = useRouter();
   const { show, visible, close } = useModal();
-  const profileData: ProfileFormData = {
-    displayName:
-      user?.username || `${user?.firstName} ${user?.lastName}`.trim(),
-    bio: "",
-    avatarUrl: null,
-    socialLinks: [],
-  };
   const finished = true;
 
   return (
@@ -71,10 +69,7 @@ export function FirstStart({ user }: FirstStart) {
         <EditProfileModal
           initialData={profileData}
           username={user?.username}
-          onSave={async (data, avatarFile) => {
-            console.log(data);
-            close();
-          }}
+          onSave={onSave}
           onClose={close}
         />
       ) : null}

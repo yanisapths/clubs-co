@@ -1,11 +1,11 @@
 "use client";
 
-import { useAccountAuth } from "@/hooks/use-account-auth";
 import { cn } from "@/lib/utils";
 
 interface AvatarProps {
-  firstName: string;
-  lastName?: string;
+  userId: string;
+  imageUrl?: string | null;
+  initials: string;
   className?: string;
   size?: number;
 }
@@ -19,7 +19,6 @@ function hashString(str: string): number {
   return Math.abs(hash);
 }
 
-// Curated gradient pairs (start, end)
 const GRADIENTS: [string, string][] = [
   ["#9333EA", "#C084FC"], // purple
   ["#2563EB", "#38BDF8"], // blue
@@ -31,35 +30,35 @@ const GRADIENTS: [string, string][] = [
   ["#7C3AED", "#A78BFA"], // violet
 ];
 
-export function getInitials(firstName: string, lastName?: string) {
-  const first = firstName?.trim()[0] ?? "";
-  const second = lastName?.trim()[0] ?? firstName?.trim()[1] ?? "";
-  return (first + second).toUpperCase();
-}
-
-export function getGradient(seedKey: string) {
+export function getGradient(seedKey: string): [string, string] {
   const seed = hashString(seedKey.toLowerCase().trim() || "anon");
   return GRADIENTS[seed % GRADIENTS.length];
 }
 
 export function Avatar({
-  firstName,
-  lastName,
+  userId,
+  imageUrl,
+  initials,
   className,
-  size = 48,
+  size = 24,
 }: AvatarProps) {
-  const { user } = useAccountAuth();
+  const [from, to] = getGradient(userId);
 
-  const initials = getInitials(
-    user.firstName ?? firstName,
-    user.lastName ?? lastName,
-  );
-  const [from, to] = getGradient(user.id ?? "anon");
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={initials}
+        className={cn("shrink-0 rounded-full object-cover", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
 
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center rounded-full justify-center text-center place-content-center",
+        "flex shrink-0 items-center justify-center rounded-full text-center",
         className,
       )}
       style={{

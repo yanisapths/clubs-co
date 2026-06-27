@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState, ChangeEvent } from "react";
+import { useRef, useState, ChangeEvent, useCallback } from "react";
 import {
   Pencil,
   Globe,
   AlertCircle,
   ChevronDown,
   ChevronUp,
+  Loader2,
 } from "lucide-react";
 import {
   FormInput,
@@ -19,56 +20,81 @@ import {
   ModalFooter,
 } from "@/features/shared/components/modal";
 import { SiInstagram, SiFacebook, SiX } from "@icons-pack/react-simple-icons";
-import { SocialPlatform } from "../../club/create/types";
+import { SocialPlatform } from "../../club/create";
+import { uploadFile } from "@/features/studio/api/file";
+import { getStoredToken } from "@/lib/storage";
 
-interface SocialLink {
-  platform: SocialPlatform;
-  url: string;
-}
+export type SocialLinkMap = Partial<Record<string, string>>;
 
 export interface ProfileFormData {
+  firstname: string;
+  lastname: string;
   displayName: string;
   bio: string;
-  avatarUrl: string | null;
-  socialLinks: SocialLink[];
+  imageUrl: string | null;
+  bannerUrl: string | null;
+  socialLinks: SocialLinkMap;
+}
+
+export interface ProfileSaveData {
+  firstname: string;
+  lastname: string;
+  displayName: string;
+  bio: string;
+  socialLinks: SocialLinkMap;
+  imageUrl: string | null;
 }
 
 interface EditProfileModalProps {
   initialData: ProfileFormData;
   username: string;
-  onSave: (data: ProfileFormData, avatarFile: File | null) => Promise<void>;
+  onSave: (data: ProfileSaveData) => Promise<void>;
   onClose: () => void;
 }
 
 const DISPLAY_NAME_MAX = 100;
 const BIO_MAX = 500;
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+const ACCEPTED_TYPES = ["image/png", "image/jpeg"];
+const TEMP_DEST_PATH = "user/temp";
+
+type AvatarUploadStatus = "idle" | "uploading" | "uploaded" | "error";
 
 const PLATFORM_CONFIG: Record<
   SocialPlatform,
-  { label: string; placeholder: string; Icon: React.FC<{ className?: string }> }
+  {
+    apiKey: string;
+    label: string;
+    placeholder: string;
+    Icon: React.FC<{ className?: string }>;
+  }
 > = {
   Website: {
+    apiKey: "website",
     label: "Website",
     placeholder: "https://yourwebsite.com",
     Icon: ({ className }) => <Globe className={className} />,
   },
   Instagram: {
+    apiKey: "instagram",
     label: "Instagram",
     placeholder: "https://instagram.com/yourhandle",
     Icon: ({ className }) => <SiInstagram className={className} />,
   },
   Meta: {
+    apiKey: "meta",
     label: "Facebook",
     placeholder: "https://facebook.com/yourprofile",
     Icon: ({ className }) => <SiFacebook className={className} />,
   },
   X: {
+    apiKey: "x",
     label: "X (Twitter)",
     placeholder: "https://x.com/yourhandle",
     Icon: ({ className }) => <SiX className={className} />,
   },
 };
+
 const ALL_PLATFORMS: SocialPlatform[] = ["Website", "Instagram", "Meta", "X"];
 
 export function EditProfileModal({
@@ -79,33 +105,80 @@ export function EditProfileModal({
 }: EditProfileModalProps) {
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
+  const [firstname, setFirstname] = useState(initialData.firstname);
+  const [lastname, setLastname] = useState(initialData.lastname);
   const [displayName, setDisplayName] = useState(initialData.displayName);
   const [bio, setBio] = useState(initialData.bio);
+
+  // Avatar state — mirrors the per-file state pattern from AddGalleryModal
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
-    initialData.avatarUrl,
+    initialData.imageUrl,
   );
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarUploadStatus, setAvatarUploadStatus] =
+    useState<AvatarUploadStatus>("idle");
+  const [avatarTempUrl, setAvatarTempUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+
   const [isSaving, setIsSaving] = useState(false);
   const [socialExpanded, setSocialExpanded] = useState(false);
 
-  // Build URL map from initial social links
-  const initialUrls = Object.fromEntries(
-    initialData.socialLinks.map((l) => [l.platform, l.url]),
-  ) as Record<SocialPlatform, string>;
+  const [socialUrls, setSocialUrls] = useState<Record<SocialPlatform, string>>(
+    () => {
+      const seed: Record<SocialPlatform, string> = {
+        Website: "",
+        Instagram: "",
+        Meta: "",
+        X: "",
+      };
+      for (const platform of ALL_PLATFORMS) {
+        const { apiKey } = PLATFORM_CONFIG[platform];
+        seed[platform] = initialData.socialLinks[apiKey] ?? "";
+      }
+      return seed;
+    },
+  );
 
-  const [socialUrls, setSocialUrls] = useState<Record<SocialPlatform, string>>({
-    Website: initialUrls.Website || "",
-    Instagram: initialUrls.Instagram || "",
-    Meta: initialUrls.Meta || "",
-    X: initialUrls.X || "",
-  });
+  const uploadAvatar = useCallback(async (file: File) => {
+    const token = getStoredToken();
+    if (!token) {
+      setAvatarUploadStatus("error");
+      setAvatarError("Not signed in.");
+      return;
+    }
+
+    setAvatarUploadStatus("uploading");
+    setAvatarTempUrl(null);
+    setAvatarError(null);
+
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const tempFilename = `temp_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2)}.${ext}`;
+
+      const result = await uploadFile(
+        token,
+        file,
+        tempFilename,
+        TEMP_DEST_PATH,
+      );
+
+      setAvatarTempUrl(result.url);
+      setAvatarUploadStatus("uploaded");
+    } catch (err) {
+      setAvatarUploadStatus("error");
+      setAvatarError(
+        err instanceof Error ? err.message : "Upload failed. Tap to retry.",
+      );
+    }
+  }, []);
 
   const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (!["image/png", "image/jpeg"].includes(file.type)) {
+
+    if (!ACCEPTED_TYPES.includes(file.type)) {
       setAvatarError("Only PNG or JPG files are accepted.");
       return;
     }
@@ -115,28 +188,33 @@ export function EditProfileModal({
       );
       return;
     }
-    setAvatarError(null);
-    setAvatarFile(file);
+
     setAvatarPreview(URL.createObjectURL(file));
+    uploadAvatar(file);
+  };
+
+  const handleRetryUpload = () => {
+    avatarInputRef.current?.click();
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const socialLinks: SocialLink[] = ALL_PLATFORMS.filter((p) =>
-        socialUrls[p].trim(),
-      ).map((p) => ({ platform: p, url: socialUrls[p].trim() }));
+      const socialLinks: SocialLinkMap = {};
+      for (const platform of ALL_PLATFORMS) {
+        const { apiKey } = PLATFORM_CONFIG[platform];
+        const url = socialUrls[platform].trim();
+        if (url) socialLinks[apiKey] = url;
+      }
 
-      await onSave(
-        {
-          ...initialData,
-          displayName,
-          bio,
-          avatarUrl: avatarPreview,
-          socialLinks,
-        },
-        avatarFile,
-      );
+      await onSave({
+        firstname,
+        lastname,
+        displayName,
+        bio,
+        socialLinks,
+        imageUrl: avatarTempUrl,
+      });
       onClose();
     } finally {
       setIsSaving(false);
@@ -147,18 +225,32 @@ export function EditProfileModal({
     socialUrls[p].trim(),
   ).length;
 
+  const isAvatarUploading = avatarUploadStatus === "uploading";
+  const isSaveDisabled =
+    isSaving ||
+    isAvatarUploading ||
+    (avatarUploadStatus === "error" && avatarTempUrl === null);
+
   return (
     <ModalShell onClose={onClose}>
       <ModalHeader title="Edit profile" onClose={onClose} />
 
       <ModalBody className="flex flex-col gap-6">
-        {/* Avatar */}
         <div className="flex flex-col items-center gap-2">
           <button
             type="button"
-            onClick={() => avatarInputRef.current?.click()}
-            className="group relative h-20 w-20 cursor-pointer overflow-hidden rounded-full bg-zinc-800"
-            aria-label="Change profile picture"
+            onClick={
+              avatarUploadStatus === "error"
+                ? handleRetryUpload
+                : () => avatarInputRef.current?.click()
+            }
+            disabled={isAvatarUploading}
+            className="group relative h-20 w-20 cursor-pointer overflow-hidden rounded-full bg-zinc-800 disabled:cursor-not-allowed"
+            aria-label={
+              avatarUploadStatus === "error"
+                ? "Retry avatar upload"
+                : "Change profile picture"
+            }
           >
             {avatarPreview ? (
               <img
@@ -171,23 +263,72 @@ export function EditProfileModal({
                 {username?.charAt(0).toUpperCase()}
               </span>
             )}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/50">
-              <Pencil className="h-5 w-5 text-white opacity-0 transition-opacity group-hover:opacity-100" />
-            </div>
+
+            {/* Uploading overlay */}
+            {isAvatarUploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                <Loader2 className="h-5 w-5 animate-spin text-white" />
+              </div>
+            )}
+
+            {avatarUploadStatus === "error" && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                <span className="text-[10px] text-red-300 font-medium text-center px-1 leading-tight">
+                  Failed — tap to retry
+                </span>
+              </div>
+            )}
+
+            {!isAvatarUploading && avatarUploadStatus !== "error" && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/50">
+                <Pencil className="h-5 w-5 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+              </div>
+            )}
           </button>
+
           <span className="text-sm text-zinc-500">@{username}</span>
-          {avatarError && (
+
+          {avatarError && avatarUploadStatus === "error" && (
             <p className="flex items-center gap-1.5 text-xs text-red-400">
               <AlertCircle className="h-3.5 w-3.5 shrink-0" />
               {avatarError}
             </p>
           )}
+
+          {avatarError && avatarUploadStatus === "idle" && (
+            <p className="flex items-center gap-1.5 text-xs text-red-400">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+              {avatarError}
+            </p>
+          )}
+
           <input
             ref={avatarInputRef}
             type="file"
             accept="image/png, image/jpeg"
             className="hidden"
             onChange={handleAvatarChange}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 w-full">
+          <FormInput
+            id="firstname"
+            label="First name"
+            value={firstname}
+            onChange={setFirstname}
+            placeholder="First name"
+            maxLength={100}
+            hint="It can be changed later."
+          />
+          <FormInput
+            id="lastname"
+            label="Last name"
+            value={lastname}
+            onChange={setLastname}
+            placeholder="D"
+            maxLength={1}
+            hint="Only 1 letter allowed."
           />
         </div>
 
@@ -210,9 +351,11 @@ export function EditProfileModal({
           placeholder="Add a detail bio"
           maxLength={BIO_MAX}
           showCount
+          rows={6}
           hint="It can be changed later."
         />
 
+        {/* ── Social links ── */}
         <div>
           <p className="text-base font-semibold text-white">Social Links</p>
 
@@ -282,8 +425,8 @@ export function EditProfileModal({
       <ModalFooter
         onClose={onClose}
         onSave={handleSave}
-        saveLabel="Save"
-        isSaving={isSaving}
+        saveLabel={isAvatarUploading ? "Uploading…" : "Save"}
+        isSaving={isSaveDisabled}
       />
     </ModalShell>
   );

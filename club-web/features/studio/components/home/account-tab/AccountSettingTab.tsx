@@ -1,20 +1,32 @@
-import { useDeleteClub } from "@/features/studio/hooks/use-club";
+"use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/design-system/components/button";
 import { UserInfo } from "@/hooks/use-account-auth";
+import { useDeleteUser } from "@/features/studio/hooks/use-profile";
+import { toast } from "@heroui/react";
 
-interface AccountSettingTabProps {
-  user: UserInfo;
-}
-
-export function AccountSettingTab({ user }: AccountSettingTabProps) {
+export function AccountSettingTab() {
   const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const deleteClub = useDeleteClub();
+  const deleteUser = useDeleteUser();
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    deleteUser.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Your account has been deleted.");
+        router.push("/");
+      },
+      onError: (error) => {
+        toast.danger(
+          error instanceof Error
+            ? error.message
+            : "Failed to delete your account.",
+        );
+      },
+    });
+  };
 
   return (
     <div className="mx-auto w-4xl space-y-4 m-auto py-20 mt-10">
@@ -43,17 +55,17 @@ export function AccountSettingTab({ user }: AccountSettingTabProps) {
             <div className="flex shrink-0 items-center gap-2">
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
-                isDisabled={deleteClub.isPending}
+                isDisabled={deleteUser.isPending}
                 className="cursor-pointer rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:text-white disabled:opacity-50"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleDelete}
-                isDisabled={deleteClub.isPending}
+                isDisabled={deleteUser.isPending}
                 className="cursor-pointer rounded-lg bg-[#FF0000] px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#FF0000]/60 active:bg-[#FF0000] disabled:opacity-50"
               >
-                {deleteClub.isPending ? "Deleting…" : "Confirm"}
+                {deleteUser.isPending ? "Deleting…" : "Confirm"}
               </Button>
             </div>
           )}

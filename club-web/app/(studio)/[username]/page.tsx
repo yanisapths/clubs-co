@@ -1,4 +1,3 @@
-//  app/(studio)/[username]/page.tsx
 "use client";
 import { Avatar } from "@/features/shared/components/Avatar";
 import { StudioHeader } from "@/features/studio/components/layout/Header";
@@ -15,42 +14,73 @@ import { useModal } from "@/hooks/use-modal";
 import {
   EditProfileModal,
   ProfileFormData,
+  ProfileSaveData,
+  SocialLinkMap,
 } from "@/features/studio/components/home/profile/EditProfileModal";
 import { SocialIcon } from "@/features/studio/components/club/detail/SocialIcons";
 import { Edit3Icon } from "lucide-react";
 import { Button } from "@/design-system/components/button";
+import {
+  useGetUserClubs,
+  useGetUserProfile,
+  usePatchProfile,
+} from "@/features/studio/hooks/use-profile";
+import { PatchProfilePayload } from "@/features/studio/api/profile";
+import { formatUnixDate } from "@/lib/utils";
 
 const TABS = ["Home", "Clubs", "Account Settings"] as const;
 type Tab = (typeof TABS)[number];
 
-const MOCK_SOCIAL_LINKS = [
-  { platform: "Instagram" as const, url: "https://instagram.com" },
-  { platform: "Meta" as const, url: "https://facebook.com" },
-  { platform: "X" as const, url: "https://x.com" },
-];
-
 function CreatorHomePage() {
   const { user } = useAccountAuth();
   const { clubs, query } = useGetOwnerClubs();
+  const { profile, isLoading: isProfileLoading } = useGetUserProfile();
+  const { userClubs, isLoading: isUserClubLoading } = useGetUserClubs();
   const [activeTab, setActiveTab] = useState<Tab>("Home");
   const { show, visible, close } = useModal();
+  const { mutateAsync: patchProfile } = usePatchProfile();
 
   const hasSetUpProfile = Boolean(user.displayName) && clubs?.length > 0;
 
-  // Mock joined date — replace with real user.createdAt
-  const joinedDate = "Joined 5 Feb 2026";
+  const socialLinksMap: SocialLinkMap =
+    profile?.socialLinks?.reduce<SocialLinkMap>((acc, entry) => {
+      return { ...acc, ...entry };
+    }, {}) ?? {};
 
   const profileData: ProfileFormData = {
-    displayName:
-      user?.displayName ||
-      user?.username ||
-      `${user?.firstName} ${user?.lastName}`.trim(),
-    bio: user?.bio || "",
-    avatarUrl: null,
-    socialLinks: MOCK_SOCIAL_LINKS,
+    firstname: profile?.firstname ?? user.firstName ?? "",
+    lastname: profile?.lastname ?? user.lastName ?? "",
+    displayName: profile?.displayName ?? user.displayName ?? "",
+    bio: profile?.bio ?? "",
+    imageUrl: profile?.imageUrl ?? null,
+    bannerUrl: profile?.bannerUrl ?? null,
+    socialLinks: socialLinksMap,
   };
 
-  if (query.isLoading) {
+  const activeSocialLinks = Object.entries(socialLinksMap).filter(([, url]) =>
+    Boolean(url),
+  );
+
+  const usernameInitials = (user.username ?? "?").slice(0, 2).toUpperCase();
+
+  const handleSaveProfile = async (data: ProfileSaveData) => {
+    const socialLinks = Object.entries(data.socialLinks)
+      .filter(([, url]) => Boolean(url))
+      .map(([key, url]) => ({ [key]: url }));
+
+    const payload: PatchProfilePayload = {
+      ...(data.firstname && { firstname: data.firstname }),
+      ...(data.lastname && { lastname: data.lastname }),
+      ...(data.displayName && { displayName: data.displayName }),
+      ...(data.bio && { bio: data.bio }),
+      ...(data.imageUrl && { imageUrl: data.imageUrl }),
+      socialLinks,
+    };
+
+    await patchProfile(payload);
+  };
+
+  if (query.isLoading || isProfileLoading || isUserClubLoading) {
     return (
       <div className="relative min-h-screen bg-black">
         <StudioHeader />
@@ -67,42 +97,43 @@ function CreatorHomePage() {
       <StudioHeader />
 
       <div className="relative z-0 flex h-full w-full flex-col overflow-y-auto text-white">
-        {/* ── Banner ── */}
         <div className="relative px-6 pt-4 mt-10 pb-5 flex flex-col gap-3">
-          <div className="flex items-end gap-4">
+          <div className="flex items-center gap-4">
             <Avatar
-              firstName={user.firstName}
-              lastName={user.lastName}
+              userId={user.id}
+              imageUrl={profile?.imageUrl}
+              initials={usernameInitials}
               size={72}
             />
             <div className="flex flex-col gap-0.5 mb-0.5">
-              {user.displayName && (
-                <h1 className="text-xl font-bold text-white leading-tight">
-                  {user.displayName}
-                </h1>
-              )}
+              <h1 className="text-xl font-bold text-white leading-tight">
+                {profile?.displayName ? profile.displayName : "-"}
+              </h1>
+
               <p
                 className={
-                  user.displayName
+                  user.username
                     ? "text-sm text-white/60"
                     : "text-2xl font-bold text-white"
                 }
               >
-                {user.username}
+                @{user.username}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-white/60 uppercase tracking-wide">
-              {joinedDate}
-            </span>
+            {profile?.joinedAt && (
+              <span className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-white/60 uppercase tracking-wide">
+                Joined at {formatUnixDate(profile.joinedAt)}
+              </span>
+            )}
 
-            {MOCK_SOCIAL_LINKS.length > 0 && (
+            {activeSocialLinks.length > 0 && (
               <>
                 <div className="h-6 w-px bg-white/30" />
                 <div className="flex items-center gap-3.5">
-                  {MOCK_SOCIAL_LINKS.map(({ platform, url }) => (
+                  {activeSocialLinks.map(([platform, url]) => (
                     <a
                       key={platform}
                       href={url}
@@ -143,28 +174,29 @@ function CreatorHomePage() {
           ))}
         </div>
 
-        {/* ── Tab content ── */}
         <div className="flex flex-col items-center justify-center gap-4 px-6 text-center">
           {activeTab === "Home" ? (
             <div className="w-full flex justify-center mt-24">
-              {hasSetUpProfile ? (
+              {!hasSetUpProfile ? (
                 <ProfileInfo
-                  user={user}
-                  clubsFounded={clubs?.length}
-                  clubMembership={clubs?.reduce(
-                    (sum, c) => sum + c.maxSeats,
-                    0,
-                  )}
-                  clubsJoined={clubs?.filter((c) => !c.ownerId).length}
+                  profile={profile}
+                  hasSetUpProfile={hasSetUpProfile}
+                  clubsFounded={userClubs?.stats.clubFounded || 0}
+                  clubMembership={userClubs?.stats.clubMembership || 0}
+                  clubsJoined={userClubs?.stats.clubJoined || 0}
                 />
               ) : (
-                <FirstStart user={user} />
+                <FirstStart
+                  user={user}
+                  onSave={handleSaveProfile}
+                  profileData={profileData}
+                />
               )}
             </div>
           ) : activeTab === "Clubs" ? (
             <ClubTab />
           ) : (
-            <AccountSettingTab user={user} />
+            <AccountSettingTab />
           )}
         </div>
       </div>
@@ -173,10 +205,7 @@ function CreatorHomePage() {
         <EditProfileModal
           initialData={profileData}
           username={user?.username}
-          onSave={async (data, avatarFile) => {
-            console.log("Save profile", data, avatarFile);
-            close();
-          }}
+          onSave={handleSaveProfile}
           onClose={close}
         />
       )}

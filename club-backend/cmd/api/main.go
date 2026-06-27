@@ -15,6 +15,7 @@ import (
 	"club-backend/internal/handler"
 	membershipclub "club-backend/internal/membership/club"
 	"club-backend/internal/middleware"
+	"club-backend/internal/profile"
 	"club-backend/internal/repository"
 	"club-backend/internal/service"
 	studioclub "club-backend/internal/studio/club"
@@ -89,11 +90,12 @@ func main() {
 
 	fileGroup := api.Group("/file")
 	fileGroup.Use(middleware.Auth(cfg.JWT.Secret))
-	fileGroup.PUT("/upload", filePkg.NewUploadHandler(uploadSvc,logger).Handler)
+	fileGroup.PUT("/upload", filePkg.NewUploadHandler(uploadSvc, logger).Handler)
 
 	// ── Repositories ──────────────────────────────────────────────────────────
 	studioClubRepo := studioclub.NewClubRepository(sqlDB, uploadSvc)
 	memberRepo      := membershipclub.NewMembershipRepository(sqlDB)
+	profileRepo      := profile.NewProfileRepository(sqlDB, uploadSvc)
 
 	// ── Routes ────────────────────────────────────────────────────────────────
 	studio := api.Group("/studio")
@@ -105,7 +107,16 @@ func main() {
 	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)
 	studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
 	studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
-	
+
+	profileApi := api.Group("/profile")
+	profileApi.Use(middleware.Auth(cfg.JWT.Secret))
+	{
+		profileApi.GET("",      profile.NewGetUserProfile(profileRepo).Handler)
+		profileApi.PATCH("",    profile.NewUpdateUserProfile(profileRepo, uploadSvc,logger).Handler)
+		profileApi.GET("/club", profile.NewGetUserClubs(profileRepo).Handler)
+		profileApi.DELETE("", profile.NewDeleteUser(profileRepo, uploadSvc, logger).Handler)
+	}
+
 	// ── Routes ────────────────────────────────────────────────────────────────
 	mbr := api.Group("/membership")
 	mbr.Use(middleware.OptionalAuth(cfg.JWT.Secret))
