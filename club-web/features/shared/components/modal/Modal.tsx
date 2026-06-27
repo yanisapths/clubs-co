@@ -1,27 +1,36 @@
 "use client";
 
+import clsx from "clsx";
 import { X, Loader2 } from "lucide-react";
 import { ReactNode } from "react";
 
 interface ModalShellProps {
   onClose: () => void;
   children: ReactNode;
+  size?: "sm" | "md";
 }
 
-export function ModalShell({ onClose, children }: ModalShellProps) {
+export function ModalShell({
+  onClose,
+  children,
+  size = "md",
+}: ModalShellProps) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-16"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 overflow-hidden"
       style={{ background: "rgba(0,0,0,0.78)", backdropFilter: "blur(8px)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-[900px] rounded-2xl overflow-hidden flex flex-col"
+        className={clsx("w-full rounded-2xl overflow-hidden flex flex-col", {
+          "max-w-[600px]": size == "sm",
+          "max-w-[900px]": size == "md",
+        })}
         style={{
           background: "#1a1a1a",
           border: "1px solid rgba(255,255,255,0.1)",
           boxShadow: "0 32px 96px rgba(0,0,0,0.95)",
-          maxHeight: "calc(100vh - 100px)",
+          maxHeight: "calc(100vh - 80px)",
         }}
       >
         {children}

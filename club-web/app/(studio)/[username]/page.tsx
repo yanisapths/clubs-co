@@ -195,7 +195,7 @@ function CreatorHomePage() {
               )}
             </div>
           ) : activeTab === "Clubs" ? (
-            <ClubTab />
+            <ClubTab clubs={userClubs?.clubs} username={user.username} />
           ) : (
             <AccountSettingTab />
           )}

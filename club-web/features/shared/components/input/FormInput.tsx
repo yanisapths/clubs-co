@@ -12,7 +12,7 @@ interface FormInputProps extends Omit<
   "onChange"
 > {
   id: string;
-  label: string;
+  label?: string;
   value: string;
   onChange: (value: string) => void;
   hint?: string;

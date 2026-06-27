@@ -1,4 +1,5 @@
 import { SiInstagram, SiFacebook, SiX } from "@icons-pack/react-simple-icons";
+import { IconWorld } from "@tabler/icons-react";
 
 export function SocialIcon({ platform }: { platform: string }) {
   const cls =
@@ -10,6 +11,8 @@ export function SocialIcon({ platform }: { platform: string }) {
       return <SiFacebook className={cls} />;
     case "meta":
       return <SiFacebook className={cls} />;
+    case "website":
+      return <IconWorld className={cls} />;
     case "x":
     case "twitter":
       return <SiX className={cls} />;

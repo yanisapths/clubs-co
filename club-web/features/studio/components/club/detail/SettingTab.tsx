@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ToggleSwitch } from "../create/ToggleSwitch";
 import { Button } from "@/design-system/components/button";
+import { ConfirmationModal } from "@/features/shared/components/modal/ConfirmationModal";
+import { useModal } from "@/hooks/use-modal";
 
 interface SettingTabProps {
   username: string;
@@ -12,8 +14,7 @@ interface SettingTabProps {
 
 export function SettingTab({ username, club }: SettingTabProps) {
   const router = useRouter();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
+  const { show, visible, close } = useModal();
   const deleteClub = useDeleteClub();
 
   const handleDelete = () => {
@@ -56,34 +57,28 @@ export function SettingTab({ username, club }: SettingTabProps) {
             </p>
           </div>
 
-          {!showDeleteConfirm ? (
-            <Button
-              onClick={() => setShowDeleteConfirm(true)}
-              variant="outline"
-              className="cursor-pointer shrink-0 rounded-lg border-[#FF0000]/20 hover:bg-[#FF0000]/5 bg-[#FF0000]/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#FF0000] transition"
-            >
-              Delete
-            </Button>
-          ) : (
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                onClick={() => setShowDeleteConfirm(false)}
-                isDisabled={deleteClub.isPending}
-                className="cursor-pointer rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-zinc-500 hover:text-white disabled:opacity-50"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleDelete}
-                isDisabled={deleteClub.isPending}
-                className="cursor-pointer rounded-lg bg-[#FF0000] px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#FF0000]/60 active:bg-[#FF0000] disabled:opacity-50"
-              >
-                {deleteClub.isPending ? "Deleting…" : "Confirm"}
-              </Button>
-            </div>
-          )}
+          <Button
+            onClick={show}
+            variant="outline"
+            className="cursor-pointer shrink-0 rounded-lg border-[#FF0000]/20 hover:bg-[#FF0000]/5 bg-[#FF0000]/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#FF0000] transition"
+          >
+            Delete
+          </Button>
         </div>
       </div>
+
+      {visible && (
+        <ConfirmationModal
+          title="Delete this club"
+          description="This will permanently delete the club, members and remove all associations. Once you delete a club, there is no going back."
+          confirmationPhrase="delete"
+          actionLabel="Delete this club"
+          isPending={deleteClub.isPending}
+          onConfirm={handleDelete}
+          onClose={close}
+          variant="danger"
+        />
+      )}
     </div>
   );
 }
