@@ -5,6 +5,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ClubCard } from "./ClubCard";
 import { type MembershipClub } from "../../api/club"; // ← was importing Club from studio
+import { useRouter } from "next/navigation";
 
 interface ClubsCarouselProps {
   clubs: MembershipClub[];
@@ -14,6 +15,7 @@ export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+  const router = useRouter();
   const showNav = clubs.length >= 6;
 
   const updateState = useCallback(() => {
@@ -74,7 +76,10 @@ export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
       <div ref={trackRef} className="flex gap-4 overflow-x-auto scrollbar-none">
         {clubs.map((club) => (
           <div key={club.id} className="shrink-0 w-[400px]">
-            <ClubCard club={club} />
+            <ClubCard
+              club={club}
+              onClick={() => router.push(`/club/${club.id}`)}
+            />
           </div>
         ))}
       </div>

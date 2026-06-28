@@ -1,16 +1,15 @@
 import { Club } from "@/features/studio/api/club";
 import { MapPin } from "lucide-react";
-import { SocialIcon } from "./SocialIcons";
+
 import { Tag } from "@/features/shared/components/Tag";
-import { StickyFooter } from "./StickyFooter";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
-import { AddGalleryModal } from "./AddGalleryModal";
 import { usePatchClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import { useState } from "react";
-import { GalleryGrid, GalleryEmptyState } from "./GalleryGrid";
-import { GalleryPreview } from "./GalleryPreview";
+import { GalleryPreview } from "@/features/studio/components/club/detail/GalleryPreview";
+import { GalleryGrid } from "./GalleryGrid";
+import { SocialIcon } from "@/features/studio/components/club/detail/SocialIcons";
 
 export function ClubDetailsTab({
   club,
@@ -134,18 +133,8 @@ export function ClubDetailsTab({
             onAddClick={show}
             onImageClick={setLightboxIndex}
           />
-        ) : isOwner ? (
-          <GalleryEmptyState onAddClick={show} />
         ) : null}
       </div>
-
-      {visible && (
-        <AddGalleryModal
-          existingImages={galleryUrls.map((url: string) => ({ url }))}
-          onSave={handleGallerySave}
-          onClose={close}
-        />
-      )}
 
       {lightboxIndex !== null && (
         <GalleryPreview
@@ -154,8 +143,6 @@ export function ClubDetailsTab({
           onClose={() => setLightboxIndex(null)}
         />
       )}
-
-      {isOwner ? <StickyFooter pathToEdit={pathToEdit} /> : null}
     </div>
   );
 }

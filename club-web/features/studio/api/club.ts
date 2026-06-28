@@ -19,7 +19,7 @@ export interface Space {
 
 export interface Club {
   id: number;
-  ownerId: string;
+  ownerId?: string;
   owner: string;
   name: string;
   description: string;
@@ -28,14 +28,15 @@ export interface Club {
   visibility: "Anyone" | "MemberOnly";
   maxSeats: number;
   allowFollowers: boolean;
-  activate: boolean;
+  activate?: boolean;
   socialLinks?: SocialLink[];
   spaces: Space[];
   category: ClubCategory;
   tags: Tag[];
   createdAt: number;
-  updatedAt: number;
+  updatedAt?: number;
   galleryUrls?: string[];
+  isOwner?: boolean;
 }
 
 export interface CreateClubPayload {

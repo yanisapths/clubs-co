@@ -2,42 +2,34 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { StudioHeader } from "@/features/studio/components/layout/Header";
 import { useAccountAuth } from "@/hooks/use-account-auth";
-import { useGetClubById } from "@/features/studio/hooks/use-club";
-import { useModal } from "@/hooks/use-modal";
+
 import { MembersTab } from "@/features/studio/components/club/detail/MemberTab";
-import { SettingTab } from "@/features/studio/components/club/detail/SettingTab";
 import {
   ClubBanner,
   ClubMeta,
 } from "@/features/studio/components/club/detail/ClubMeta";
-import { ClubDetailsTab } from "@/features/studio/components/club/detail/DetailTab";
+import { useGetMembershipClubById } from "@/features/membership/hooks/use-club";
+import { ClubDetailsTab } from "@/features/membership/components/club/DetailTab";
 
-const TABS = ["General", "Members", "Settings"] as const;
+const TABS = ["General", "Members"] as const;
 type Tab = (typeof TABS)[number];
 
 const ClubDetailPage = () => {
   const { user } = useAccountAuth();
   const router = useRouter();
-  const params = useParams<{ username: string; "club-slug": string }>();
+  const params = useParams<{ "club-slug": string }>();
   const clubId = params["club-slug"];
 
-  const { club, members, isLoading, query } = useGetClubById(Number(clubId));
-  const {
-    visible: inviteOpen,
-    show: showInvite,
-    close: closeInvite,
-  } = useModal();
+  const { club, members, isLoading, query } = useGetMembershipClubById(
+    Number(clubId),
+  );
 
   const [activeTab, setActiveTab] = useState<Tab>("General");
-
-  const isOwner = club?.owner === user?.username;
 
   if (isLoading) {
     return (
       <div className="relative min-h-screen bg-black">
-        <StudioHeader />
         <div className="flex h-screen items-center justify-center text-white/40 text-sm">
           Loading…
         </div>
@@ -48,7 +40,6 @@ const ClubDetailPage = () => {
   if (query.isError || !club) {
     return (
       <div className="relative min-h-screen bg-black">
-        <StudioHeader />
         <div className="flex h-screen flex-col items-center justify-center gap-4 text-center">
           <p className="text-white/60">Club not found.</p>
           <button
@@ -64,16 +55,8 @@ const ClubDetailPage = () => {
 
   return (
     <div className="relative min-h-screen bg-black">
-      <StudioHeader />
-
       <div className="relative flex flex-col text-white">
-        <ClubBanner
-          club={club}
-          isOwner={isOwner}
-          onEdit={() =>
-            router.push(`/${params.username}/studio/club/${clubId}/edit`)
-          }
-        />
+        <ClubBanner club={club} isOwner={club.isOwner} />
 
         <ClubMeta club={club} />
 
@@ -94,15 +77,9 @@ const ClubDetailPage = () => {
         </div>
 
         {activeTab === "General" ? (
-          <ClubDetailsTab club={club} isOwner={isOwner} />
-        ) : activeTab === "Members" ? (
-          <MembersTab
-            members={members ?? []}
-            isOwner={isOwner}
-            onInvite={showInvite}
-          />
+          <ClubDetailsTab club={club} isOwner={club.isOwner} />
         ) : (
-          <SettingTab club={club} username={user.username} />
+          <MembersTab members={members ?? []} isOwner={club.isOwner} />
         )}
       </div>
     </div>

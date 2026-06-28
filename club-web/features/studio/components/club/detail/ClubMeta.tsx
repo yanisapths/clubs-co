@@ -13,7 +13,7 @@ export function ClubBanner({
 }: {
   club: Club;
   isOwner: boolean;
-  onEdit: () => void;
+  onEdit?: () => void;
 }) {
   const [from, to] = getGradient(String(club.id));
   const categoryDef = categories.find((c) => c.id === club.category?.id);

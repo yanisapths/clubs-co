@@ -36,7 +36,8 @@ export const useGetMembershipClubById = (id: number) => {
 
   return {
     query,
-    club: query.data,
+    club: query.data?.clubInfo,
+    members: query.data?.members,
     isLoading: query.isLoading,
   };
 };

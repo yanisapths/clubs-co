@@ -6,6 +6,20 @@ type ClubRole struct {
 	Name string `json:"name"`
 }
 
+type ClubCategory struct {
+	ID   int 	 	`json:"id"`
+	Name string     `json:"name"`
+}
+
+type Space struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+type Tag struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
 type ClubResponse struct {
 	ID             int64               `json:"id"`
 	Name           string              `json:"name"`
@@ -21,15 +35,6 @@ type ClubResponse struct {
 	MemberCount    int64               `json:"memberCount"`
 }
 
-type Space struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-}
-
-type Tag struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-}
 type GetClubByIDResponse struct {
 	ClubInfo ClubInfoResponse `json:"clubInfo"`
 	Members  []Member `json:"members"`
@@ -40,7 +45,6 @@ type Member struct {
 	Role    		string `json:"role"`
 	JoinedAt		int64  `json:"joinedAt"`
 }
-
 
 type ClubInfoResponse struct {
 	ID             int64               `json:"id"`
@@ -56,7 +60,8 @@ type ClubInfoResponse struct {
 	Activate       bool                `json:"activate"`
 	SocialLinks    []map[string]string `json:"socialLinks"`
 	SpaceIDs       []int64             `json:"spaceIds"`
-	CategoryName   string              `json:"categoryName"`
+	Spaces         []Space             `json:"spaces"`
+	Category       ClubCategory        `json:"category"` 
 	Tags           []Tag               `json:"tags"`
 	CreatedAt      int64               `json:"createdAt"`
 	UpdatedAt      int64               `json:"updatedAt"`

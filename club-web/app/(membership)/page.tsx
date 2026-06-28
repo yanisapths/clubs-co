@@ -133,7 +133,10 @@ export default function Home() {
                   >
                     {clubs.map((club) => (
                       <div key={club.id} className="w-[180px]">
-                        <ClubCard club={club} />
+                        <ClubCard
+                          club={club}
+                          onClick={() => router.push(`/club/${club.id}`)}
+                        />
                       </div>
                     ))}
                   </div>

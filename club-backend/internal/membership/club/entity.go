@@ -19,6 +19,7 @@ type Club struct {
 	UpdatedAt      time.Time         `db:"updated_at"`
 	Owner          string            `db:"owner"`
 	OwnerID        string            `db:"owner_id"`
+	CategoryID     int          	 `db:"category_id"`
 	CategoryName   string            `db:"category_name"`
 	Tags           []Tag             `db:"tags"`
 	Spaces         []Space           `db:"spaces"`

@@ -86,8 +86,11 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			AllowFollowers: clubInfo.AllowFollowers,
 			Activate:       clubInfo.Activate,
 			SocialLinks:    clubInfo.SocialLinks,
-			SpaceIDs:       clubInfo.SpaceIDs,
-			CategoryName:   clubInfo.CategoryName,
+			Spaces:       clubInfo.Spaces,
+			Category:   ClubCategory{
+				ID: 	 clubInfo.CategoryID,
+				Name: 	 clubInfo.CategoryName,
+			},
 			Tags:           clubInfo.Tags,
 			CreatedAt:      clubInfo.CreatedAt.Unix(),
 			UpdatedAt:      clubInfo.UpdatedAt.Unix(),

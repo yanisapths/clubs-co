@@ -1,7 +1,13 @@
+import { ClubCategory, Space, Tag } from "@/features/studio/api/club";
+import { SocialLink } from "@/features/studio/api/common";
 import { apiFetch } from "@/lib/api-types";
 import { getStoredToken } from "@/lib/storage";
 
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/membership/club`;
+
+export interface MembershipMessage {
+  message: string;
+}
 
 export interface MembershipClub {
   id: number;
@@ -30,10 +36,6 @@ export interface MembershipClub {
     | null;
 }
 
-export interface MembershipMessage {
-  message: string;
-}
-
 export const getMembershipClubs = () =>
   apiFetch<MembershipClub[]>(baseApi, {
     method: "GET",
@@ -44,8 +46,39 @@ export const getMembershipClubs = () =>
       : undefined,
   });
 
+export interface Club {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl: string;
+  clubType: "Public" | "Private" | "Exclusive";
+  visibility: "Anyone" | "MemberOnly";
+  maxSeats: number;
+  memberCount: number;
+  allowFollowers: boolean;
+  category: ClubCategory;
+  createdAt: number;
+  isMember?: boolean;
+  socialLinks?: SocialLink[];
+  spaces: Space[];
+  tags: Tag[];
+  owner: string;
+  galleryUrls?: string[];
+  isOwner: boolean;
+}
+
+export interface MembershipClubDetailResponse {
+  clubInfo: Club;
+  members: {
+    username: string;
+    id: string;
+    role: string;
+    joinedAt: number;
+  }[];
+}
+
 export const getMembershipClubById = (id: number) =>
-  apiFetch<MembershipClub>(`${baseApi}/${id}`, {
+  apiFetch<MembershipClubDetailResponse>(`${baseApi}/${id}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${getStoredToken()}`,

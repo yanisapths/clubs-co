@@ -199,6 +199,7 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 			c.updated_at,
 			u.username AS owner,
 			c.owner_id,
+			cg.id AS category_id,
 			COALESCE(cg.name, '') AS category_name,
 			COALESCE(
 				JSON_AGG(
@@ -218,7 +219,8 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 					WHERE me.club_id = c.id
 					AND me.user_id = $1::uuid
 				)
-			END AS is_member
+			END AS is_member,
+			COALESCE(ARRAY_TO_JSON(c.gallery_urls)::text, '[]') AS gallery_urls
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.tag t ON t.id = ANY(c.tag_ids)
@@ -243,6 +245,7 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 			c.created_at,
 			c.updated_at,
 			c.owner_id,
+			cg.id,
 			cg.name,
 			u.username
 	`
@@ -254,6 +257,7 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 		spaceIDsRaw    []byte
 		tagIDsRaw      []byte
 		tagsRaw        []byte
+		galleryRaw     []byte
 	)
 
 	err := r.db.QueryRowContext(ctx, query, userID,clubID).Scan(
@@ -273,10 +277,12 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 		&club.UpdatedAt,
 		&club.Owner,
 		&club.OwnerID,
+		&club.CategoryID,
 		&club.CategoryName,
 		&tagsRaw,
 		&club.MemberCount,
 		&club.IsMember,
+		&galleryRaw,
 	)
 	if err != nil {
 		return nil, err
@@ -292,6 +298,10 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 
 	if err := json.Unmarshal(tagsRaw, &club.Tags); err != nil {
 		return nil, fmt.Errorf("unmarshal tags: %w", err)
+	}
+	
+	if err := json.Unmarshal(galleryRaw, &club.GalleryURLs); err != nil {
+		return nil, fmt.Errorf("unmarshal gallery_urls: %w", err)
 	}
 
 	return &club, nil

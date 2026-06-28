@@ -12,7 +12,7 @@ export function MembersTab({
 }: {
   members: ClubMember[];
   isOwner: boolean;
-  onInvite: () => void;
+  onInvite?: () => void;
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
