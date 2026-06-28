@@ -49,14 +49,10 @@ function CreatorHomePage() {
   const hasSetUpProfile =
     Boolean(profile?.displayName) ||
     Boolean(profile?.bio) ||
-    Boolean(profile?.firstname) ||
-    Boolean(profile?.lastname) ||
     Boolean(profile?.imageUrl) ||
     Boolean(profile?.bannerUrl);
 
   const profileData: ProfileFormData = {
-    firstname: profile?.firstname ?? user.firstName ?? "",
-    lastname: profile?.lastname ?? user.lastName ?? "",
     displayName: profile?.displayName ?? user.displayName ?? "",
     bio: profile?.bio ?? "",
     imageUrl: profile?.imageUrl ?? null,
@@ -78,8 +74,6 @@ function CreatorHomePage() {
     );
 
     const payload: PatchProfilePayload = {
-      firstname: data.firstname,
-      lastname: data.lastname,
       displayName: data.displayName,
       bio: data.bio,
       imageUrl: data.imageUrl ?? undefined,

@@ -19,6 +19,7 @@ type Club struct {
 	UpdatedAt      time.Time         `db:"updated_at"`
 	Owner          string            `db:"owner"`
 	OwnerID        string            `db:"owner_id"`
+	OwnerDisplayName  string 		 `db:"display_name"`
 	CategoryID     int          	 `db:"category_id"`
 	CategoryName   string            `db:"category_name"`
 	Tags           []Tag             `db:"tags"`
@@ -28,9 +29,8 @@ type Club struct {
 }
 
 type ClubMember struct {
+	MemberDisplayName  string 		`db:"display_name"`
 	MemberUsername  string 		`db:"username"`
-	MemberFirstame  string 		`db:"first_name"`
-	MemberLastname  string 		`db:"last_name"`
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`
 	JoinedAt 		time.Time   `db:"joined_at"`

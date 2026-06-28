@@ -40,6 +40,7 @@ type GetClubByIDResponse struct {
 	Members  []Member `json:"members"`
 }
 type Member struct {
+	MemberDisplayName string `json:"displayName"`
 	MemberUsername  string `json:"username"`
 	MemberID 		string `json:"id"`
 	Role    		string `json:"role"`
@@ -48,7 +49,8 @@ type Member struct {
 
 type ClubInfoResponse struct {
 	ID             int64               `json:"id"`
-	Owner        string                `json:"owner"`
+	Owner          string              `json:"owner"`
+	OwnerDisplayName        string     `json:"ownerDisplayName"`
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
 	ImageURL       string              `json:"imageUrl"`

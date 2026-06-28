@@ -6,8 +6,6 @@ type UserEntity struct {
 	ID          string
 	Email       string
 	Username    string
-	FirstName   *string
-	LastName    *string
 	DisplayName *string
 	Bio         *string
 	ImageURL    *string

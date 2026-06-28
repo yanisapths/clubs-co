@@ -57,11 +57,17 @@ export function ClubMeta({ club }: { club: Club }) {
         <div>
           <h2 className="text-xl font-semibold text-white">{club.name}</h2>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <Tag>By {club.owner}</Tag>
+            <Tag>By {club.ownerDisplayName}</Tag>
             <Tag>Est. {formatUnixDate(club.createdAt)}</Tag>
-            <div className="flex gap-1 items-center text-[#53FF84]">
-              <span className="h-2 w-2 rounded-full bg-[#53FF84]" />
-              <span className="text-sm">Active</span>
+            <div
+              className={`flex gap-1 items-center ${club.activate ? "text-[#53FF84]" : "text-zinc-500"}`}
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${club.activate ? "bg-[#53FF84]" : "bg-zinc-500"}`}
+              />
+              <span className="text-sm">
+                {club.activate ? "Active" : "Inactive"}
+              </span>
             </div>
           </div>
         </div>

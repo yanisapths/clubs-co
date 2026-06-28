@@ -53,7 +53,7 @@ export const UserDropdown = () => {
             />
             <div className="flex-1 min-w-0">
               <p className="truncate text-[17px] font-medium text-white">
-                {user.fullName}
+                {user.displayName}
               </p>
               <p className="truncate text-[13px] text-white/40">@{username}</p>
             </div>

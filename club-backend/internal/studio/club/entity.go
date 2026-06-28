@@ -25,12 +25,12 @@ type Club struct {
 	CategoryName   string            `db:"category_name"`
 	Tags           []Tag             `db:"tags"`
 	GalleryURLs    []string 		 `db:"gallery_urls"`
+	OwnerDisplayName string          `db:"display_name"`
 }
 
 type ClubMember struct {
 	MemberUsername  string 		`db:"username"`
-	MemberFirstame  string 		`db:"first_name"`
-	MemberLastname  string 		`db:"last_name"`
+	MemberDisplayName  string 	`db:"display_name"`
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`
 	JoinedAt 		time.Time   `db:"joined_at"`

@@ -17,7 +17,7 @@ import { checkUserExist } from "@/features/shared/api/api";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 const signupSchema = z
@@ -33,6 +33,7 @@ const signupSchema = z
     email: z.string().email("Please enter a valid email"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirm_password: z.string(),
+    displayName: z.string().min(3).max(50),
   })
   .refine((d) => d.password === d.confirm_password, {
     message: "Passwords don't match",
@@ -232,6 +233,7 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
         email: values.email,
         username: values.username,
         password: values.password,
+        displayName: values.displayName,
       });
       // Auto sign-in after successful signup
       const result = await signIn("credentials", {
@@ -318,6 +320,15 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+      <Field
+        label="Display name"
+        type="text"
+        {...register("displayName")}
+        error={errors.displayName?.message}
+      />
+      <div className="flex items-center justify-between text-xs text-zinc-500">
+        <span>This is your public name. It can be changed later.</span>
+      </div>
       <Field
         label="Username"
         type="text"

@@ -26,7 +26,6 @@ export function ClubDetailsTab({
   const visibleSpaces = (club.spaces ?? []).slice(0, MAX_SPACES);
   const extraSpaces = Math.max(0, (club.spaces ?? []).length - MAX_SPACES);
   const { visible, show, close } = useModal();
-  const patchClub = usePatchClub(club.id);
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -38,30 +37,7 @@ export function ClubDetailsTab({
     return { platform, url };
   });
 
-  const pathToEdit = `/${user.username}/studio/club/${club.id}/edit`;
   const galleryUrls = club.galleryUrls ?? [];
-
-  const handleGallerySave = ({
-    tempUrlsToAdd,
-    existingUrlsToRemove,
-  }: {
-    tempUrlsToAdd: string[];
-    existingUrlsToRemove: string[];
-  }) => {
-    if (tempUrlsToAdd.length === 0 && existingUrlsToRemove.length === 0) return;
-
-    patchClub.mutate(
-      {
-        galleriesToAdd: tempUrlsToAdd,
-        galleriesToRemove: existingUrlsToRemove,
-      },
-      {
-        onError: () => {
-          toast.danger("Couldn't save gallery changes. Please try again.");
-        },
-      },
-    );
-  };
 
   return (
     <div className="px-6 py-6 space-y-6">

@@ -42,8 +42,6 @@ func (h *GetUserProfile) Handler(c *gin.Context) {
 	}
 
 	resp := UserInfoResponse{
-		FirstName:   deref(user.FirstName),
-		LastName:    deref(user.LastName),
 		DisplayName: deref(user.DisplayName),
 		Username:    user.Username,
 		SocialLinks: socialLinks,

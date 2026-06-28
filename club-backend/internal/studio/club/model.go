@@ -35,7 +35,8 @@ type SpaceInput struct {
 }
 type ClubResponse struct {
 	ID             int64               `json:"id"`
-	Owner        string                `json:"owner"`
+	Owner          string              `json:"owner"`
+	OwnerDisplayName        string     `json:"ownerDisplayName"`
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
 	ImageURL       string              `json:"imageUrl"`
@@ -92,6 +93,7 @@ type GetClubByIDResponse struct {
 }
 
 type Member struct {
+	MemberDisplayName string `json:"displayName"`
 	MemberUsername  string `json:"username"`
 	MemberID 		string `json:"id"`
 	Role    		string `json:"role"`
@@ -113,6 +115,7 @@ type PatchClubRequest struct {
 	GalleriesToAdd []string `json:"galleriesToAdd" binding:"omitempty,dive,url"`
 	GalleriesToRemove []string `json:"galleriesToRemove" binding:"omitempty,dive,url"`
 	SocialLinks json.RawMessage `json:"socialLinks"`
+	Activate *bool `json:"activate"`
 }
 type promotedGalleryImage struct {
 	URL     string

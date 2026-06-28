@@ -5,8 +5,7 @@ interface AccountSession {
   user: { email: string; id: string };
   expires: string;
   username: string;
-  firstName: string;
-  lastName: string;
+  displayName: string;
   accessToken: string;
   refreshToken: string;
 }
@@ -15,10 +14,7 @@ export interface UserInfo {
   id: string;
   email: string;
   username: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  displayName?: string;
+  displayName: string;
   bio?: string;
   profileImage?: string;
   bannerUrl?: string;
@@ -34,9 +30,7 @@ export const useAccountAuth = () => {
     id: s?.user.id ?? "",
     email: s?.user.email ?? "",
     username: s?.username ?? "",
-    firstName: s?.firstName ?? "",
-    lastName: s?.lastName ?? "",
-    fullName: s ? `${s.firstName} ${s.lastName}`.trim() : "",
+    displayName: s?.displayName ?? "",
   };
 
   const handleLogout = async () => {

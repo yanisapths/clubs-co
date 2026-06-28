@@ -12,8 +12,7 @@ type User struct {
 	Email        string         `gorm:"uniqueIndex;not null;size:255"     json:"email"`
 	Username     string         `gorm:"uniqueIndex;not null;size:100"     json:"username"`
 	PasswordHash string         `gorm:"not null"                          json:"-"`
-	FirstName    string         `gorm:"size:100"                          json:"first_name"`
-	LastName     string         `gorm:"size:100"                          json:"last_name"`
+	DisplayName    string         `gorm:"size:50"                          json:"display_name"`
 	IsActive     bool           `gorm:"default:true"                      json:"is_active"`
 	CreatedAt    time.Time      `                                         json:"created_at"`
 	UpdatedAt    time.Time      `                                         json:"updated_at"`

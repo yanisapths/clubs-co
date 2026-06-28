@@ -1,11 +1,12 @@
 import { Club } from "@/features/studio/api/club";
-import { useDeleteClub } from "@/features/studio/hooks/use-club";
+import { useDeleteClub, usePatchClub } from "@/features/studio/hooks/use-club";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ToggleSwitch } from "../create/ToggleSwitch";
 import { Button } from "@/design-system/components/button";
 import { ConfirmationModal } from "@/features/shared/components/modal/ConfirmationModal";
 import { useModal } from "@/hooks/use-modal";
+import { toast } from "@heroui/react";
 
 interface SettingTabProps {
   username: string;
@@ -16,6 +17,8 @@ export function SettingTab({ username, club }: SettingTabProps) {
   const router = useRouter();
   const { show, visible, close } = useModal();
   const deleteClub = useDeleteClub();
+  const patchClub = usePatchClub(club.id);
+  const [isActive, setIsActive] = useState(club.activate);
 
   const handleDelete = () => {
     deleteClub.mutate(club.id, {
@@ -23,6 +26,26 @@ export function SettingTab({ username, club }: SettingTabProps) {
         router.push(`/${username}/studio/club`);
       },
     });
+  };
+
+  const handleActivation = () => {
+    const nextActive = !isActive;
+
+    patchClub.mutate(
+      { activate: nextActive },
+      {
+        onSuccess: () => {
+          setIsActive(nextActive);
+        },
+        onError: () => {
+          if (nextActive) {
+            toast.danger("Failed to activate club. Please try again.");
+          } else {
+            toast.danger("Failed to deactivate club. Please try again.");
+          }
+        },
+      },
+    );
   };
 
   return (
@@ -39,9 +62,10 @@ export function SettingTab({ username, club }: SettingTabProps) {
             </p>
           </div>
           <ToggleSwitch
-            checked={false}
-            onChange={() => {}}
+            checked={!isActive}
+            onChange={handleActivation}
             label="Deactivate club"
+            disabled={patchClub.isPending}
           />
         </div>
       </div>

@@ -32,8 +32,6 @@ No request body. Auth token is used to identify the owner.
   "code": 200,
   "message": "success",
   "data": {
-    "firstname": "John",
-    "lastname": "D", -- allow 1 char only
     "displayName":"John Doeee",
     "username": "johndoezzI_123",
     "socialLinks": [
@@ -84,8 +82,6 @@ curl -X PATCH http://localhost:9090/api/v1/profile \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <token>" \
   -d '{
-    "firstname": "John",
-    "lastname": "D", -- allow 1 char only
     "displayName":"John Doeee", -- max 100 char, allow dup with existing
     "socialLinks": [
             { "instagram": "https://instagram.com" },

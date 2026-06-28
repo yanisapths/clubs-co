@@ -37,8 +37,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             id: user.id,
             email: user.email,
             username: user.username,
-            first_name: user.first_name,
-            last_name: user.last_name,
+            displayName: user.displayName,
             accessToken: tokens.access_token,
             refreshToken: tokens.refresh_token,
           };
@@ -55,8 +54,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id as string;
         token.username = (user as any).username as string;
-        token.firstName = (user as any).first_name as string;
-        token.lastName = (user as any).last_name as string;
+        token.displayName = (user as any).displayName as string;
         token.accessToken = (user as any).accessToken as string;
         token.refreshToken = (user as any).refreshToken as string;
       }
@@ -66,8 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string;
         session.username = token.username as string;
-        session.firstName = token.firstName as string;
-        session.lastName = token.lastName as string;
+        session.displayName = token.displayName as string;
         session.accessToken = token.accessToken as string;
         session.refreshToken = token.refreshToken as string;
       }

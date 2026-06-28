@@ -4,8 +4,6 @@ import { SocialLink } from "./common";
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/profile`;
 
 export interface Profile {
-  firstname: string;
-  lastname: string;
   displayName: string;
   username: string;
   socialLinks: SocialLink[];
@@ -37,8 +35,6 @@ export interface ProfileClub {
 }
 
 export interface PatchProfilePayload {
-  firstname?: string;
-  lastname?: string;
   displayName?: string;
   socialLinks?: SocialLink[];
   imageUrl?: string;

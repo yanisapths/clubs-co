@@ -70,6 +70,7 @@ export interface Club {
 export interface MembershipClubDetailResponse {
   clubInfo: Club;
   members: {
+    displayName: string;
     username: string;
     id: string;
     role: string;

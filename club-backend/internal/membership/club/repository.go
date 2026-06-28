@@ -220,7 +220,8 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 					AND me.user_id = $1::uuid
 				)
 			END AS is_member,
-			COALESCE(ARRAY_TO_JSON(c.gallery_urls)::text, '[]') AS gallery_urls
+			COALESCE(ARRAY_TO_JSON(c.gallery_urls)::text, '[]') AS gallery_urls,
+			u.display_name
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.tag t ON t.id = ANY(c.tag_ids)
@@ -247,7 +248,8 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 			c.owner_id,
 			cg.id,
 			cg.name,
-			u.username
+			u.username,
+			u.display_name
 	`
 
 	var club Club
@@ -283,6 +285,7 @@ func (r *membershipRepository) GetClubByID(ctx context.Context, userID *string, 
 		&club.MemberCount,
 		&club.IsMember,
 		&galleryRaw,
+		&club.OwnerDisplayName,
 	)
 	if err != nil {
 		return nil, err
@@ -315,8 +318,7 @@ func (r *membershipRepository) GetClubMemberByClubID(
 	query := `
 		SELECT
 			u.username,
-			u.first_name,
-			u.last_name,
+			u.display_name,
 			u.id,
 			r.name AS role,
 			cm.joined_at
@@ -342,8 +344,7 @@ func (r *membershipRepository) GetClubMemberByClubID(
 
 		if err := rows.Scan(
 			&member.MemberUsername,
-			&member.MemberFirstame,
-			&member.MemberLastname,
+			&member.MemberDisplayName,
 			&member.MemberID,
 			&member.Role,
 			&member.JoinedAt,

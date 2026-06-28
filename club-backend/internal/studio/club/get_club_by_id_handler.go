@@ -93,12 +93,14 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			Tags:           clubInfo.Tags,
 			CreatedAt:      clubInfo.CreatedAt.Unix(),
 			UpdatedAt:      clubInfo.UpdatedAt.Unix(),
+			OwnerDisplayName: clubInfo.OwnerDisplayName,
 		},
 		Members: make([]Member, 0, len(members)),
 	}
 
 	for _, m := range members {
 		resp.Members = append(resp.Members, Member{
+			MemberDisplayName: m.MemberDisplayName,
 			MemberUsername: m.MemberUsername,
 			MemberID:       m.MemberID,
 			Role:           m.Role,

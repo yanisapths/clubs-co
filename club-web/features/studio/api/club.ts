@@ -21,6 +21,7 @@ export interface Club {
   id: number;
   ownerId?: string;
   owner: string;
+  ownerDisplayName: string;
   name: string;
   description: string;
   imageUrl: string;
@@ -28,7 +29,7 @@ export interface Club {
   visibility: "Anyone" | "MemberOnly";
   maxSeats: number;
   allowFollowers: boolean;
-  activate?: boolean;
+  activate: boolean;
   socialLinks?: SocialLink[];
   spaces: Space[];
   category: ClubCategory;
@@ -70,6 +71,7 @@ export interface UpdateClubPayload {
 export interface ClubDetail {
   clubInfo: Club;
   members: {
+    displayName: string;
     username: string;
     id: string;
     role: string;
@@ -140,6 +142,7 @@ export interface PatchClubPayload {
   // Existing permanent club/gallery URLs to delete on save.
   galleriesToRemove?: string[];
   socialLinks?: SocialLink[];
+  activate?: boolean;
 }
 
 export const patchClubById = (

@@ -3,9 +3,7 @@ package profile
 import "encoding/json"
 
 type PatchUserRequest struct {
-	FirstName   *string         `json:"firstname"    binding:"omitempty,min=0,max=100"`
-	LastName    *string         `json:"lastname"     binding:"omitempty,min=0,max=1"`
-	DisplayName *string         `json:"displayName"  binding:"omitempty,max=50"`
+	DisplayName *string         `json:"displayName"  binding:"omitempty,min=3,max=50"`
 	Bio         *string         `json:"bio"          binding:"omitempty,max=500"`
 	ImageURL    *string         `json:"imageUrl"     binding:"omitempty,url"`
 	BannerURL   *string         `json:"bannerUrl"    binding:"omitempty,url"`
@@ -15,8 +13,6 @@ type PatchUserRequest struct {
 // ── GET /user ─────────────────────────────────────────────────────────────────
 
 type UserInfoResponse struct {
-	FirstName   string          `json:"firstname"`
-	LastName    string          `json:"lastname"`
 	DisplayName string          `json:"displayName"`
 	Username    string          `json:"username"`
 	SocialLinks json.RawMessage `json:"socialLinks"`

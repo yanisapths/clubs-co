@@ -76,6 +76,7 @@ func (s *GetClubById) Handler(c *gin.Context) {
 		ClubInfo: ClubInfoResponse{
 			ID:             clubInfo.ID,
 			Owner:          clubInfo.Owner,
+			OwnerDisplayName: clubInfo.OwnerDisplayName,
 			Name:           clubInfo.Name,
 			Description:    description,
 			ImageURL:       imageURL,
@@ -102,6 +103,7 @@ func (s *GetClubById) Handler(c *gin.Context) {
 
 	for _, m := range members {
 		resp.Members = append(resp.Members, Member{
+			MemberDisplayName: m.MemberDisplayName,
 			MemberUsername: m.MemberUsername,
 			MemberID:       m.MemberID,
 			Role:           m.Role,

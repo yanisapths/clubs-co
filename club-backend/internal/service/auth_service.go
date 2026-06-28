@@ -20,6 +20,7 @@ type SignUpRequest struct {
 	Email     string `json:"email"      binding:"required,email"`
 	Username  string `json:"username"   binding:"required,min=3,max=30,username"`
 	Password  string `json:"password"   binding:"required,min=8"`
+	DisplayName  string `json:"displayName"   binding:"required,min=3,max=50,displayName"`
 }
 
 type LoginRequest struct {
@@ -37,8 +38,7 @@ type UserResponse struct {
 	ID        string `json:"id"`
 	Email     string `json:"email"`
 	Username  string `json:"username"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	DisplayName string `json:"displayName"`
 }
 
 // --- Service errors ---
@@ -171,7 +171,6 @@ func toUserResponse(u *model.User) *UserResponse {
 		ID:        u.ID.String(),
 		Email:     u.Email,
 		Username:  u.Username,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
+		DisplayName: u.DisplayName,
 	}
 }

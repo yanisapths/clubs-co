@@ -27,8 +27,6 @@ import { ALL_PLATFORMS, PLATFORM_CONFIG } from "@/features/shared/constants";
 export type SocialLinkMap = Record<string, string>;
 
 export interface ProfileFormData {
-  firstname: string;
-  lastname: string;
   displayName: string;
   bio: string;
   imageUrl: string | null;
@@ -37,8 +35,6 @@ export interface ProfileFormData {
 }
 
 export interface ProfileSaveData {
-  firstname: string;
-  lastname: string;
   displayName: string;
   bio: string;
   socialLinks: SocialLinkMap;
@@ -69,8 +65,6 @@ export function EditProfileModal({
 }: EditProfileModalProps) {
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const [firstname, setFirstname] = useState(initialData.firstname);
-  const [lastname, setLastname] = useState(initialData.lastname);
   const [displayName, setDisplayName] = useState(initialData.displayName);
   const [bio, setBio] = useState(initialData.bio);
 
@@ -171,8 +165,6 @@ export function EditProfileModal({
       }
 
       await onSave({
-        firstname,
-        lastname,
         displayName,
         bio,
         socialLinks,
@@ -270,27 +262,6 @@ export function EditProfileModal({
             accept="image/png, image/jpeg"
             className="hidden"
             onChange={handleAvatarChange}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 w-full">
-          <FormInput
-            id="firstname"
-            label="First name"
-            value={firstname}
-            onChange={setFirstname}
-            placeholder="First name"
-            maxLength={100}
-            hint="It can be changed later."
-          />
-          <FormInput
-            id="lastname"
-            label="Last name"
-            value={lastname}
-            onChange={setLastname}
-            placeholder="D"
-            maxLength={1}
-            hint="Only 1 letter allowed."
           />
         </div>
 

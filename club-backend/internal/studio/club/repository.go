@@ -483,7 +483,8 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', s.id, 'name', s.name)), '[]')
 				FROM public.space s
 				WHERE s.id = ANY(c.space_ids)
-			) AS spaces
+			) AS spaces,
+			 u.display_name
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
@@ -509,7 +510,8 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 			c.owner_id,
 			cg.name,
 			cg.id,
-			u.username
+			u.username,
+			u.display_name
 	`
 
 	var club Club
@@ -545,6 +547,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 		&club.CategoryName,
 		&tagsRaw,
 		&spacesRaw,
+		&club.OwnerDisplayName,
 	)
 	if err != nil {
 		return nil, err
@@ -577,8 +580,7 @@ func (r *clubRepository) GetClubMemberByClubID(
 	query := `
 		SELECT
 			u.username,
-			u.first_name,
-			u.last_name,
+			u.display_name,
 			u.id,
 			r.name AS role,
 			cm.joined_at
@@ -604,8 +606,7 @@ func (r *clubRepository) GetClubMemberByClubID(
 
 		if err := rows.Scan(
 			&member.MemberUsername,
-			&member.MemberFirstame,
-			&member.MemberLastname,
+			&member.MemberDisplayName,
 			&member.MemberID,
 			&member.Role,
 			&member.JoinedAt,
@@ -764,6 +765,7 @@ func (r *clubRepository) PatchClub(
 			space_ids      = $11,
 			gallery_urls   = $12,
 			social_links   = COALESCE($13, social_links),
+			activate	   = $16,
 			updated_at     = NOW()
 		WHERE id = $14
 		AND owner_id = $15::uuid
@@ -778,6 +780,7 @@ func (r *clubRepository) PatchClub(
 		socialLinksJSON,   // $13
 		clubID,            // $14
 		ownerID,           // $15
+		req.Activate,
 	)
 
 	if err != nil {

@@ -51,10 +51,15 @@ export function MembersTab({
             <li key={member.id} className="relative">
               <div className="grid grid-cols-[1fr_120px_120px_48px] items-center py-3">
                 <div className="flex items-center gap-3">
-                  <MemberAvatar username={member.username} />
-                  <span className="text-sm font-medium text-white">
-                    {member.username}
-                  </span>
+                  <MemberAvatar displayName={member.displayName} />
+                  <div className="flex flex-col">
+                    <span className="text-base font-medium text-white">
+                      {member.displayName}
+                    </span>
+                    <span className="text-xs font-medium text-white/40">
+                      @{member.username}
+                    </span>
+                  </div>
 
                   {!pending &&
                     member.joinedAt &&

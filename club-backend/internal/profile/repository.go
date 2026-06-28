@@ -25,8 +25,6 @@ func (r *profileRepository) GetUserInfo(ctx context.Context, ownerID string) (*U
 			id,
 			email,
 			username,
-			first_name,
-			last_name,
 			display_name,
 			bio,
 			image_url,
@@ -42,8 +40,6 @@ func (r *profileRepository) GetUserInfo(ctx context.Context, ownerID string) (*U
 		&u.ID,
 		&u.Email,
 		&u.Username,
-		&u.FirstName,
-		&u.LastName,
 		&u.DisplayName,
 		&u.Bio,
 		&u.ImageURL,
@@ -75,16 +71,6 @@ func (r *profileRepository) PatchUser(ctx context.Context, ownerID string, req P
 	args := []any{}
 	idx := 1
 
-	if req.FirstName != nil {
-		setClauses = append(setClauses, fmt.Sprintf("first_name = $%d", idx))
-		args = append(args, *req.FirstName)
-		idx++
-	}
-	if req.LastName != nil {
-		setClauses = append(setClauses, fmt.Sprintf("last_name = $%d", idx))
-		args = append(args, *req.LastName)
-		idx++
-	}
 	if req.DisplayName != nil {
 		setClauses = append(setClauses, fmt.Sprintf("display_name = $%d", idx))
 		args = append(args, *req.DisplayName)
