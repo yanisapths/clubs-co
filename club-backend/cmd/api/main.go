@@ -14,6 +14,7 @@ import (
 	"club-backend/internal/file"
 	"club-backend/internal/handler"
 	membershipclub "club-backend/internal/membership/club"
+	membershipuser "club-backend/internal/membership/user"
 	"club-backend/internal/middleware"
 	"club-backend/internal/profile"
 	"club-backend/internal/repository"
@@ -96,7 +97,7 @@ func main() {
 	studioClubRepo := studioclub.NewClubRepository(sqlDB, uploadSvc)
 	memberRepo      := membershipclub.NewMembershipRepository(sqlDB)
 	profileRepo      := profile.NewProfileRepository(sqlDB, uploadSvc)
-
+	memberUserRepo      := membershipuser.NewMembershipUserRepository(sqlDB)
 	// ── Routes ────────────────────────────────────────────────────────────────
 	studio := api.Group("/studio")
 	studio.Use(middleware.Auth(cfg.JWT.Secret))
@@ -127,6 +128,7 @@ func main() {
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo).Handler)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo).Handler)
 	mbr.GET("/club/:id", membershipclub.NewGetClubById(memberRepo, logger).Handler)
+	mbr.GET("/user/exist", membershipuser.NewGetUserExist(memberUserRepo, logger).Handler)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

@@ -74,7 +74,7 @@ function CreatorHomePage() {
       ...(data.displayName && { displayName: data.displayName }),
       ...(data.bio && { bio: data.bio }),
       ...(data.imageUrl && { imageUrl: data.imageUrl }),
-      socialLinks,
+      ...socialLinks,
     };
 
     await patchProfile(payload);

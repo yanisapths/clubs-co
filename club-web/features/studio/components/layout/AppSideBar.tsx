@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { BoxesIcon, HomeIcon, Settings } from "lucide-react";
+import { BoxesIcon, DoorOpenIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { StudioLogo } from "../StudioLogo";
@@ -12,7 +12,7 @@ const mainNavItems = (username: string) => [
   { title: "Studio", url: `/${username}/studio/club`, icon: BoxesIcon },
 ];
 
-const bottomNavItems = [{ title: "Settings", url: "/", icon: Settings }];
+const bottomNavItems = [{ title: "Find Clubs", url: "/", icon: DoorOpenIcon }];
 
 type NavItemType = ReturnType<typeof mainNavItems>[number];
 

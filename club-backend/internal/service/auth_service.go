@@ -18,10 +18,8 @@ import (
 
 type SignUpRequest struct {
 	Email     string `json:"email"      binding:"required,email"`
-	Username  string `json:"username"   binding:"required,min=3,max=100,username"`
+	Username  string `json:"username"   binding:"required,min=3,max=30,username"`
 	Password  string `json:"password"   binding:"required,min=8"`
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name"  binding:"required"`
 }
 
 type LoginRequest struct {
@@ -102,8 +100,6 @@ func (s *authService) SignUp(ctx context.Context, req *SignUpRequest) (*AuthResp
 		Email:        req.Email,
 		Username:     req.Username,
 		PasswordHash: string(hash),
-		FirstName:    req.FirstName,
-		LastName:     req.LastName,
 		IsActive:     true,
 	}
 

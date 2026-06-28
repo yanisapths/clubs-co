@@ -1,7 +1,7 @@
 // app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "@heroui/react";
 import Link from "next/link";
 import { setStoredToken } from "@/lib/storage";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { checkUserExist } from "@/features/shared/api/api";
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
@@ -20,12 +22,10 @@ const loginSchema = z.object({
 
 const signupSchema = z
   .object({
-    first_name: z.string().min(1, "First name is required"),
-    last_name: z.string().min(1, "Last name is required"),
     username: z
       .string()
       .min(3, "Username must be at least 3 characters")
-      .max(20, "Username must be at most 20 characters")
+      .max(30, "Username must be at most 30 characters")
       .regex(
         /^[a-z0-9_]+$/,
         "Username can only contain lowercase letters, numbers, and underscores",
@@ -68,26 +68,46 @@ function FieldError({ message }: { message?: string }) {
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
+  inputStatus?: "idle" | "loading" | "valid" | "exist";
 }
-function Field({ label, error, ...props }: InputProps) {
+
+function Field({ label, error, inputStatus, ...props }: InputProps) {
   return (
     <div className="group">
       <div
-        className={`relative rounded-xl border transition-colors duration-200 ${
+        className={`relative rounded-xl border transition-colors ${
           error
             ? "border-red-500/60 bg-red-950/20"
-            : "border-white/10 bg-white/5 focus-within:border-white/30 focus-within:bg-white/8"
+            : inputStatus === "valid"
+              ? "border-green-500/50 bg-green-950/10"
+              : "border-white/10 bg-white/5 focus-within:border-white/30"
         }`}
       >
         <input
           {...props}
           placeholder=" "
-          className="peer w-full bg-transparent px-4 pb-2.5 pt-6 text-sm text-white outline-none placeholder-transparent"
+          className="peer w-full bg-transparent px-4 pr-11 pb-2.5 pt-6 text-sm text-white outline-none"
         />
+
         <label className="pointer-events-none absolute left-4 top-4 text-xs text-white/40 transition-all duration-200 peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-1.5 peer-focus:text-xs peer-not-placeholder-shown:top-1.5 peer-not-placeholder-shown:text-xs">
           {label}
         </label>
+
+        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          {inputStatus === "loading" && (
+            <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
+          )}
+
+          {inputStatus === "valid" && (
+            <CheckCircle2 className="h-5 w-5 text-green-500" />
+          )}
+
+          {inputStatus === "exist" && (
+            <XCircle className="h-5 w-5 text-red-500" />
+          )}
+        </div>
       </div>
+
       <FieldError message={error} />
     </div>
   );
@@ -181,11 +201,29 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
+  const [usernameState, setUsernameState] = useState<
+    "idle" | "loading" | "valid" | "exist"
+  >("idle");
+
+  const [emailState, setEmailState] = useState<
+    "idle" | "loading" | "valid" | "exist"
+  >("idle");
+
   const {
     register,
     handleSubmit,
+    watch,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm<SignupValues>({ resolver: zodResolver(signupSchema) });
+  } = useForm<SignupValues>({
+    resolver: zodResolver(signupSchema),
+  });
+  const username = watch("username");
+  const email = watch("email");
+  const checking = usernameState === "loading" || emailState === "loading";
+
+  const invalid = usernameState === "exist" || emailState === "exist";
 
   const onSubmit = async (values: SignupValues) => {
     setServerError(null);
@@ -194,8 +232,6 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
         email: values.email,
         username: values.username,
         password: values.password,
-        first_name: values.first_name,
-        last_name: values.last_name,
       });
       // Auto sign-in after successful signup
       const result = await signIn("credentials", {
@@ -222,36 +258,80 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
     }
   };
 
+  useEffect(() => {
+    if (!username || username.length < 3) {
+      setUsernameState("idle");
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setUsernameState("loading");
+
+        const exist = await checkUserExist({ username });
+
+        if (exist) {
+          setUsernameState("exist");
+          setError("username", {
+            message: "Username is already taken",
+          });
+        } else {
+          setUsernameState("valid");
+          clearErrors("username");
+        }
+      } catch {
+        setUsernameState("idle");
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [username]);
+
+  useEffect(() => {
+    if (!email || !email.includes("@")) {
+      setEmailState("idle");
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setEmailState("loading");
+
+        const exist = await checkUserExist({ email });
+
+        if (exist) {
+          setEmailState("exist");
+          setError("email", {
+            message: "Email is already registered",
+          });
+        } else {
+          setEmailState("valid");
+          clearErrors("email");
+        }
+      } catch {
+        setEmailState("idle");
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [email]);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="First name"
-          type="text"
-          autoComplete="given-name"
-          {...register("first_name")}
-          error={errors.first_name?.message}
-        />
-        <Field
-          label="Last name"
-          type="text"
-          autoComplete="family-name"
-          {...register("last_name")}
-          error={errors.last_name?.message}
-        />
-      </div>
-
       <Field
         label="Username"
         type="text"
-        autoComplete="username"
+        inputStatus={usernameState}
         {...register("username")}
         error={errors.username?.message}
       />
+      <div className="flex items-center justify-between text-xs text-zinc-500">
+        <span>Your username cannot be changed later.</span>
+      </div>
       <Field
         label="Email"
         type="email"
-        autoComplete="email"
+        inputStatus={emailState}
         {...register("email")}
         error={errors.email?.message}
       />
