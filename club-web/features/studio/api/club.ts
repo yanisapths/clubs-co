@@ -8,8 +8,8 @@ export interface Tag {
 }
 
 export interface ClubCategory {
-  id?: number;
-  name?: string;
+  id: number;
+  name: string;
 }
 
 export interface Space {

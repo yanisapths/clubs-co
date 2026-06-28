@@ -113,7 +113,7 @@ func main() {
 	{
 		profileApi.GET("",      profile.NewGetUserProfile(profileRepo).Handler)
 		profileApi.PATCH("",    profile.NewUpdateUserProfile(profileRepo, uploadSvc,logger).Handler)
-		profileApi.GET("/club", profile.NewGetUserClubs(profileRepo).Handler)
+		profileApi.GET("/club", profile.NewGetUserClubs(profileRepo, logger).Handler)
 		profileApi.DELETE("", profile.NewDeleteUser(profileRepo, uploadSvc, logger).Handler)
 	}
 

@@ -2,6 +2,8 @@ import { Users, MapPin } from "lucide-react";
 import { type Club } from "../../api/club";
 import { categories } from "@/features/shared/constants";
 import Image from "next/image";
+import { ClubThumbnail } from "./ClubThumbnail";
+import { getCategory, getCategoryGradient } from "./constants";
 
 interface ClubCardProps {
   club: Club;
@@ -15,19 +17,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
   const visibleSpaces = club.spaces.slice(0, 2);
   const extraSpaces = club.spaces.length - visibleSpaces.length;
 
-  const category = categories.find((c) => c.category === club.category.name);
-
-  const gradientMap: Record<string, string> = {
-    sports: "linear-gradient(160deg, #4a5a1a 0%, #7a8a2a 40%, #b8aa30 100%)",
-    art: "linear-gradient(160deg, #5a1a2a 0%, #8a2a4a 40%, #aa3a6a 100%)",
-    culture: "linear-gradient(160deg, #4a2a1a 0%, #7a4a2a 40%, #aa6a3a 100%)",
-    esport: "linear-gradient(160deg, #2a1a5a 0%, #4a2a8a 40%, #6a3aaa 100%)",
-    education: "linear-gradient(160deg, #1a5a3a 0%, #2a8a5a 40%, #3aaa7a 100%)",
-    tech: "linear-gradient(160deg, #0a1a2a 0%, #1a3a5a 40%, #2a5a8a 100%)",
-    other: "linear-gradient(160deg, #1a1a2a 0%, #2a2a4a 40%, #4a3a6a 100%)",
-  };
-
-  const gradient = gradientMap[category?.colorVariant ?? "other"];
+  const category = getCategory(club.category.name);
 
   const badgeStyle =
     club.clubType === "Public"
@@ -40,29 +30,15 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
     <div onClick={onClick} className="group cursor-pointer">
       <div
         className="relative aspect-video w-full overflow-hidden rounded-2xl"
-        style={{ background: gradient }}
+        style={{ background: getCategoryGradient(club.category.name) }}
       >
-        {club.imageUrl ? (
-          <Image
-            src={club.imageUrl}
-            alt={club.name}
-            fill
-            className="absolute inset-0 h-auto w-full object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center select-none">
-            <p
-              className="text-xs font-black uppercase tracking-widest"
-              style={{ color: "rgba(255,220,180,0.5)" }}
-            >
-              {club.category.name}
-            </p>
-
-            <p className="mt-1 text-2xl font-black uppercase tracking-wide text-white/70 line-clamp-3 leading-tight">
-              {club.name}
-            </p>
-          </div>
-        )}
+        <ClubThumbnail
+          imageUrl={club.imageUrl}
+          name={club.name}
+          category={club.category.name}
+          colorVariant={category?.colorVariant}
+          size="video"
+        />
 
         <span
           className={`absolute right-3 top-3 rounded-full px-3 py-1.5 text-xs font-semibold ${badgeStyle}`}

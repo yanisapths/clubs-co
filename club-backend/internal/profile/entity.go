@@ -22,6 +22,7 @@ type UserClubEntity struct {
 	ClubImage *string
 	RoleName  string
 	JoinedAt  time.Time
+	Category  string
 }
 
 type UserAssets struct {

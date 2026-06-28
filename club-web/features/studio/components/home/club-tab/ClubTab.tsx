@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { ProfileClubItem } from "@/features/studio/api/profile";
 import { Button } from "@/design-system/components/button";
 import { Plus } from "lucide-react";
+import { ClubThumbnail } from "../../club/ClubThumbnail";
+import { getCategory, getCategoryGradient } from "../../club/constants";
 
 interface ClubTabProps {
   clubs?: ProfileClubItem[];
@@ -67,7 +69,8 @@ export const ClubTab = ({ clubs, username }: ClubTabProps) => {
           >
             {displayedClubs?.map((club) => {
               const isHovering = hoveredId === club.id;
-
+              const category = getCategory(club.category);
+              // const gradient = getCategoryGradient(club.category);
               return (
                 <motion.li
                   key={club?.id}
@@ -89,15 +92,16 @@ export const ClubTab = ({ clubs, username }: ClubTabProps) => {
                         transition={{ duration: 0.2 }}
                         className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-white/5"
                       >
-                        <Image
-                          src={club.imageUrl}
-                          alt={club.name}
-                          fill
-                          className="object-cover"
-                          sizes="48px"
+                        <ClubThumbnail
+                          imageUrl={club.imageUrl}
+                          name={club.name}
+                          category={club.category}
+                          colorVariant={category?.colorVariant}
+                          size="square"
+                          className="h-full w-full"
                         />
                       </motion.div>
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col items-start gap-1">
                         <span className="text-lg font-medium text-white">
                           {club.name}
                         </span>

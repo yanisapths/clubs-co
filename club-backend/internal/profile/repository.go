@@ -134,10 +134,12 @@ func (r *profileRepository) GetUserClubs(ctx context.Context, ownerID string) ([
 			c.name,
 			c.image_url,
 			cmr.name AS role_name,
-			cm.joined_at
+			cm.joined_at,
+			cc.name
 		FROM public.club_member cm
 		JOIN public.club c              ON c.id  = cm.club_id
 		JOIN public.club_member_roles cmr ON cmr.id = cm.role_id
+		JOIN public.category cc  ON c.category_id  = cc.id
 		WHERE cm.user_id = $1
 		  AND c.is_deleted = false
 		ORDER BY cm.joined_at DESC`
@@ -151,7 +153,7 @@ func (r *profileRepository) GetUserClubs(ctx context.Context, ownerID string) ([
 	var clubs []UserClubEntity
 	for rows.Next() {
 		var e UserClubEntity
-		if err := rows.Scan(&e.ClubID, &e.ClubName, &e.ClubImage, &e.RoleName, &e.JoinedAt); err != nil {
+		if err := rows.Scan(&e.ClubID, &e.ClubName, &e.ClubImage, &e.RoleName, &e.JoinedAt, &e.Category); err != nil {
 			return nil, err
 		}
 		clubs = append(clubs, e)

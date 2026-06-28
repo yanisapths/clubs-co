@@ -2,20 +2,19 @@ import { SiInstagram, SiFacebook, SiX } from "@icons-pack/react-simple-icons";
 import { IconWorld } from "@tabler/icons-react";
 
 export function SocialIcon({ platform }: { platform: string }) {
-  const cls =
-    "h-5 w-5 text-white hover:text-white/70 transition-colors cursor-pointer";
+  const cls = "text-white hover:text-white/70 transition-colors cursor-pointer";
   switch (platform.toLowerCase()) {
     case "instagram":
-      return <SiInstagram className={cls} />;
+      return <SiInstagram className={cls} size={20} />;
     case "facebook":
-      return <SiFacebook className={cls} />;
+      return <SiFacebook className={cls} size={20} />;
     case "meta":
-      return <SiFacebook className={cls} />;
+      return <SiFacebook className={cls} size={20} />;
     case "website":
-      return <IconWorld className={cls} />;
+      return <IconWorld className={cls} size={24} />;
     case "x":
     case "twitter":
-      return <SiX className={cls} />;
+      return <SiX className={cls} size={20} />;
     default:
       return null;
   }

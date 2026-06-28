@@ -41,6 +41,7 @@ type UserClubItem struct {
 	Name        string `json:"name"`
 	Role        string `json:"role"`
 	MemberSince int64  `json:"memberSince"`
+	Category    string `json:"category"`
 }
 
 type UserClubsResponse struct {

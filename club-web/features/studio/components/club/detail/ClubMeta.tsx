@@ -3,6 +3,8 @@ import { Tag } from "@/features/shared/components/Tag";
 import { categories } from "@/features/shared/constants";
 import { Club } from "@/features/studio/api/club";
 import { formatUnixDate } from "@/lib/utils";
+import { ClubThumbnail } from "../ClubThumbnail";
+import { getCategory } from "../constants";
 
 export function ClubBanner({
   club,
@@ -38,19 +40,19 @@ export function ClubBanner({
 }
 
 export function ClubMeta({ club }: { club: Club }) {
+  const category = getCategory(club.category.name);
   return (
     <div className="flex flex-col gap-3 px-6 pt-5 lg:flex-row lg:items-start lg:justify-between">
       <div className="flex items-center gap-4">
         <div className="h-16 w-16 shrink-0 rounded-xl bg-white/10 border border-white/15 overflow-hidden">
-          {club.imageUrl ? (
-            <img
-              src={club.imageUrl}
-              alt={club.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-br from-teal-400 to-sky-300" />
-          )}
+          <ClubThumbnail
+            imageUrl={club.imageUrl}
+            name={club.name}
+            category={club.category.name}
+            colorVariant={category?.colorVariant}
+            size="square"
+            className="h-full w-full"
+          />
         </div>
         <div>
           <h2 className="text-xl font-semibold text-white">{club.name}</h2>

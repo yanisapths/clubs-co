@@ -5,14 +5,16 @@ import (
 	"club-backend/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type GetUserClubs struct {
 	repo GetUserClubsRepo
+	logger *zap.Logger
 }
 
-func NewGetUserClubs(repo GetUserClubsRepo) *GetUserClubs {
-	return &GetUserClubs{repo: repo}
+func NewGetUserClubs(repo GetUserClubsRepo, logger *zap.Logger) *GetUserClubs {
+	return &GetUserClubs{repo: repo,logger:logger}
 }
 
 func (h *GetUserClubs) Handler(c *gin.Context) {
@@ -24,7 +26,14 @@ func (h *GetUserClubs) Handler(c *gin.Context) {
 
 	clubs, err := h.repo.GetUserClubs(c.Request.Context(), claims.UserID.String())
 	if err != nil {
+		h.logger.Error("failed: GetUserClubs",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		
 		response.NotFound(c, "clubs not found")
+		
 		return
 	}
 
@@ -44,6 +53,7 @@ func (h *GetUserClubs) Handler(c *gin.Context) {
 			Name:        club.ClubName,
 			Role:        club.RoleName,
 			MemberSince: club.JoinedAt.Unix(),
+			Category:    club.Category,
 		})
 
 		switch club.RoleName {
@@ -55,7 +65,7 @@ func (h *GetUserClubs) Handler(c *gin.Context) {
 			stats.ClubJoined++
 		}
 	}
-
+	
 	response.OK(c, UserClubsResponse{
 		Stats: stats,
 		Clubs: items,

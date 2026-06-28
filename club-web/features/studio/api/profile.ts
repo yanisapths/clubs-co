@@ -28,6 +28,7 @@ export interface ProfileClubItem {
   name: string;
   role: "Founder" | "Co-Founder" | "Member" | string;
   memberSince: number; // epoch seconds
+  category: string;
 }
 
 export interface ProfileClub {

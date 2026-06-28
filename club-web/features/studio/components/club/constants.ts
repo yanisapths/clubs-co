@@ -1,3 +1,4 @@
+import { categories } from "@/features/shared/constants";
 import { ClubFormData, ClubSpace, ClubVisibility } from "./create/types";
 
 export const MAX_TAGS = 5; // validate max 50 characters per tag, English only, allow space, not allow any special characters.
@@ -60,3 +61,27 @@ export const buildClubThumbnailFilename = (date: number, ext?: string) => {
 
 export const NOW_SECONDS = Date.now() / 1000;
 export const SEVEN_DAYS = 7 * 86400;
+
+export const gradientMap: Record<string, string> = {
+  sports: "linear-gradient(160deg, #4a5a1a 0%, #7a8a2a 40%, #b8aa30 100%)",
+  art: "linear-gradient(160deg, #5a1a2a 0%, #8a2a4a 40%, #aa3a6a 100%)",
+  culture: "linear-gradient(160deg, #4a2a1a 0%, #7a4a2a 40%, #aa6a3a 100%)",
+  esport: "linear-gradient(160deg, #2a1a5a 0%, #4a2a8a 40%, #6a3aaa 100%)",
+  education: "linear-gradient(160deg, #1a5a3a 0%, #2a8a5a 40%, #3aaa7a 100%)",
+  tech: "linear-gradient(160deg, #0a1a2a 0%, #1a3a5a 40%, #2a5a8a 100%)",
+  other: "linear-gradient(160deg, #1a1a2a 0%, #2a2a4a 40%, #4a3a6a 100%)",
+};
+
+export const getCategory = (categoryName: string) => {
+  return categories.find((c) => c.category === categoryName);
+};
+
+export const getCategoryGradient = (categoryName: string) => {
+  const category = getCategory(categoryName);
+
+  return gradientMap[category?.colorVariant ?? "other"] ?? gradientMap.other;
+};
+
+export const getCategoryColorVariant = (categoryName: string) => {
+  return getCategory(categoryName)?.colorVariant ?? "other";
+};
