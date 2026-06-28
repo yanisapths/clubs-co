@@ -14,16 +14,25 @@ import {
   ProfileFormData,
   ProfileSaveData,
 } from "./profile/EditProfileModal";
+import { ProfileClub } from "../../api/profile";
 interface FirstStart {
   user: UserInfo;
   profileData: ProfileFormData;
   onSave: (data: ProfileSaveData) => Promise<void>;
+  clubFounded: number;
+  hasSetUpProfile: boolean;
 }
 
-export function FirstStart({ user, profileData, onSave }: FirstStart) {
+export function FirstStart({
+  user,
+  profileData,
+  onSave,
+  clubFounded,
+  hasSetUpProfile,
+}: FirstStart) {
   const router = useRouter();
   const { show, visible, close } = useModal();
-  const finished = true;
+  const clubFinished = clubFounded > 0;
 
   return (
     <div className="flex w-full max-w-2xl flex-col gap-6 text-left">
@@ -37,6 +46,7 @@ export function FirstStart({ user, profileData, onSave }: FirstStart) {
           title="About you"
           description="Curate your profile stories."
           onClick={show}
+          finished={hasSetUpProfile}
         />
 
         <CardDivider />
@@ -45,11 +55,11 @@ export function FirstStart({ user, profileData, onSave }: FirstStart) {
           title="Create a club"
           description="Become a founder of a club and invite members to join!"
           onClick={() => {
-            if (!finished) {
+            if (!clubFinished) {
               router.push(`/${user.username}/studio/club/create`);
             }
           }}
-          finished
+          finished={clubFinished}
         />
       </Card>
 

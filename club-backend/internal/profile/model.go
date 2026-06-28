@@ -3,9 +3,9 @@ package profile
 import "encoding/json"
 
 type PatchUserRequest struct {
-	FirstName   *string         `json:"firstname"    binding:"omitempty,min=1,max=100"`
-	LastName    *string         `json:"lastname"     binding:"omitempty,len=1"`
-	DisplayName *string         `json:"displayName"  binding:"omitempty,max=100"`
+	FirstName   *string         `json:"firstname"    binding:"omitempty,min=0,max=100"`
+	LastName    *string         `json:"lastname"     binding:"omitempty,min=0,max=1"`
+	DisplayName *string         `json:"displayName"  binding:"omitempty,max=50"`
 	Bio         *string         `json:"bio"          binding:"omitempty,max=500"`
 	ImageURL    *string         `json:"imageUrl"     binding:"omitempty,url"`
 	BannerURL   *string         `json:"bannerUrl"    binding:"omitempty,url"`

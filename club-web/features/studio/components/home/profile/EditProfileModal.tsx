@@ -24,7 +24,7 @@ import { uploadFile } from "@/features/studio/api/file";
 import { getStoredToken } from "@/lib/storage";
 import { ALL_PLATFORMS, PLATFORM_CONFIG } from "@/features/shared/constants";
 
-export type SocialLinkMap = Partial<Record<string, string>>;
+export type SocialLinkMap = Record<string, string>;
 
 export interface ProfileFormData {
   firstname: string;
@@ -43,6 +43,7 @@ export interface ProfileSaveData {
   bio: string;
   socialLinks: SocialLinkMap;
   imageUrl: string | null;
+  bannerUrl?: string | null;
 }
 
 interface EditProfileModalProps {
@@ -52,7 +53,7 @@ interface EditProfileModalProps {
   onClose: () => void;
 }
 
-const DISPLAY_NAME_MAX = 100;
+const DISPLAY_NAME_MAX = 50;
 const BIO_MAX = 500;
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/png", "image/jpeg"];
@@ -73,7 +74,6 @@ export function EditProfileModal({
   const [displayName, setDisplayName] = useState(initialData.displayName);
   const [bio, setBio] = useState(initialData.bio);
 
-  // Avatar state — mirrors the per-file state pattern from AddGalleryModal
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     initialData.imageUrl,
   );
@@ -227,7 +227,6 @@ export function EditProfileModal({
               </span>
             )}
 
-            {/* Uploading overlay */}
             {isAvatarUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                 <Loader2 className="h-5 w-5 animate-spin text-white" />

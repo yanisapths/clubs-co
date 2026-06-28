@@ -27,6 +27,7 @@ import {
 } from "@/features/studio/hooks/use-profile";
 import { PatchProfilePayload } from "@/features/studio/api/profile";
 import { formatUnixDate } from "@/lib/utils";
+import { SocialLink } from "@/features/studio/api/common";
 
 const TABS = ["Home", "Clubs", "Account Settings"] as const;
 type Tab = (typeof TABS)[number];
@@ -40,12 +41,18 @@ function CreatorHomePage() {
   const { show, visible, close } = useModal();
   const { mutateAsync: patchProfile } = usePatchProfile();
 
-  const hasSetUpProfile = Boolean(user.displayName) && clubs?.length > 0;
-
   const socialLinksMap: SocialLinkMap =
     profile?.socialLinks?.reduce<SocialLinkMap>((acc, entry) => {
       return { ...acc, ...entry };
     }, {}) ?? {};
+
+  const hasSetUpProfile =
+    Boolean(profile?.displayName) ||
+    Boolean(profile?.bio) ||
+    Boolean(profile?.firstname) ||
+    Boolean(profile?.lastname) ||
+    Boolean(profile?.imageUrl) ||
+    Boolean(profile?.bannerUrl);
 
   const profileData: ProfileFormData = {
     firstname: profile?.firstname ?? user.firstName ?? "",
@@ -64,19 +71,21 @@ function CreatorHomePage() {
   const usernameInitials = (user.username ?? "?").slice(0, 2).toUpperCase();
 
   const handleSaveProfile = async (data: ProfileSaveData) => {
-    const socialLinks = Object.entries(data.socialLinks)
-      .filter(([, url]) => Boolean(url))
-      .map(([key, url]) => ({ [key]: url }));
+    const socialLinks: SocialLink[] = Object.entries(data.socialLinks).map(
+      ([key, url]) => ({
+        [key]: url,
+      }),
+    );
 
     const payload: PatchProfilePayload = {
-      ...(data.firstname && { firstname: data.firstname }),
-      ...(data.lastname && { lastname: data.lastname }),
-      ...(data.displayName && { displayName: data.displayName }),
-      ...(data.bio && { bio: data.bio }),
-      ...(data.imageUrl && { imageUrl: data.imageUrl }),
-      ...socialLinks,
+      firstname: data.firstname,
+      lastname: data.lastname,
+      displayName: data.displayName,
+      bio: data.bio,
+      imageUrl: data.imageUrl ?? undefined,
+      bannerUrl: data.bannerUrl ?? undefined,
+      socialLinks,
     };
-
     await patchProfile(payload);
   };
 
@@ -177,7 +186,7 @@ function CreatorHomePage() {
         <div className="flex flex-col items-center justify-center gap-4 px-6 text-center">
           {activeTab === "Home" ? (
             <div className="w-full flex justify-center mt-24">
-              {!hasSetUpProfile ? (
+              {hasSetUpProfile ? (
                 <ProfileInfo
                   profile={profile}
                   hasSetUpProfile={hasSetUpProfile}
@@ -191,6 +200,8 @@ function CreatorHomePage() {
                   user={user}
                   onSave={handleSaveProfile}
                   profileData={profileData}
+                  hasSetUpProfile={hasSetUpProfile}
+                  clubFounded={userClubs?.stats.clubFounded || 0}
                 />
               )}
             </div>
