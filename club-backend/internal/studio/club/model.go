@@ -1,7 +1,10 @@
 // internal/studio/club/model.go
 package club
 
-import "club-backend/internal/utils"
+import (
+	"club-backend/internal/utils"
+	"encoding/json"
+)
 
 type CreateClubRequest struct {
 	Name        string       `json:"name"        binding:"required,min=2,max=100"`
@@ -14,6 +17,7 @@ type CreateClubRequest struct {
 	Tags        []TagInput   `json:"tags"        binding:"omitempty,max=5"`
 	Spaces      []SpaceInput `json:"spaces"`
     Activate *bool `json:"activate"`
+	SocialLinks json.RawMessage `json:"socialLinks"`
 }
 type CreateClubResponse struct {
 	ID             int64               `json:"id"`
@@ -74,6 +78,7 @@ type UpdateClubRequest struct {
 	Tags          []TagInput   `json:"tags"          binding:"omitempty,max=3"`
 	Spaces        []SpaceInput `json:"spaces"`
 	ThumbnailImage utils.NullableString `json:"thumbnailImage"`
+	SocialLinks json.RawMessage `json:"socialLinks"`
 }
 
 type InviteClubMemberRequest struct {
@@ -107,6 +112,7 @@ type PatchClubRequest struct {
 	ThumbnailImage utils.NullableString `json:"thumbnailImage"`
 	GalleriesToAdd []string `json:"galleriesToAdd" binding:"omitempty,dive,url"`
 	GalleriesToRemove []string `json:"galleriesToRemove" binding:"omitempty,dive,url"`
+	SocialLinks json.RawMessage `json:"socialLinks"`
 }
 type promotedGalleryImage struct {
 	URL     string

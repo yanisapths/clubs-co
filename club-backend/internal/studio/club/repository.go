@@ -184,18 +184,20 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 	if err != nil {
 		return nil, fmt.Errorf("resolve spaces: %w", err)
 	}
-
+	socialLinksJSON, err := marshalSocialLinks(req.SocialLinks)
+if err != nil {
+    return nil, fmt.Errorf("marshal social_links: %w", err)
+}
 	query := `
-		INSERT INTO public.club (
-			owner_id, name, description, club_type, visibility,
-			max_seats, category_id, tag_ids, space_ids,
-			image_url,
-			activate, is_deleted, created_at, updated_at,
-			display_status
-		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true,false,NOW(),NOW(),$11)
-		RETURNING id`
-
+    INSERT INTO public.club (
+        owner_id, name, description, club_type, visibility,
+        max_seats, category_id, tag_ids, space_ids,
+        image_url,
+        activate, is_deleted, created_at, updated_at,
+        display_status, social_links
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true,false,NOW(),NOW(),$11,$12)
+    RETURNING id`
 	var club Club
 	err = tx.QueryRowContext(ctx, query,
 		ownerID,
@@ -207,12 +209,12 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		req.CategoryID,
 		int64SliceToArray(tagIDs),
 		int64SliceToArray(spaceIDs),
-		req.ThumbnailImage,  
+		req.ThumbnailImage,
 		req.Activate,
+		socialLinksJSON,   
 	).Scan(&club.ID)
-	if err != nil {
-		return nil, fmt.Errorf("insert club: %w", err)
-	}
+	
+
 
 	const addFounderQuery = `
 		INSERT INTO public.club_member (club_id, user_id, role_id, joined_at)
@@ -331,7 +333,10 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 	if err != nil {
 		return fmt.Errorf("resolve spaces: %w", err)
 	}
-
+	socialLinksJSON, err := marshalSocialLinks(req.SocialLinks)
+	if err != nil {
+		return fmt.Errorf("marshal social_links: %w", err)
+	}
 	query := `
 		UPDATE public.club SET
 			name           = COALESCE($1, name),
@@ -341,16 +346,18 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 			max_seats      = COALESCE($5, max_seats),
 			category_id    = COALESCE($6, category_id),
 			display_status = COALESCE($7, display_status),
-			image_url  = CASE
+			image_url      = CASE
 								WHEN $8::boolean THEN $9
 								ELSE image_url
 							END,
 			tag_ids        = $10,
 			space_ids      = $11,
+			social_links   = COALESCE($12, social_links),
 			updated_at     = NOW()
-		WHERE id         = $12
-		AND owner_id   = $13::uuid
+		WHERE id         = $13
+		AND owner_id   = $14::uuid
 		AND is_deleted = false`
+
 
 	thumbnailChanged := req.ThumbnailImage.Present
 	thumbnailValue := req.ThumbnailImage.Value
@@ -367,6 +374,7 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 		thumbnailValue,  
 		int64SliceToArray(tagIDs),   
 		int64SliceToArray(spaceIDs),  
+		socialLinksJSON,
 		clubID,       
 		ownerID,         
 	)
@@ -733,6 +741,12 @@ func (r *clubRepository) PatchClub(
 		nextGallery = []string{}
 	}
 
+	thumbnailChanged := req.ThumbnailImage.Present
+	thumbnailValue := req.ThumbnailImage.Value
+	socialLinksJSON, err := marshalSocialLinks(req.SocialLinks)
+	if err != nil {
+		return nil, fmt.Errorf("marshal social_links: %w", err)
+	}
 	query := `
 		UPDATE public.club SET
 			name           = COALESCE($1, name),
@@ -745,35 +759,25 @@ func (r *clubRepository) PatchClub(
 			image_url      = CASE
 								WHEN $8::boolean THEN $9
 								ELSE image_url
-							 END,
+							END,
 			tag_ids        = $10,
 			space_ids      = $11,
 			gallery_urls   = $12,
+			social_links   = COALESCE($13, social_links),
 			updated_at     = NOW()
-		WHERE id = $13
-		  AND owner_id = $14::uuid
-		  AND is_deleted = false`
-
-	thumbnailChanged := req.ThumbnailImage.Present
-	thumbnailValue := req.ThumbnailImage.Value
+		WHERE id = $14
+		AND owner_id = $15::uuid
+		AND is_deleted = false`
 
 	result, err := tx.ExecContext(
-		ctx,
-		query,
-		req.Name,
-		req.Description,
-		req.ClubType,
-		req.Visibility,
-		req.MaxSeats,
-		req.CategoryID,
-		req.DisplayStatus,
-		thumbnailChanged,
-		thumbnailValue,
-		pq.Array(tagIDs),
-		pq.Array(spaceIDs),
-		pq.Array(nextGallery),
-		clubID,
-		ownerID,
+		ctx, query,
+		req.Name, req.Description, req.ClubType, req.Visibility,
+		req.MaxSeats, req.CategoryID, req.DisplayStatus,
+		thumbnailChanged, thumbnailValue,
+		pq.Array(tagIDs), pq.Array(spaceIDs), pq.Array(nextGallery),
+		socialLinksJSON,   // $13
+		clubID,            // $14
+		ownerID,           // $15
 	)
 
 	if err != nil {
@@ -829,4 +833,21 @@ func (r *clubRepository) GetClubGalleryURLs(ctx context.Context, clubID int64, o
 		return nil, fmt.Errorf("unmarshal gallery_urls: %w", err)
 	}
 	return urls, nil
+}
+
+func marshalSocialLinks(v interface{}) ([]byte, error) {
+    switch val := v.(type) {
+    case json.RawMessage:
+        if len(val) == 0 || string(val) == "null" {
+            return nil, nil
+        }
+        return val, nil
+    case []map[string]string:
+        if len(val) == 0 {
+            return nil, nil
+        }
+        return json.Marshal(val)
+    default:
+        return nil, nil
+    }
 }
