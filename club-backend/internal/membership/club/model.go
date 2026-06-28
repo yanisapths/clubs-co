@@ -15,9 +15,15 @@ type ClubResponse struct {
     Visibility     string  			   `json:"visibility"`
 	CategoryName   string              `json:"category"`
 	Tags           []Tag               `json:"tags"`
+	Spaces 		   []Space   		   `json:"spaces"`
 	CreatedAt      int64               `json:"createdAt"`
 	IsMember       bool      		   `json:"isMember"`
 	MemberCount    int64               `json:"memberCount"`
+}
+
+type Space struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type Tag struct {

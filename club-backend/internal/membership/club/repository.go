@@ -40,7 +40,19 @@ func (r *membershipRepository) GetClubList(ctx context.Context, userID *string) 
 					WHERE me.club_id = c.id
 					AND me.user_id = $1::uuid
 				)
-			END AS is_member
+			END AS is_member,
+			COALESCE(ARRAY_TO_JSON(c.space_ids)::text, '[]') AS space_ids,
+			COALESCE(ARRAY_TO_JSON(c.tag_ids)::text,  '[]') AS tag_ids,
+			(
+				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', t.id, 'name', t.name)), '[]')
+				FROM public.tag t
+				WHERE t.id = ANY(c.tag_ids)
+			) AS tags,
+			(
+				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', s.id, 'name', s.name)), '[]')
+				FROM public.space s
+				WHERE s.id = ANY(c.space_ids)
+			) AS spaces
 		FROM public.club c
 		LEFT JOIN public.category cg
 			ON cg.id = c.category_id
@@ -60,6 +72,12 @@ func (r *membershipRepository) GetClubList(ctx context.Context, userID *string) 
 	var clubs []Club
 	for rows.Next() {
 		var cl Club
+		var (
+			spaceIDsRaw    []byte
+			spacesRaw      []byte
+			tagIDsRaw      []byte
+			tagsRaw        []byte
+		)
 
 		if err := rows.Scan(
 			&cl.ID,
@@ -74,10 +92,19 @@ func (r *membershipRepository) GetClubList(ctx context.Context, userID *string) 
 			&cl.CategoryName,
 			&cl.MemberCount,
 			&cl.IsMember,
+			&spaceIDsRaw,
+			&tagIDsRaw,
+			&tagsRaw,
+			&spacesRaw,
 		); err != nil {
 			return nil, err
 		}
-
+		if err := json.Unmarshal(spacesRaw, &cl.Spaces); err != nil {
+			return nil, fmt.Errorf("unmarshal space_ids: %w", err)
+		}
+		if err := json.Unmarshal(tagsRaw, &cl.Tags); err != nil {
+			return nil, fmt.Errorf("unmarshal tags: %w", err)
+		}
 		clubs = append(clubs, cl)
 	}
 

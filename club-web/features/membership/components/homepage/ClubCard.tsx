@@ -1,114 +1,115 @@
-import Image from "next/image";
+// club-web/features/membership/components/homepage/ClubCard.tsx
 import { Users, Globe, Lock, Gem } from "lucide-react";
-
-type ClubType = "public" | "private" | "exclusive";
-
-export interface Club {
-  id: number;
-  title: string;
-  image: string;
-  description: string;
-  tags: string[];
-  members: number;
-  type: "public" | "private";
-}
+import { type MembershipClub } from "../../api/club";
+import { ClubThumbnail } from "@/features/studio/components/club/ClubThumbnail";
+import { getCategory } from "@/features/studio/components/club/constants";
+import { useBreakpoints } from "@/hooks/use-breakpoints";
 
 interface ClubCardProps {
-  title: string;
-  image: string;
-  description?: string;
-  tags?: string[];
-  members?: number;
-  type?: ClubType;
+  club: MembershipClub;
   onClick?: () => void;
 }
 
-const variants = {
-  public: {
-    label: "Public",
-    icon: Globe,
-    badge: "bg-green-50 text-green-700 border-green-300",
-    button: "text-green-700 border-green-300 hover:bg-green-50",
+const typeConfig = {
+  Public: {
+    badge: "bg-[#97FFFF] text-[#248582] border border-[#00D0FF]/20",
+    button: "border-[#97FFFF]/40 text-[#97FFFF] hover:bg-[#97FFFF]/10",
     action: "Join now",
+    icon: Globe,
   },
-  private: {
-    label: "Private",
-    icon: Lock,
-    badge: "bg-amber-50 text-amber-700 border-amber-300",
-    button: "text-amber-700 border-amber-300 hover:bg-amber-50",
+  Private: {
+    badge: "bg-[#A6ADFF] text-[#3F42E1] border border-[#2200FF]/20",
+    button: "border-[#A6ADFF]/40 text-[#A6ADFF] hover:bg-[#A6ADFF]/10",
     action: "Request to join",
+    icon: Lock,
   },
-  exclusive: {
-    label: "Exclusive",
-    icon: Gem,
-    badge: "bg-violet-50 text-violet-700 border-violet-300",
-    button: "text-violet-700 border-violet-300 hover:bg-violet-50",
+  Exclusive: {
+    badge: "bg-zinc-300 text-zinc-900",
+    button: "border-zinc-400/40 text-zinc-300 hover:bg-zinc-800",
     action: "Request invite",
+    icon: Gem,
   },
 };
 
-export function ClubCard({
-  title,
-  image,
-  description,
-  tags = [],
-  members,
-  type = "public",
-  onClick,
-}: ClubCardProps) {
-  const variant = variants[type];
-  const Icon = variant.icon;
+export function ClubCard({ club, onClick }: ClubCardProps) {
+  const { lg } = useBreakpoints();
+  const config = typeConfig[club.clubType];
+  const visibleTags = (club.tags ?? []).slice(0, 3);
+  const extraTags = (club.tags?.length ?? 0) - visibleTags.length;
+  const category = getCategory(club.category);
 
   return (
     <div
       onClick={onClick}
-      className="min-w-40 cursor-pointer overflow-hidden rounded-2xl bg-black p-1 lg:p-2 hover:bg-white/10 cursor-pointer transition-discrete duration-200"
+      className="group h-full min-w-48 lg:w-[400px] overflow-hidden rounded-2xl bg-black p-1 lg:p-2 hover:bg-white/10 cursor-pointer transition-discrete duration-200"
     >
-      <div className="relative aspect-[4/3]">
-        <Image
-          src={image}
-          alt={title}
-          fill
-          className="object-cover rounded-2xl"
+      <div className="relative">
+        <ClubThumbnail
+          imageUrl={club.imageUrl}
+          name={club.name}
+          category={club.category}
+          colorVariant={club.category?.toLowerCase()}
+          size="video"
+          className="transition-transform duration-300"
         />
 
-        <div
-          className={`absolute top-3 right-3 flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium ${variant.badge}`}
+        {/* Club type badge */}
+        <span
+          className={`absolute right-3 top-3 rounded-full px-3 py-1.5 text-xs font-semibold ${config.badge}`}
         >
-          <Icon size={12} />
-          {variant.label}
-        </div>
+          {club.clubType}
+        </span>
+
+        {/* Category badge */}
+        {club.category && (
+          <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-xs font-medium text-white/80 border border-white/20 backdrop-blur-sm">
+            {category?.icon}
+            {club.category}
+          </span>
+        )}
       </div>
 
-      <div className="p-2">
-        <div className="mb-3 flex items-center gap-3">
-          <div>
-            <h3 className="font-semibold h-12 max-w-72 line-clamp-2 text-white">
-              {title}
-            </h3>
-          </div>
-        </div>
+      {/* Content */}
+      <div className="mt-3 px-0.5">
+        <h3 className="text-lg font-bold text-white leading-snug line-clamp-2">
+          {club.name}
+        </h3>
+        {lg ? (
+          <>
+            {club.description && (
+              <p className="mt-1.5 text-sm text-white/50 line-clamp-3 leading-relaxed">
+                {club.description}
+              </p>
+            )}
 
-        {description && (
-          <p className="mb-3 text-sm text-default-500">{description}</p>
-        )}
+            {/* Tags */}
+            {visibleTags.length > 0 && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {visibleTags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="rounded-lg border border-white/15 px-2.5 py-1 text-sm text-white/70"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+                {extraTags > 0 && (
+                  <span className="text-sm text-white/40">
+                    +{extraTags} more
+                  </span>
+                )}
+              </div>
+            )}
 
-        {tags.length > 0 && (
-          <div className="mb-4 flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <span key={tag} className="rounded-full border px-3 py-1 text-xs">
-                {tag}
+            {/* Members */}
+            <div className="mt-2.5">
+              <span className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-3 py-1.5 text-sm text-white">
+                <Users className="h-4 w-4" aria-hidden />
+                {club.memberCount ?? club.maxSeats} members
               </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between pt-3">
-          <div className="flex items-center gap-1 text-xs text-default-500">
-            <Users size={14} />
-            {members ? `${members} members` : "Members only"}
-          </div>
-        </div>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

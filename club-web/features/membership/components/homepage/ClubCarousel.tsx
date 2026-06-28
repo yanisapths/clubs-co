@@ -1,11 +1,13 @@
+// club-web/features/membership/components/homepage/ClubCarousel.tsx
 "use client";
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ClubCard, Club } from "./ClubCard";
+import { ClubCard } from "./ClubCard";
+import { type MembershipClub } from "../../api/club"; // ← was importing Club from studio
 
 interface ClubsCarouselProps {
-  clubs: Club[];
+  clubs: MembershipClub[];
 }
 
 export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
@@ -71,8 +73,8 @@ export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
 
       <div ref={trackRef} className="flex gap-4 overflow-x-auto scrollbar-none">
         {clubs.map((club) => (
-          <div key={club.id} className="shrink-0 w-[280px]">
-            <ClubCard {...club} />
+          <div key={club.id} className="shrink-0 w-[400px]">
+            <ClubCard club={club} />
           </div>
         ))}
       </div>

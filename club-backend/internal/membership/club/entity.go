@@ -21,6 +21,7 @@ type Club struct {
 	OwnerID        string            `db:"owner_id"`
 	CategoryName   string            `db:"category_name"`
 	Tags           []Tag             `db:"tags"`
+	Spaces         []Space           `db:"spaces"`
 	IsMember       bool      		 `db:"is_member"`
 	MemberCount    int64             `db:"member_count"`
 }

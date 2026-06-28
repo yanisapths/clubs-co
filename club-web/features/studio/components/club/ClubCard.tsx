@@ -1,3 +1,4 @@
+// club-web/features/studio/components/club/ClubCard.tsx
 import { Users, MapPin } from "lucide-react";
 import { type Club } from "../../api/club";
 import { categories } from "@/features/shared/constants";

@@ -5,9 +5,10 @@ import { CategoryCard } from "@/features/membership/components/homepage/Category
 import { ClubCard } from "@/features/membership/components/homepage/ClubCard";
 import { ClubsCarousel } from "@/features/membership/components/homepage/ClubCarousel";
 import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage/constants";
-import { topics, clubs } from "@/features/membership/components/homepage/data";
+import { topics } from "@/features/membership/components/homepage/data";
 import { SearchModal } from "@/features/membership/components/homepage/SearchClubModal";
 import { TopicCard } from "@/features/membership/components/homepage/TopicCard";
+import { useGetMembershipClubs } from "@/features/membership/hooks/use-club";
 import { Input } from "@/features/shared/components/input/Input";
 import { categories } from "@/features/shared/constants";
 import { useBreakpoints } from "@/hooks/use-breakpoints";
@@ -19,8 +20,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Home() {
+  const { clubs } = useGetMembershipClubs();
   const { close, visible, show } = useModal();
-  const { lg } = useBreakpoints();
+  const { sm, lg } = useBreakpoints();
   const router = useRouter();
   const [categoriesExpanded, setCategoriesExpanded] = useState(false);
   const visibleCategories =
@@ -116,7 +118,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {lg ? (
+              {sm ? (
                 <ClubsCarousel clubs={clubs} />
               ) : (
                 <div className="overflow-x-auto scrollbar-none">
@@ -125,13 +127,13 @@ export default function Home() {
                     style={{
                       gridTemplateRows: "repeat(2, auto)",
                       gridAutoFlow: "column",
-                      gridAutoColumns: "175px",
+                      gridAutoColumns: "185px",
                       width: "max-content",
                     }}
                   >
                     {clubs.map((club) => (
                       <div key={club.id} className="w-[180px]">
-                        <ClubCard {...club} />
+                        <ClubCard club={club} />
                       </div>
                     ))}
                   </div>

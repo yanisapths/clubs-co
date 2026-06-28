@@ -34,7 +34,12 @@ curl -X GET http://localhost:9090/api/v1/membership/club \
       "memberCount": 42,
       "allowFollowers": true,
       "category": "Arts",
-      "createdAt": "2024-01-01T00:00:00Z"
+      "createdAt": "2024-01-01T00:00:00Z",
+      "spaces": [],
+      "tags": [
+        { "id": 1, "name": "Polo" },
+        { "id": 2, "name": "Horse Riding" }
+      ]
     }
   ]
 }

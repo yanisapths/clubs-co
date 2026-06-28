@@ -65,6 +65,7 @@ func (h *getClubListHandler) Handler(c *gin.Context) {
 			CreatedAt:      club.CreatedAt.Unix(),
 			IsMember:       club.IsMember,
 			MemberCount:    club.MemberCount,
+			Spaces:         club.Spaces,	
 		})
 	}
 
