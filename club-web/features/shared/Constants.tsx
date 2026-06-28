@@ -6,8 +6,10 @@ import {
   IconSchool,
   IconLayoutGrid,
 } from "@tabler/icons-react";
-import { CircuitBoardIcon } from "lucide-react";
+import { CircuitBoardIcon, Globe } from "lucide-react";
 import { Category } from "../membership/components/homepage/CategoryCard";
+import { SiInstagram, SiFacebook, SiX } from "@icons-pack/react-simple-icons";
+import { SocialPlatform } from "../studio/api/common";
 
 export const categories: Category[] = [
   {
@@ -53,3 +55,59 @@ export const categories: Category[] = [
     colorVariant: "other",
   },
 ] as const;
+
+export const PLATFORM_CONFIG: Record<
+  SocialPlatform,
+  {
+    apiKey: string;
+    label: string;
+    placeholder: string;
+    Icon: React.FC<{ className?: string }>;
+  }
+> = {
+  Website: {
+    apiKey: "website",
+    label: "Website",
+    placeholder: "https://yourwebsite.com",
+    Icon: ({ className }) => <Globe className={className} />,
+  },
+  Instagram: {
+    apiKey: "instagram",
+    label: "Instagram",
+    placeholder: "https://instagram.com/yourhandle",
+    Icon: ({ className }) => <SiInstagram className={className} />,
+  },
+  Meta: {
+    apiKey: "meta",
+    label: "Facebook",
+    placeholder: "https://facebook.com/yourprofile",
+    Icon: ({ className }) => <SiFacebook className={className} />,
+  },
+  X: {
+    apiKey: "x",
+    label: "X",
+    placeholder: "https://x.com/yourhandle",
+    Icon: ({ className }) => <SiX className={className} />,
+  },
+};
+
+export const ALL_PLATFORMS: SocialPlatform[] = [
+  "Website",
+  "Instagram",
+  "Meta",
+  "X",
+];
+
+export const platformDisplayMap: Record<string, SocialPlatform> = {
+  website: "Website",
+  x: "X",
+  meta: "Meta",
+  instagram: "Instagram",
+};
+
+export const platformApiKeyMap: Record<SocialPlatform, string> = {
+  Website: "website",
+  X: "x",
+  Meta: "meta",
+  Instagram: "instagram",
+};

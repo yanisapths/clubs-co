@@ -1,9 +1,7 @@
 import { apiFetch } from "@/lib/api-types";
-import { SocialPlatform } from "../components/club/create";
+import { SocialLink } from "./common";
 
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/profile`;
-
-export type SocialLink = Partial<Record<SocialPlatform, string>>;
 
 export interface Profile {
   firstname: string;

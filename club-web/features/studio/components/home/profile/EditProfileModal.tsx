@@ -19,10 +19,10 @@ import {
   ModalBody,
   ModalFooter,
 } from "@/features/shared/components/modal";
-import { SiInstagram, SiFacebook, SiX } from "@icons-pack/react-simple-icons";
 import { SocialPlatform } from "../../club/create";
 import { uploadFile } from "@/features/studio/api/file";
 import { getStoredToken } from "@/lib/storage";
+import { ALL_PLATFORMS, PLATFORM_CONFIG } from "@/features/shared/constants";
 
 export type SocialLinkMap = Partial<Record<string, string>>;
 
@@ -59,43 +59,6 @@ const ACCEPTED_TYPES = ["image/png", "image/jpeg"];
 const TEMP_DEST_PATH = "user/temp";
 
 type AvatarUploadStatus = "idle" | "uploading" | "uploaded" | "error";
-
-const PLATFORM_CONFIG: Record<
-  SocialPlatform,
-  {
-    apiKey: string;
-    label: string;
-    placeholder: string;
-    Icon: React.FC<{ className?: string }>;
-  }
-> = {
-  Website: {
-    apiKey: "website",
-    label: "Website",
-    placeholder: "https://yourwebsite.com",
-    Icon: ({ className }) => <Globe className={className} />,
-  },
-  Instagram: {
-    apiKey: "instagram",
-    label: "Instagram",
-    placeholder: "https://instagram.com/yourhandle",
-    Icon: ({ className }) => <SiInstagram className={className} />,
-  },
-  Meta: {
-    apiKey: "meta",
-    label: "Facebook",
-    placeholder: "https://facebook.com/yourprofile",
-    Icon: ({ className }) => <SiFacebook className={className} />,
-  },
-  X: {
-    apiKey: "x",
-    label: "X (Twitter)",
-    placeholder: "https://x.com/yourhandle",
-    Icon: ({ className }) => <SiX className={className} />,
-  },
-};
-
-const ALL_PLATFORMS: SocialPlatform[] = ["Website", "Instagram", "Meta", "X"];
 
 export function EditProfileModal({
   initialData,

@@ -1,3 +1,4 @@
+import { SocialLink } from "@/features/studio/api/common";
 import { MAX_SEATS } from "../constants";
 
 export type ClubType = "Public" | "Private" | "Exclusive";
@@ -9,12 +10,6 @@ export interface ClubSpace {
 }
 
 export type SocialPlatform = "Website" | "X" | "Meta" | "Instagram";
-
-export interface SocialLink {
-  id: string;
-  platform: SocialPlatform;
-  url: string;
-}
 
 export interface ClubFormData {
   image: File | null;

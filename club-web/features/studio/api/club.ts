@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api-types";
-
+import { SocialLink } from "./common";
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/studio/club`;
 
 export interface Tag {
@@ -29,7 +29,7 @@ export interface Club {
   maxSeats: number;
   allowFollowers: boolean;
   activate: boolean;
-  socialLinks: Record<string, string>[];
+  socialLinks?: SocialLink[];
   spaces: Space[];
   category: ClubCategory;
   tags: Tag[];
@@ -49,6 +49,7 @@ export interface CreateClubPayload {
   spaces?: Space[];
   activate: boolean;
   thumbnailImage?: string;
+  socialLinks: SocialLink[];
 }
 
 export interface UpdateClubPayload {
@@ -62,6 +63,7 @@ export interface UpdateClubPayload {
   tags?: Tag[];
   spaces?: Space[];
   thumbnailImage?: string | null;
+  socialLinks?: SocialLink[];
 }
 
 export interface ClubDetail {
@@ -136,6 +138,7 @@ export interface PatchClubPayload {
   galleriesToAdd?: string[];
   // Existing permanent club/gallery URLs to delete on save.
   galleriesToRemove?: string[];
+  socialLinks?: SocialLink[];
 }
 
 export const patchClubById = (

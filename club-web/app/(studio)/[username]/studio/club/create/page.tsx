@@ -74,6 +74,7 @@ export default function CreateClubPage() {
           })),
           activate: formData.activate,
           thumbnailImage: thumbnailImage,
+          socialLinks: formData.socialLinks,
         },
         {
           onSuccess: () => {

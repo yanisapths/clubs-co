@@ -1,6 +1,7 @@
 "use client";
 
 import { Space } from "@/features/studio/api/club";
+import { SocialLink } from "@/features/studio/api/common";
 import { visibilityReverseMap } from "@/features/studio/components/club/constants";
 import {
   ClubFormData,
@@ -30,18 +31,12 @@ export default function EditClubPage() {
 
   const derivedInitialData = useMemo<ClubFormData>(() => {
     if (!club) return initialClubFormData;
-
-    const socialLinks = (club.socialLinks ?? []).map(
-      (record: Record<string, string>, index: number) => {
-        const [key, url] = Object.entries(record)[0] ?? ["website", ""];
-        return {
-          id: String(index),
-          platform: platformDisplayMap[key.toLowerCase()] ?? "Website",
-          url: url ?? "",
-        };
+    const socialLinks: SocialLink[] = (club.socialLinks ?? []).map(
+      (record: Record<string, string>) => {
+        const [apiKey, url] = Object.entries(record)[0] ?? ["website", ""];
+        return { [apiKey]: url }; // preserve as-is, apiKey already correct from backend
       },
     );
-
     const spaces = (club.spaces ?? []).map((s: Space) => ({
       id: String(s.id ?? crypto.randomUUID()),
       name: s.name ?? "",

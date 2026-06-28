@@ -34,7 +34,9 @@ export function validateForm(data: ClubFormData): boolean {
     data.maxSeats > MAX_SEATS
   )
     return false;
-  if (data.socialLinks.some((link) => !link.url.trim())) return false;
+  if (data.socialLinks.some((link) => !Object.values(link)[0]?.trim()))
+    return false;
+
   return true;
 }
 

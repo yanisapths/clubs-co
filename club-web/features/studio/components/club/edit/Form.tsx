@@ -87,10 +87,11 @@ export function EditClubForm({
           name: s.name,
         })),
         ...(thumbnailImage !== undefined && { thumbnailImage }),
+        socialLinks: formData.socialLinks,
       },
       {
         onSuccess: () => {
-          router.push(`/${user.username}/studio/club`);
+          router.push(`/${user.username}/studio/club/${clubId}`);
           toast.success("Club updated successfully!");
         },
         onError: (error: Error) => {
