@@ -70,18 +70,18 @@ export const Footer = () => {
 
       {/* Main footer content */}
       <div
-        style={{
-          maxWidth: "1790px",
-          margin: "0 auto",
-          padding: "60px 40px 48px",
-          display: "grid",
-          gridTemplateColumns: "1fr auto",
-          gap: "64px",
-          alignItems: "start",
-        }}
+        className="
+          max-w-[1790px] mx-auto
+          px-5 sm:px-8 lg:px-10
+          py-10 sm:py-14 lg:py-[60px]
+          pb-8 sm:pb-12 lg:pb-12
+          grid grid-cols-1 lg:grid-cols-[1fr_auto]
+          gap-8 sm:gap-12 lg:gap-16
+          items-start
+        "
       >
         {/* Brand */}
-        <div className="flex flex-col justify-start gap-3">
+        <div className="flex flex-col justify-start gap-3 order-1">
           <Logo />
           <p style={{ fontSize: "13px", color: "#555" }}>
             © {new Date().getFullYear()} Clubspace. All rights reserved.
@@ -90,11 +90,12 @@ export const Footer = () => {
 
         {/* Nav columns */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 140px)",
-            gap: "48px",
-          }}
+          className="
+            order-2
+            grid grid-cols-2 sm:grid-cols-4
+            gap-x-6 gap-y-8 sm:gap-x-8 lg:gap-12
+            w-full lg:w-auto
+          "
         >
           <FooterColumn
             title="Explore"
@@ -137,11 +138,11 @@ export const Footer = () => {
         </div>
 
         {/* Large wordmark */}
-        <div className="leading-none select-none pointer-events-none">
+        <div className="hidden sm:block order-3 leading-none select-none pointer-events-none lg:col-span-2">
           <p
             className="font-bold tracking-tighter m-0 bg-gradient-to-b from-[#111] to-[#2a2a2a] bg-clip-text text-transparent"
             style={{
-              fontSize: "clamp(64px, 12vw, 160px)",
+              fontSize: "clamp(48px, 14vw, 160px)",
               fontFamily: "'DM Sans', system-ui, sans-serif",
             }}
           >

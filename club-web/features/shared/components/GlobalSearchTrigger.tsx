@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -12,6 +11,7 @@ import type {
   SearchSpace,
   SearchCategory,
 } from "@/features/shared/api/api";
+import { toClubSlug } from "@/lib/utils";
 
 interface GlobalSearchTriggerProps {
   placeholder?: string;
@@ -35,7 +35,7 @@ export function GlobalSearchTrigger({
 
   const goToClub = (club: SearchClub) => {
     close();
-    router.push(`/club/${club.name}`);
+    router.push(`/club/${toClubSlug(club.name)}`);
   };
   const goToMember = (member: SearchMember) => {
     close();

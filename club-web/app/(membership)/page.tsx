@@ -5,8 +5,6 @@ import { CategoryCard } from "@/features/membership/components/homepage/Category
 import { ClubCard } from "@/features/membership/components/homepage/ClubCard";
 import { ClubsCarousel } from "@/features/membership/components/homepage/ClubCarousel";
 import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage/constants";
-import { topics } from "@/features/membership/components/homepage/data";
-import { TopicCard } from "@/features/membership/components/homepage/TopicCard";
 import { useGetMembershipClubs } from "@/features/membership/hooks/use-club";
 import { GlobalSearchTrigger } from "@/features/shared/components/GlobalSearchTrigger";
 import { categories } from "@/features/shared/constants";
@@ -61,7 +59,7 @@ export default function Home() {
                     ))}
                   </div>
 
-                  {!lg && (
+                  <div className="block sm:hidden">
                     <button
                       onClick={() => setCategoriesExpanded((prev) => !prev)}
                       className="cursor-pointer flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl border border-white/15 text-white/55 text-sm hover:border-white/30 hover:text-white/80 transition-colors lg:hidden"
@@ -76,26 +74,7 @@ export default function Home() {
                         </>
                       )}
                     </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-6">
-                <div>
-                  <p className="text-2xl">Trending Topics</p>
-                  <p className="text-base text-white/60 mt-1">
-                    Explore what people are talking about.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {topics.map((topic) => (
-                    <div
-                      key={topic.id}
-                      className={topics.length > 12 ? "shrink-0" : ""}
-                    >
-                      <TopicCard {...topic} />
-                    </div>
-                  ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -133,14 +112,14 @@ export default function Home() {
                 </div>
               </div>
 
-              {!lg && (
+              <div className="block sm:hidden">
                 <button
                   onClick={() => router.push("/club")}
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/20 text-white/70 text-sm hover:border-white/35 hover:text-white transition-colors lg:hidden"
                 >
                   View all clubs <ArrowRight size={14} />
                 </button>
-              )}
+              </div>
             </div>
           </div>
         </div>

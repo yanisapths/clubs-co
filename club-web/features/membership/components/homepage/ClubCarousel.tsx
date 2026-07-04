@@ -17,7 +17,7 @@ export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const router = useRouter();
-  const showNav = clubs.length >= 6;
+  const showNav = clubs.length >= 5;
 
   const updateState = useCallback(() => {
     const el = trackRef.current;
