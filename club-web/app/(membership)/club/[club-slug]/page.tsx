@@ -9,7 +9,10 @@ import {
   ClubBanner,
   ClubMeta,
 } from "@/features/studio/components/club/detail/ClubMeta";
-import { useGetMembershipClubById } from "@/features/membership/hooks/use-club";
+import {
+  useGetMembershipClubById,
+  useGetMembershipClubByName,
+} from "@/features/membership/hooks/use-club";
 import { ClubDetailsTab } from "@/features/membership/components/club/DetailTab";
 
 const TABS = ["General", "Members"] as const;
@@ -19,11 +22,10 @@ const ClubDetailPage = () => {
   const { user } = useAccountAuth();
   const router = useRouter();
   const params = useParams<{ "club-slug": string }>();
-  const clubId = params["club-slug"];
+  const clubSlug = params["club-slug"];
 
-  const { club, members, isLoading, query } = useGetMembershipClubById(
-    Number(clubId),
-  );
+  const { club, members, isLoading, query } =
+    useGetMembershipClubByName(clubSlug);
 
   const [activeTab, setActiveTab] = useState<Tab>("General");
 

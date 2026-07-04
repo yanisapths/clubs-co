@@ -88,6 +88,14 @@ export const getMembershipClubById = (id: number) =>
     },
   });
 
+export const getMembershipClubByName = (encodedName: string) =>
+  apiFetch<MembershipClubDetailResponse>(`${baseApi}/${encodedName}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${getStoredToken()}`,
+    },
+  });
+
 export const joinClub = (id: number) =>
   apiFetch<MembershipMessage>(`${baseApi}/${id}/join`, {
     method: "POST",

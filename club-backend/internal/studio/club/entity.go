@@ -2,7 +2,10 @@
 package club
 
 import (
+	"errors"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type Club struct {
@@ -34,4 +37,12 @@ type ClubMember struct {
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`
 	JoinedAt 		time.Time   `db:"joined_at"`
+}
+
+func isUniqueViolation(err error) bool {
+    var pqErr *pq.Error 
+    if errors.As(err, &pqErr) {
+        return pqErr.Code == "23505"
+    }
+    return false
 }

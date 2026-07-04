@@ -135,7 +135,7 @@ export default function Home() {
                       <div key={club.id} className="w-[180px]">
                         <ClubCard
                           club={club}
-                          onClick={() => router.push(`/club/${club.id}`)}
+                          onClick={() => router.push(`/club/${club.name}`)}
                         />
                       </div>
                     ))}

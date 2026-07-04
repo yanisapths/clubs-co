@@ -15,7 +15,7 @@ type GetClubById struct {
 	logger *zap.Logger
 }
 
-func NewGetClubById(repo GetClubByIdRepo, 	logger *zap.Logger) *GetClubById {
+func NewGetClubById(repo GetClubByIdRepo, logger *zap.Logger) *GetClubById {
 	return &GetClubById{
 		repo: repo,
 		logger: logger,

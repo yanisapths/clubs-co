@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ClubCard } from "./ClubCard";
 import { type MembershipClub } from "../../api/club"; // ← was importing Club from studio
 import { useRouter } from "next/navigation";
+import { toClubSlug } from "@/lib/utils";
 
 interface ClubsCarouselProps {
   clubs: MembershipClub[];
@@ -78,7 +79,7 @@ export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
           <div key={club.id} className="shrink-0 w-[400px]">
             <ClubCard
               club={club}
-              onClick={() => router.push(`/club/${club.id}`)}
+              onClick={() => router.push(`/club/${toClubSlug(club.name)}`)}
             />
           </div>
         ))}

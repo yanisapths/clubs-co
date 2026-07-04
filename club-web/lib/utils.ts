@@ -8,3 +8,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatUnixDate = (unix: number) =>
   dayjs.unix(unix).format("D MMM YYYY");
+
+export const toClubSlug = (name: string) =>
+  name.trim().toLowerCase().replace(/\s+/g, "-");

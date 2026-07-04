@@ -1,5 +1,6 @@
 import {
   getMembershipClubById,
+  getMembershipClubByName,
   getMembershipClubs,
   joinClub,
   leaveClub,
@@ -10,6 +11,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const CLUB_KEYS = {
   all: ["membership-clubs"] as const,
   detail: (id: number) => ["membership-club", id] as const,
+  detailByName: (name: string) =>
+    [...CLUB_KEYS.all, "detail", name.toLowerCase()] as const,
 };
 
 export const useGetMembershipClubs = () => {
@@ -31,6 +34,22 @@ export const useGetMembershipClubById = (id: number) => {
     queryKey: CLUB_KEYS.detail(id),
     queryFn: () => getMembershipClubById(id),
     enabled: !!id,
+    select: (res) => res.data,
+  });
+
+  return {
+    query,
+    club: query.data?.clubInfo,
+    members: query.data?.members,
+    isLoading: query.isLoading,
+  };
+};
+
+export const useGetMembershipClubByName = (clubName: string) => {
+  const query = useQuery({
+    queryKey: CLUB_KEYS.detailByName(clubName),
+    queryFn: () => getMembershipClubByName(encodeURIComponent(clubName)),
+    enabled: !!clubName,
     select: (res) => res.data,
   });
 

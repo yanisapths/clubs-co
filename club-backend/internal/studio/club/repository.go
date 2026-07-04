@@ -179,16 +179,12 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 	err = tx.QueryRowContext(ctx, `
 		SELECT EXISTS (
 			SELECT 1 FROM public.club
-			WHERE name = $1
+			WHERE LOWER(REGEXP_REPLACE(TRIM(name), '\s+', '-', 'g'))
+				= LOWER(REGEXP_REPLACE(TRIM($1), '\s+', '-', 'g'))
+			AND is_deleted = false
 		)`,
 		req.Name,
 	).Scan(&exists)
-	if err != nil {
-		return nil, fmt.Errorf("check club name exists: %w", err)
-	}
-	if exists {
-		return nil, ErrClubNameTaken
-	}
 
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
 	if err != nil {
@@ -229,7 +225,12 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		req.Activate,
 		socialLinksJSON,   
 	).Scan(&club.ID)
-	
+	if err != nil {
+		if isUniqueViolation(err) {
+			return nil, ErrClubNameTaken
+		}
+		return nil, fmt.Errorf("insert club: %w", err)
+	}
 
 	const addFounderQuery = `
 		INSERT INTO public.club_member (club_id, user_id, role_id, joined_at)
@@ -679,19 +680,24 @@ func (r *clubRepository) PatchClub(
 		_ = tx.Rollback()
 	}()
 
-	var exists bool
-	err = tx.QueryRowContext(ctx, `
-		SELECT EXISTS (
-			SELECT 1 FROM public.club
-			WHERE name = $1
-		)`,
-		req.Name,
-	).Scan(&exists)
-	if err != nil {
-		return nil, fmt.Errorf("check club name exists: %w", err)
-	}
-	if exists {
-		return nil, ErrClubNameTaken
+	if req.Name != nil {
+		var exists bool
+		err = tx.QueryRowContext(ctx, `
+			SELECT EXISTS (
+				SELECT 1 FROM public.club
+				WHERE id != $2
+				  AND is_deleted = false
+				  AND LOWER(REGEXP_REPLACE(TRIM(name), '\s+', '-', 'g'))
+					= LOWER(REGEXP_REPLACE(TRIM($1), '\s+', '-', 'g'))
+			)`,
+			req.Name, clubID,
+		).Scan(&exists)
+		if err != nil {
+			return nil, fmt.Errorf("check club name exists: %w", err)
+		}
+		if exists {
+			return nil, ErrClubNameTaken
+		}
 	}
 
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
@@ -828,6 +834,9 @@ func (r *clubRepository) PatchClub(
 	)
 
 	if err != nil {
+		if isUniqueViolation(err) {
+				return nil, ErrClubNameTaken
+		}
 		return nil, fmt.Errorf("update club: %w", err)
 	}
 
@@ -899,8 +908,6 @@ func marshalSocialLinks(v interface{}) ([]byte, error) {
     }
 }
 
-
-
 func (r *clubRepository) GetExistClub(
 	ctx context.Context,
 	name *string,
@@ -912,17 +919,13 @@ func (r *clubRepository) GetExistClub(
 	SELECT EXISTS (
 		SELECT 1
 		FROM public.club
-		WHERE
-			($1::text IS NOT NULL AND name = $1)
-		);	
-		`
+		WHERE $1::text IS NOT NULL
+		  AND LOWER(REGEXP_REPLACE(TRIM(name), '\s+', '-', 'g'))
+		    = LOWER(REGEXP_REPLACE(TRIM($1), '\s+', '-', 'g'))
+	);
+	`
 
-	err := r.db.QueryRowContext(
-		ctx,
-		query,
-		name,
-	).Scan(&exist)
-
+	err := r.db.QueryRowContext(ctx, query, name).Scan(&exist)
 	if err != nil {
 		return false, err
 	}

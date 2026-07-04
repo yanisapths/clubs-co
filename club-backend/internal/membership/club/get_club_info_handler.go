@@ -3,25 +3,24 @@ package club
 import (
 	"club-backend/internal/auth"
 	"club-backend/pkg/response"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-type GetClubById struct {
-	repo GetClubByIdRepo
+type GetClubInfo struct {
+	repo GetClubInfoRepo
 	logger *zap.Logger
 }
 
-func NewGetClubById(repo GetClubByIdRepo, 	logger *zap.Logger) *GetClubById {
-	return &GetClubById{
+func NewGetClubInfo(repo GetClubInfoRepo, 	logger *zap.Logger) *GetClubInfo {
+	return &GetClubInfo{
 		repo: repo,
 		logger: logger,
 	}
 }
 
-func (s *GetClubById) Handler(c *gin.Context) {
+func (s *GetClubInfo) Handler(c *gin.Context) {
 	var userID *string
 
 	if claimsValue, exists := c.Get("claims"); exists {
@@ -30,26 +29,26 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			userID = &id
 		}
 	}
-	clubID, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		response.BadRequest(c, "invalid club id")
+
+	clubName := c.Param("club_name")
+	if clubName == "" {
+		response.BadRequest(c, "invalid club name")
 		return
 	}
-
-	clubInfo, err := s.repo.GetClubByID(c.Request.Context(), userID, clubID)
+	clubInfo, err := s.repo.GetClubByName(c.Request.Context(), userID, clubName)
 	if err != nil {
 		s.logger.Error(
-			"failed : GetClubByID",
+			"failed : GetClubByName",
 			zap.Error(err),
 			zap.String("path", c.Request.URL.Path),
 			zap.String("method", c.Request.Method),
 		)
-	
+
 		response.NotFound(c, "club not found")
 		return
 	}
 
-	members, err := s.repo.GetClubMemberByClubID(c.Request.Context(), clubID)
+	members, err := s.repo.GetClubMemberByClubID(c.Request.Context(), clubInfo.ID)
 	if err != nil {
 		s.logger.Error(
 			"failed : GetClubMemberByClubID",
