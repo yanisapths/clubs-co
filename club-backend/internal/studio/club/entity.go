@@ -29,6 +29,7 @@ type Club struct {
 	Tags           []Tag             `db:"tags"`
 	GalleryURLs    []string 		 `db:"gallery_urls"`
 	OwnerDisplayName string          `db:"display_name"`
+	MemberCount 	int               `db:"member_count"`
 }
 
 type ClubMember struct {

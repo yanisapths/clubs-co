@@ -2,24 +2,18 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAccountAuth } from "@/hooks/use-account-auth";
-
 import { MembersTab } from "@/features/studio/components/club/detail/MemberTab";
 import {
   ClubBanner,
   ClubMeta,
 } from "@/features/studio/components/club/detail/ClubMeta";
-import {
-  useGetMembershipClubById,
-  useGetMembershipClubByName,
-} from "@/features/membership/hooks/use-club";
+import { useGetMembershipClubByName } from "@/features/membership/hooks/use-club";
 import { ClubDetailsTab } from "@/features/membership/components/club/DetailTab";
 
 const TABS = ["General", "Members"] as const;
 type Tab = (typeof TABS)[number];
 
 const ClubDetailPage = () => {
-  const { user } = useAccountAuth();
   const router = useRouter();
   const params = useParams<{ "club-slug": string }>();
   const clubSlug = params["club-slug"];
@@ -60,7 +54,7 @@ const ClubDetailPage = () => {
       <div className="relative flex flex-col text-white">
         <ClubBanner club={club} isOwner={club.isOwner} />
 
-        <ClubMeta club={club} />
+        <ClubMeta club={club} members={members} />
 
         <div className="mt-5 flex gap-6 overflow-x-auto border-b border-white/10 px-6">
           {TABS.map((tab) => (

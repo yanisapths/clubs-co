@@ -1,13 +1,12 @@
-import { formatUnixDate } from "@/lib/utils";
-import React, { useState } from "react";
+import { formatUnixDate, toClubSlug } from "@/lib/utils";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ProfileClubItem } from "@/features/studio/api/profile";
 import { Button } from "@/design-system/components/button";
 import { Plus } from "lucide-react";
 import { ClubThumbnail } from "../../club/ClubThumbnail";
-import { getCategory, getCategoryGradient } from "../../club/constants";
+import { getCategory } from "../../club/constants";
 
 interface ClubTabProps {
   clubs?: ProfileClubItem[];
@@ -20,10 +19,6 @@ export const ClubTab = ({ clubs, username }: ClubTabProps) => {
   const pathToCreateClub = `/${username}/studio/club/create`;
 
   const displayedClubs = clubs?.slice(0, 6);
-
-  const handleClubClick = (slug: string) => {
-    router.push(`/clubs/${slug}`);
-  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -70,7 +65,7 @@ export const ClubTab = ({ clubs, username }: ClubTabProps) => {
             {displayedClubs?.map((club) => {
               const isHovering = hoveredId === club.id;
               const category = getCategory(club.category);
-              // const gradient = getCategoryGradient(club.category);
+
               return (
                 <motion.li
                   key={club?.id}
@@ -83,7 +78,9 @@ export const ClubTab = ({ clubs, username }: ClubTabProps) => {
                     initial="rest"
                     animate={isHovering ? "hover" : "rest"}
                     variants={hoverVariants}
-                    onClick={() => handleClubClick(club.name)}
+                    onClick={() =>
+                      router.push(`/club/${toClubSlug(club.name)}`)
+                    }
                     className="grid grid-cols-[1fr_880px_180px_48px] cursor-pointer border-b border-b-white/10 items-center py-6 px-4 rounded-lg transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">

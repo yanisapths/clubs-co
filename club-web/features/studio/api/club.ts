@@ -38,6 +38,7 @@ export interface Club {
   updatedAt?: number;
   galleryUrls?: string[];
   isOwner?: boolean;
+  memberCount: number;
 }
 
 export interface CreateClubPayload {
@@ -70,15 +71,15 @@ export interface UpdateClubPayload {
 
 export interface ClubDetail {
   clubInfo: Club;
-  members: {
-    displayName: string;
-    username: string;
-    id: string;
-    role: string;
-    joinedAt: number;
-  }[];
+  members: ClubMember[];
 }
-
+export interface ClubMember {
+  displayName: string;
+  username: string;
+  id: string;
+  role: string;
+  joinedAt: number;
+}
 // --- API Functions ---
 
 export const getClubList = (token: string) =>

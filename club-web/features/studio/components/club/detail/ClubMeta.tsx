@@ -1,7 +1,7 @@
 import { getGradient } from "@/features/shared/components/Avatar";
 import { Tag } from "@/features/shared/components/Tag";
 import { categories } from "@/features/shared/constants";
-import { Club } from "@/features/studio/api/club";
+import { Club, ClubMember } from "@/features/studio/api/club";
 import { formatUnixDate } from "@/lib/utils";
 import { ClubThumbnail } from "../ClubThumbnail";
 import { getCategory } from "../constants";
@@ -39,7 +39,13 @@ export function ClubBanner({
   );
 }
 
-export function ClubMeta({ club }: { club: Club }) {
+export function ClubMeta({
+  club,
+  members,
+}: {
+  club: Club;
+  members?: ClubMember[];
+}) {
   const category = getCategory(club.category.name);
   return (
     <div className="flex flex-col gap-3 px-6 pt-5 lg:flex-row lg:items-start lg:justify-between">
@@ -90,7 +96,9 @@ export function ClubMeta({ club }: { club: Club }) {
           <p className="text-xs uppercase tracking-wider text-white/40">
             Members
           </p>
-          <p className="mt-0.5 font-semibold text-white">—</p>
+          <p className="mt-0.5 font-semibold text-white">
+            {members?.length} <span>/</span> {club?.maxSeats}
+          </p>
         </div>
       </div>
     </div>

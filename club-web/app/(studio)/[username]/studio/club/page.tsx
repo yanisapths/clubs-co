@@ -16,6 +16,8 @@ function ClubStudioPage() {
   const router = useRouter();
   const { clubs } = useGetOwnerClubs();
   const pathToCreateClub = `/${user.username}/studio/club/create`;
+  const allClubsMember =
+    clubs?.reduce((total, club) => total + club.memberCount, 0) ?? 0;
 
   return (
     <div className="relative bg-black">
@@ -39,7 +41,7 @@ function ClubStudioPage() {
               </div>
               <div>
                 <p className="text-xs uppercase text-white/40">Members</p>
-                <p className="font-semibold">0</p>
+                <p className="font-semibold">{allClubsMember}</p>
               </div>
             </div>
           </div>

@@ -52,6 +52,7 @@ type ClubResponse struct {
 	Tags           []Tag               `json:"tags"`
 	CreatedAt      int64               `json:"createdAt"`
 	UpdatedAt      int64               `json:"updatedAt"`
+	MemberCount    int                 `json:"memberCount"`
 }
 
 type ClubCategory struct {

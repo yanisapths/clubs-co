@@ -75,7 +75,7 @@ const ClubDetailPage = () => {
           }
         />
 
-        <ClubMeta club={club} />
+        <ClubMeta club={club} members={members} />
 
         <div className="mt-5 flex gap-6 overflow-x-auto border-b border-white/10 px-6">
           {TABS.map((tab) => (

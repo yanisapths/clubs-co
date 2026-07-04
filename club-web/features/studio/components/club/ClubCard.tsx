@@ -98,7 +98,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
         <div className="mt-2.5">
           <span className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-3 py-1.5 text-sm text-white">
             <Users className="h-4 w-4" aria-hidden />
-            {club.maxSeats} members
+            {club.memberCount}/{club.maxSeats} members
           </span>
         </div>
       </div>

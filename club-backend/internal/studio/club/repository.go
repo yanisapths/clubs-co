@@ -52,10 +52,12 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', s.id, 'name', s.name)), '[]')
 				FROM public.space s
 				WHERE s.id = ANY(c.space_ids)
-			) AS spaces
+			) AS spaces,
+			COUNT(cm.user_id) as member_count
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
+		LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.owner_id = $1
 		  AND c.is_deleted = false
 		GROUP BY
@@ -120,6 +122,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			&club.CategoryName,
 			&tagsRaw,
 			&spacesRaw,
+			&club.MemberCount,
 		); err != nil {
 			return nil, err
 		}
