@@ -57,6 +57,138 @@ curl -X GET http://localhost:9090/api/v1/membership/club \
 
 ---
 
+### GET `/membership/search`
+
+Global search across clubs, members, spaces, and categories in a single call. Powers the search modal's "All" tab (with each per-entity tab simply reading its slice of the same response). Every section is always present in the response — as `[]` if nothing matched — so the client never needs to branch on missing keys.
+
+Matching is partial and case-insensitive (`ILIKE '%q%'`). An empty or missing `q` returns a default browsable set for every section (all clubs, all members, all spaces, all categories, each capped at 20 results) rather than an error.
+
+**Auth:** Optional — no token is required. If a valid token is present, `isMember` on club results reflects the requesting user's membership; unauthenticated requests get the same results with `isMember: false`.
+
+**Query params**
+
+| Param | Type   | Required | Description                                                                                                                                                                                                       |
+| ----- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `q`   | string | No       | Free-text search term. Matched against club `name`/`description`/category/tag/space, member `displayName`/`username`, space `name`/`city`/`country`, and category `name`. Omit or leave empty to browse defaults. |
+
+**Request**
+
+```bash
+curl -X GET "http://localhost:9090/api/v1/membership/search?q=polo" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response `200`**
+
+```json
+{
+  "data": {
+    "clubs": [
+      {
+        "id": 5,
+        "name": "The Kings Polo Club",
+        "description": "Elite polo for serious riders",
+        "imageUrl": "",
+        "clubType": "Exclusive",
+        "visibility": "Anyone",
+        "category": "Polo",
+        "tags": [{ "id": 1, "name": "Polo" }],
+        "spaces": [],
+        "createdAt": 1781916575,
+        "isMember": false,
+        "memberCount": 38
+      }
+    ],
+    "members": [
+      {
+        "id": "8f14e1c0-...",
+        "username": "nicola_xii12",
+        "displayName": "Nicola Pelez",
+        "imageUrl": "",
+        "clubCount": 2
+      }
+    ],
+    "spaces": [
+      {
+        "id": 3,
+        "name": "Bangkok",
+        "slug": "bangkok",
+        "city": "Bangkok",
+        "country": "Thailand",
+        "clubCount": 6
+      }
+    ],
+    "categories": [{ "id": 2, "name": "Polo" }]
+  }
+}
+```
+
+| Field        | Type  | Notes                                                         |
+| ------------ | ----- | ------------------------------------------------------------- |
+| `clubs`      | array | Same shape as `GET /membership/club`                          |
+| `members`    | array | `clubCount` is the number of clubs that member belongs to     |
+| `spaces`     | array | `clubCount` is the number of clubs associated with that space |
+| `categories` | array | Same shape as `GET /membership/club/category`                 |
+
+**Filters applied server-side**
+
+- Clubs: `is_deleted = false`, `display_status = true`
+- Members: `deleted_at IS NULL`, `is_active = true`
+- Each section is capped at 20 results, ordered by relevance-adjacent fields (clubs by `created_at DESC`, members/spaces/categories by `name ASC`)
+
+**Errors**
+
+| Status | Reason                |
+| ------ | --------------------- |
+| `500`  | Internal server error |
+
+---
+
+### GET `/membership/club/category`
+
+Returns the list of available club categories, for use in filter UIs (e.g. category chips/dropdowns).
+
+**Auth:** Optional
+
+**Request**
+
+```bash
+curl -X GET http://localhost:9090/api/v1/membership/club/category \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response `200`**
+
+```json
+{
+  "data": [
+    { "id": 4, "name": "Art" },
+    { "id": 2, "name": "Polo" },
+    { "id": 6, "name": "Running" },
+    { "id": 1, "name": "Tennis" }
+  ]
+}
+```
+
+| Field  | Type   | Notes                 |
+| ------ | ------ | --------------------- |
+| `id`   | int    | Category ID           |
+| `name` | string | Category display name |
+
+**Ordering**
+
+- Alphabetical by `name` (ascending)
+
+**Errors**
+
+| Status | Reason                |
+| ------ | --------------------- |
+| `500`  | Internal server error |
+
+---
+
 ### POST `/membership/club/:id/join`
 
 Joins a public club as a regular member.

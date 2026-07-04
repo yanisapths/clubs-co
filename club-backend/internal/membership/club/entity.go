@@ -35,3 +35,22 @@ type ClubMember struct {
 	Role     		string  	`db:"role"`
 	JoinedAt 		time.Time   `db:"joined_at"`
 }
+
+// MemberSearchResult represents a user matched by a global search query.
+type MemberSearchResult struct {
+	ID          string  `db:"id"`
+	Username    string  `db:"username"`
+	DisplayName string  `db:"display_name"`
+	ImageURL    *string `db:"image_url"`
+	ClubCount   int64   `db:"club_count"`
+}
+
+// SpaceSearchResult represents a physical/location space matched by a global search query.
+type SpaceSearchResult struct {
+	ID        int64   `db:"id"`
+	Name      string  `db:"name"`
+	Slug      string  `db:"slug"`
+	City      *string `db:"city"`
+	Country   *string `db:"country"`
+	ClubCount int64   `db:"club_count"`
+}

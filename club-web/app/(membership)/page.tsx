@@ -6,29 +6,25 @@ import { ClubCard } from "@/features/membership/components/homepage/ClubCard";
 import { ClubsCarousel } from "@/features/membership/components/homepage/ClubCarousel";
 import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage/constants";
 import { topics } from "@/features/membership/components/homepage/data";
-import { SearchModal } from "@/features/membership/components/homepage/SearchClubModal";
 import { TopicCard } from "@/features/membership/components/homepage/TopicCard";
 import { useGetMembershipClubs } from "@/features/membership/hooks/use-club";
-import { Input } from "@/features/shared/components/input/Input";
+import { GlobalSearchTrigger } from "@/features/shared/components/GlobalSearchTrigger";
 import { categories } from "@/features/shared/constants";
 import { useBreakpoints } from "@/hooks/use-breakpoints";
-import { useModal } from "@/hooks/use-modal";
-
 import { Typography } from "@heroui/react/typography";
-import { ChevronDown, ChevronUp, Search } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Home() {
   const { clubs } = useGetMembershipClubs();
-  const { close, visible, show } = useModal();
-  const { sm, lg } = useBreakpoints();
+  const { lg } = useBreakpoints();
   const router = useRouter();
   const [categoriesExpanded, setCategoriesExpanded] = useState(false);
-  const visibleCategories =
-    !lg && !categoriesExpanded
-      ? categories.slice(0, MOBILE_CATEGORY_LIMIT)
-      : categories;
+
+  const visibleCategories = categoriesExpanded
+    ? categories
+    : categories.slice(0, MOBILE_CATEGORY_LIMIT);
 
   return (
     <div className="flex flex-col items-center justify-center bg-black text-white">
@@ -46,13 +42,8 @@ export default function Home() {
           <div className="flex flex-col w-full gap-8">
             <div className="flex flex-col gap-2.5 lg:justify-center lg:items-center">
               <div className="w-full lg:w-[700px]">
-                <Input
-                  onClick={show}
-                  placeholder="Search clubs, spaces, communities"
-                  leftSection={<Search size={24} className="text-white/50" />}
-                />
+                <GlobalSearchTrigger />
               </div>
-              <SearchModal isOpen={visible} onClose={close} />
             </div>
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-6">
@@ -118,30 +109,29 @@ export default function Home() {
                 </p>
               </div>
 
-              {sm ? (
+              <div className="hidden sm:block">
                 <ClubsCarousel clubs={clubs} />
-              ) : (
-                <div className="overflow-x-auto scrollbar-none">
-                  <div
-                    className="grid gap-2"
-                    style={{
-                      gridTemplateRows: "repeat(2, auto)",
-                      gridAutoFlow: "column",
-                      gridAutoColumns: "185px",
-                      width: "max-content",
-                    }}
-                  >
-                    {clubs.map((club) => (
-                      <div key={club.id} className="w-[180px]">
-                        <ClubCard
-                          club={club}
-                          onClick={() => router.push(`/club/${club.name}`)}
-                        />
-                      </div>
-                    ))}
-                  </div>
+              </div>
+              <div className="block sm:hidden overflow-x-auto scrollbar-none">
+                <div
+                  className="grid gap-2"
+                  style={{
+                    gridTemplateRows: "repeat(2, auto)",
+                    gridAutoFlow: "column",
+                    gridAutoColumns: "185px",
+                    width: "max-content",
+                  }}
+                >
+                  {clubs.map((club) => (
+                    <div key={club.id} className="w-[180px]">
+                      <ClubCard
+                        club={club}
+                        onClick={() => router.push(`/club/${club.name}`)}
+                      />
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
 
               {!lg && (
                 <button

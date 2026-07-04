@@ -128,8 +128,10 @@ func main() {
 	)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo).Handler)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo).Handler)
-	// mbr.GET("/club/:id", membershipclub.NewGetClubById(memberRepo, logger).Handler)
 	mbr.GET("/club/:club_name", membershipclub.NewGetClubInfo(memberRepo, logger).Handler)
+	mbr.GET("/search", membershipclub.NewSearchClubList(memberRepo, logger).Handler)
+	mbr.GET("/club/category", membershipclub.NewGetClubCategoryList(memberRepo, logger).Handler)
+
 	mbr.GET("/user/exist", membershipuser.NewGetUserExist(memberUserRepo, logger).Handler)
 
 	r.GET("/health", func(c *gin.Context) {

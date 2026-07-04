@@ -43,12 +43,12 @@ export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
       {showNav && (
         <>
           <div
-            className={`pointer-events-none absolute left-0 top-0 bottom-0 w-40 z-10 bg-gradient-to-r from-black to-transparent transition-opacity duration-200 ${
+            className={`pointer-events-none absolute left-0 top-0 bottom-0 w-40 z-10 bg-linear-to-r from-black to-transparent transition-opacity duration-200 ${
               atStart ? "opacity-0" : "opacity-100"
             }`}
           />
           <div
-            className={`pointer-events-none absolute right-0 top-0 bottom-0 w-40 z-10 bg-gradient-to-l from-black to-transparent transition-opacity duration-200 ${
+            className={`pointer-events-none absolute right-0 top-0 bottom-0 w-40 z-10 bg-linear-to-l from-black to-transparent transition-opacity duration-200 ${
               atEnd ? "opacity-0" : "opacity-100"
             }`}
           />

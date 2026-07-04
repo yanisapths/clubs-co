@@ -70,3 +70,32 @@ type ClubInfoResponse struct {
 	IsMember       bool      		   `json:"isMember"`
 	MemberCount    int64               `json:"memberCount"`
 }
+
+// ── Global search ────────────────────────────────────────────────────────────
+
+// SearchResponse is the unified payload for GET /membership/search.
+// Every section is always present (possibly empty) so the client can render
+// tabs (All/Clubs/Spaces/Members/Categories) from a single response.
+type SearchResponse struct {
+	Clubs      []ClubResponse          `json:"clubs"`
+	Members    []MemberSearchResponse  `json:"members"`
+	Spaces     []SpaceSearchResponse   `json:"spaces"`
+	Categories []ClubCategory          `json:"categories"`
+}
+
+type MemberSearchResponse struct {
+	ID          string `json:"id"`
+	Username    string `json:"username"`
+	DisplayName string `json:"displayName"`
+	ImageURL    string `json:"imageUrl"`
+	ClubCount   int64  `json:"clubCount"`
+}
+
+type SpaceSearchResponse struct {
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	Slug      string `json:"slug"`
+	City      string `json:"city"`
+	Country   string `json:"country"`
+	ClubCount int64  `json:"clubCount"`
+}
