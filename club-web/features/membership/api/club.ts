@@ -63,8 +63,10 @@ export interface Club {
   spaces: Space[];
   tags: Tag[];
   owner: string;
+  ownerDisplayName: string;
   galleryUrls?: string[];
   isOwner: boolean;
+  activate: boolean;
 }
 
 export interface MembershipClubDetailResponse {

@@ -35,7 +35,7 @@ function ClubStudioPage() {
             <div className="flex items-center gap-8 text-right">
               <div>
                 <p className="text-xs uppercase text-white/40">Owned Clubs</p>
-                <p className="font-semibold">{clubs.length}</p>
+                <p className="font-semibold">{clubs?.length}</p>
               </div>
               <div>
                 <p className="text-xs uppercase text-white/40">Members</p>

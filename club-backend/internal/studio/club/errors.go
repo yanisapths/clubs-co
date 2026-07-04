@@ -9,4 +9,5 @@ var (
 	ErrAlreadyMember       = errors.New("already a member")
 	ErrInviteAlreadyPending = errors.New("invite already pending")
 	ErrTooManyGalleryImages = errors.New("too many gallery images")
+	ErrClubNameTaken = errors.New("club name already exists")
 )

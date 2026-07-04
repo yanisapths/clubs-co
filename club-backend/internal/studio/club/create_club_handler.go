@@ -3,6 +3,7 @@ package club
 import (
 	"club-backend/internal/auth"
 	"club-backend/pkg/response"
+	"errors"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -39,6 +40,10 @@ func (s *CreateClub) Handler(c *gin.Context) {
 
 	club, err := s.repo.CreateClub(c.Request.Context(), claims.UserID.String(), req)
 	if err != nil {
+		if errors.Is(err, ErrClubNameTaken) {
+			response.Conflict(c, "club name already exists")
+			return
+		}
 		s.logger.Error("failed : CreateClub",
 			zap.Error(err),
 			zap.String("path", c.Request.URL.Path),

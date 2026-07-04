@@ -60,6 +60,10 @@ func (s *PatchClub) Handler(c *gin.Context) {
 			response.NotFound(c, "club not found")
 			return
 		}
+		if errors.Is(err, ErrClubNameTaken) {
+			response.Conflict(c, "club name already exists")
+			return
+		}
 		if errors.Is(err, ErrTooManyGalleryImages) {
 			response.BadRequest(c, err.Error())
 			return

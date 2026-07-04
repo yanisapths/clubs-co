@@ -29,6 +29,10 @@ type PatchClubByIdRepo interface {
 	PatchClub(ctx context.Context, ownerID string, clubID int64, req PatchClubRequest) (*PatchClubResult, error) 
 }
 
+type GetClubExistRepo interface {
+	GetExistClub(ctx context.Context, name *string) (bool, error)
+}
+
 type ClubRepository interface {
 	CreateClubRepo
 	GetClubRepo
@@ -37,4 +41,5 @@ type ClubRepository interface {
 	InviteClubMemberRepo
 	GetClubByIdRepo
 	PatchClubByIdRepo
+	GetClubExistRepo
 }

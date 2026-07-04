@@ -175,6 +175,21 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 	}
 	defer tx.Rollback()
 
+	var exists bool
+	err = tx.QueryRowContext(ctx, `
+		SELECT EXISTS (
+			SELECT 1 FROM public.club
+			WHERE name = $1
+		)`,
+		req.Name,
+	).Scan(&exists)
+	if err != nil {
+		return nil, fmt.Errorf("check club name exists: %w", err)
+	}
+	if exists {
+		return nil, ErrClubNameTaken
+	}
+
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
 	if err != nil {
 		return nil, fmt.Errorf("resolve tags: %w", err)
@@ -185,9 +200,10 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		return nil, fmt.Errorf("resolve spaces: %w", err)
 	}
 	socialLinksJSON, err := marshalSocialLinks(req.SocialLinks)
-if err != nil {
-    return nil, fmt.Errorf("marshal social_links: %w", err)
-}
+	if err != nil {
+		return nil, fmt.Errorf("marshal social_links: %w", err)
+	}
+
 	query := `
     INSERT INTO public.club (
         owner_id, name, description, club_type, visibility,
@@ -214,7 +230,6 @@ if err != nil {
 		socialLinksJSON,   
 	).Scan(&club.ID)
 	
-
 
 	const addFounderQuery = `
 		INSERT INTO public.club_member (club_id, user_id, role_id, joined_at)
@@ -323,6 +338,20 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 		return fmt.Errorf("begin tx: %w", err)
 	}
 	defer tx.Rollback()
+	var exists bool
+	err = tx.QueryRowContext(ctx, `
+		SELECT EXISTS (
+			SELECT 1 FROM public.club
+			WHERE name = $1
+		)`,
+		req.Name,
+	).Scan(&exists)
+	if err != nil {
+		return  fmt.Errorf("check club name exists: %w", err)
+	}
+	if exists {
+		return ErrClubNameTaken
+	}
 
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
 	if err != nil {
@@ -650,6 +679,21 @@ func (r *clubRepository) PatchClub(
 		_ = tx.Rollback()
 	}()
 
+	var exists bool
+	err = tx.QueryRowContext(ctx, `
+		SELECT EXISTS (
+			SELECT 1 FROM public.club
+			WHERE name = $1
+		)`,
+		req.Name,
+	).Scan(&exists)
+	if err != nil {
+		return nil, fmt.Errorf("check club name exists: %w", err)
+	}
+	if exists {
+		return nil, ErrClubNameTaken
+	}
+
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
 	if err != nil {
 		return nil, fmt.Errorf("resolve tags: %w", err)
@@ -853,4 +897,35 @@ func marshalSocialLinks(v interface{}) ([]byte, error) {
     default:
         return nil, nil
     }
+}
+
+
+
+func (r *clubRepository) GetExistClub(
+	ctx context.Context,
+	name *string,
+) (bool, error) {
+
+	var exist bool
+
+	query := `
+	SELECT EXISTS (
+		SELECT 1
+		FROM public.club
+		WHERE
+			($1::text IS NOT NULL AND name = $1)
+		);	
+		`
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		name,
+	).Scan(&exist)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exist, nil
 }

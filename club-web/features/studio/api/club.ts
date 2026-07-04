@@ -158,3 +158,23 @@ export const patchClubById = (
     },
     body: JSON.stringify(payload),
   });
+
+export async function checkClubExist(params: {
+  name?: string;
+  token: string;
+}): Promise<boolean> {
+  const query = new URLSearchParams();
+  if (params.name) query.set("name", params.name);
+
+  const res = await fetch(`${baseApi}/exist?${query.toString()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${params.token}`,
+    },
+  });
+  if (!res.ok) throw new Error("Failed to check");
+
+  const json = await res.json();
+  return json.data.exist;
+}

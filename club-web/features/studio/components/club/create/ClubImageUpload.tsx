@@ -14,12 +14,7 @@ interface ClubImageUploadProps {
   className?: string;
 }
 
-const ACCEPTED_TYPES = [
-  "image/gif",
-  "image/jpeg",
-  "image/png",
-  "image/svg+xml",
-];
+const ACCEPTED_TYPES = ["image/jpeg", "image/png"];
 const MAX_SIZE_BYTES = 50 * 1024 * 1024;
 
 export function ClubImageUpload({
@@ -37,7 +32,7 @@ export function ClubImageUpload({
     if (!file) return;
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError("File must be GIF, JPG, PNG, or SVG");
+      setError("File must be JPG or PNG");
       return;
     }
 
@@ -88,7 +83,7 @@ export function ClubImageUpload({
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={`relative flex aspect-square w-full max-w-[400px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed transition-colors ${
+        className={`relative flex aspect-video w-full max-w-[400px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed transition-colors ${
           isDragging
             ? "border-zinc-500 bg-zinc-900/80"
             : "border-zinc-700 bg-zinc-950/40 hover:border-zinc-600"
@@ -128,7 +123,7 @@ export function ClubImageUpload({
               drop
             </p>
             <p className="font-mono text-xs tracking-wide text-zinc-500">
-              1000 x 1000 &middot; GIF, JPG, PNG, SVG, max 50 MB
+              JPG or PNG max 5 MB
             </p>
           </div>
         )}

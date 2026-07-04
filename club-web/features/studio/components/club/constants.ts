@@ -17,7 +17,8 @@ export const isValidSpace = (space: ClubSpace) =>
   space.name.length <= 100 &&
   /^[a-zA-Z0-9 ]+$/.test(space.name);
 
-export function validateForm(data: ClubFormData): boolean {
+export function validateForm(data: ClubFormData, nameExist: boolean): boolean {
+  if (nameExist) return false;
   if (!data.name.trim() || data.name.length > NAME_MAX_LENGTH) return false;
   if (
     !data.description.trim() ||

@@ -32,6 +32,7 @@ export default function CreateClubPage() {
   const router = useRouter();
   const { user } = useAccountAuth();
   const [formData, setFormData] = useState<ClubFormData>(initialClubFormData);
+  const [isNameExist, setIsNameExist] = useState<boolean>(false);
 
   const { mutate: createClub, isPending: isCreating } = useCreateClub();
 
@@ -96,7 +97,7 @@ export default function CreateClubPage() {
     formData.tags.length > 0 ||
     formData.spaces.length > 0;
 
-  const isValid = validateForm(formData);
+  const isValid = validateForm(formData, isNameExist);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#0c0c0c] text-white">
@@ -118,7 +119,11 @@ export default function CreateClubPage() {
         <div className="min-h-0 flex-1 overflow-y-auto lg:w-2/3">
           <div className="flex flex-col gap-8 pb-10 px-20 pt-12">
             <section>
-              <ClubBasicInfoForm data={formData} onUpdate={updateFormData} />
+              <ClubBasicInfoForm
+                data={formData}
+                onUpdate={updateFormData}
+                setIsNameExist={setIsNameExist}
+              />
             </section>
             <section>
               <ClubSettingsForm data={formData} onUpdate={updateFormData} />

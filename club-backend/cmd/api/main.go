@@ -108,6 +108,7 @@ func main() {
 	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)
 	studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
 	studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
+	studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
 
 	profileApi := api.Group("/profile")
 	profileApi.Use(middleware.Auth(cfg.JWT.Secret))

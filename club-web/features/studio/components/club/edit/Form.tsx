@@ -41,6 +41,7 @@ export function EditClubForm({
   const { mutate: updateClub, isPending: isUpdating } = useUpdateClub(clubId);
 
   const [formData, setFormData] = useState<ClubFormData>(initialData);
+  const [isNameExist, setIsNameExist] = useState<boolean>(false);
 
   const updateFormData = (updates: Partial<ClubFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -111,7 +112,7 @@ export function EditClubForm({
     formData.tags.length > 0 ||
     formData.spaces.length > 0;
 
-  const isValid = validateForm(formData);
+  const isValid = validateForm(formData, isNameExist);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#0c0c0c] text-white">
@@ -141,6 +142,8 @@ export function EditClubForm({
                 data={formData}
                 onUpdate={updateFormData}
                 isEdit={isEdit}
+                originalName={club?.name}
+                setIsNameExist={setIsNameExist}
               />
             </section>
             <section>
