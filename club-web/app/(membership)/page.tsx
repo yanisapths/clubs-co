@@ -8,7 +8,7 @@ import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage
 import { useGetMembershipClubs } from "@/features/membership/hooks/use-club";
 import { GlobalSearchTrigger } from "@/features/shared/components/GlobalSearchTrigger";
 import { categories } from "@/features/shared/constants";
-import { useBreakpoints } from "@/hooks/use-breakpoints";
+import { toClubSlug } from "@/lib/utils";
 import { Typography } from "@heroui/react/typography";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,6 @@ import { useState } from "react";
 
 export default function Home() {
   const { clubs } = useGetMembershipClubs();
-  const { lg } = useBreakpoints();
   const router = useRouter();
   const [categoriesExpanded, setCategoriesExpanded] = useState(false);
 
@@ -91,8 +90,21 @@ export default function Home() {
               <div className="hidden sm:block">
                 <ClubsCarousel clubs={clubs} />
               </div>
-              <div className="block sm:hidden overflow-x-auto scrollbar-none">
-                <div
+              <div className="block sm:hidden ">
+                <div className="flex gap-4 overflow-x-auto scrollbar-none">
+                  {clubs.map((club) => (
+                    <div key={club.id} className="shrink-0 w-[220px]">
+                      <ClubCard
+                        club={club}
+                        onClick={() =>
+                          router.push(`/club/${toClubSlug(club.name)}`)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* <div
                   className="grid gap-2"
                   style={{
                     gridTemplateRows: "repeat(2, auto)",
@@ -101,15 +113,17 @@ export default function Home() {
                     width: "max-content",
                   }}
                 >
-                  {clubs.map((club) => (
+                  {clubs.slice(0, 30).map((club) => (
                     <div key={club.id} className="w-[180px]">
                       <ClubCard
                         club={club}
-                        onClick={() => router.push(`/club/${club.name}`)}
+                        onClick={() =>
+                          router.push(`/club/${toClubSlug(club.name)}`)
+                        }
                       />
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
 
               <div className="block sm:hidden">

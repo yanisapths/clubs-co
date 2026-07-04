@@ -509,7 +509,7 @@ export function SearchModal({
         <div className="flex flex-1 overflow-hidden">
           {/* ── Left sidebar ── */}
           <div
-            className="flex flex-col py-3 shrink-0"
+            className="hidden sm:flex flex-col py-3 shrink-0"
             style={{
               width: 196,
               borderRight: "1px solid rgba(255,255,255,0.07)",
