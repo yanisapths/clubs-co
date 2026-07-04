@@ -8,6 +8,8 @@ import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage
 import { useGetMembershipClubs } from "@/features/membership/hooks/use-club";
 import { GlobalSearchTrigger } from "@/features/shared/components/GlobalSearchTrigger";
 import { categories } from "@/features/shared/constants";
+import { useBreakpoints } from "@/hooks/use-breakpoints";
+import { useNoScroll } from "@/hooks/use-no-scroll";
 import { toClubSlug } from "@/lib/utils";
 import { Typography } from "@heroui/react/typography";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -17,11 +19,14 @@ import { useState } from "react";
 export default function Home() {
   const { clubs } = useGetMembershipClubs();
   const router = useRouter();
+  const { sm } = useBreakpoints();
   const [categoriesExpanded, setCategoriesExpanded] = useState(false);
 
-  const visibleCategories = categoriesExpanded
+  const visibleCategories = sm
     ? categories
-    : categories.slice(0, MOBILE_CATEGORY_LIMIT);
+    : categoriesExpanded
+      ? categories
+      : categories.slice(0, MOBILE_CATEGORY_LIMIT);
 
   return (
     <div className="flex flex-col items-center justify-center bg-black text-white">
