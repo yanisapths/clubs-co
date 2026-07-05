@@ -16,7 +16,7 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center bg-black text-white">
+    <div className="flex flex-col items-center justify-center bg-black text-white pt-20">
       <main className="flex flex-col h-full w-screen px-4 md:px-6 lg:px-12 pb-16">
         <div className="flex gap-6 flex-col justify-center items-center place-content-center">
           <div className="flex flex-col mt-4 gap-2.5 justify-center items-center text-center place-content-center">

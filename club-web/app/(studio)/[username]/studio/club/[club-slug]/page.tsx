@@ -79,7 +79,7 @@ const ClubDetailPage = () => {
       </div>
 
       <div className="relative flex flex-col text-white">
-        <ClubMeta club={club} members={members} />
+        <ClubMeta club={club} members={members} isStudio={true} />
 
         <div className="mt-5 flex gap-6 overflow-x-auto border-b border-white/10 px-6">
           {TABS.map((tab) => (

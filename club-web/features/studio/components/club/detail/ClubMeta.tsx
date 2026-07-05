@@ -60,9 +60,11 @@ export function ClubBanner({
 export function ClubMeta({
   club,
   members,
+  isStudio,
 }: {
   club: Club;
   members?: ClubMember[];
+  isStudio?: boolean;
 }) {
   const category = getCategory(club.category.name);
   const { visible, show, close } = useModal();
@@ -86,7 +88,9 @@ export function ClubMeta({
 
   return (
     <div className="flex flex-col gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-      <div className="-mt-16 flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
+      <div
+        className={`${isStudio ? "-mt-16" : "-mt-10"} flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left`}
+      >
         <div className="h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-xl bg-white/10 border border-white/15 overflow-hidden">
           <ClubThumbnail
             imageUrl={club.imageUrl}
@@ -97,7 +101,7 @@ export function ClubMeta({
             className="h-full w-full"
           />
         </div>
-        <div>
+        <div className="relative z-50">
           <h2 className="text-lg sm:text-xl font-semibold text-white">
             {club.name}
           </h2>
@@ -119,12 +123,14 @@ export function ClubMeta({
       </div>
 
       <div className="flex flex-col items-center gap-4 sm:gap-6 lg:items-end">
-        <Button
-          onClick={show}
-          className="rounded-full bg-white/10 text-white/70 px-4 py-1.5 text-sm font-medium hover:bg-white/20 transition-colors"
-        >
-          <Edit3Icon className="h-4 w-4" /> Edit banner
-        </Button>
+        {isStudio ? (
+          <Button
+            onClick={show}
+            className="rounded-full bg-white/10 text-white/70 px-4 py-1.5 text-sm font-medium hover:bg-white/20 transition-colors"
+          >
+            <Edit3Icon className="h-4 w-4" /> Edit banner
+          </Button>
+        ) : null}
 
         <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-center lg:justify-end lg:text-right">
           <div>
