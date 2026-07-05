@@ -113,6 +113,7 @@ func main() {
 	profileApi := api.Group("/profile")
 	profileApi.Use(middleware.Auth(cfg.JWT.Secret))
 	{
+		//view self profile
 		profileApi.GET("",      profile.NewGetUserProfile(profileRepo).Handler)
 		profileApi.PATCH("",    profile.NewUpdateUserProfile(profileRepo, uploadSvc,logger).Handler)
 		profileApi.GET("/club", profile.NewGetUserClubs(profileRepo, logger).Handler)
@@ -133,6 +134,10 @@ func main() {
 	mbr.GET("/club/category", membershipclub.NewGetClubCategoryList(memberRepo, logger).Handler)
 
 	mbr.GET("/user/exist", membershipuser.NewGetUserExist(memberUserRepo, logger).Handler)
+
+	//view other profile
+	mbr.GET("/user/:username", membershipuser.NewGetPublicProfile(memberUserRepo, logger).Handler)
+	mbr.GET("/user/:username/club", membershipuser.NewGetPublicUserClub(memberUserRepo, logger).Handler)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

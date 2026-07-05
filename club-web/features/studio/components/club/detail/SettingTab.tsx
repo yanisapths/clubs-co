@@ -49,29 +49,31 @@ export function SettingTab({ username, club }: SettingTabProps) {
   };
 
   return (
-    <div className="mx-auto w-4xl space-y-4 m-auto py-20 mt-10">
-      <div className="rounded-2xl bg-zinc-900 px-6 py-5">
-        <div className="flex items-start justify-between gap-6">
+    <div className="mx-auto w-full max-w-4xl space-y-4 px-4 sm:px-6 md:px-0 py-10 sm:py-16 md:py-20 mt-4 sm:mt-10">
+      <div className="rounded-2xl bg-zinc-900 px-4 sm:px-6 py-5">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">
           <div>
             <h3 className="text-base font-semibold text-white/80">
               Deactivate this club
             </h3>
-            <p className="mt-1 text-sm text-white/60 w-[450px]">
+            <p className="mt-1 text-sm text-white/60 max-w-full sm:max-w-[450px]">
               Deactivating is temporary, and it means your club will be hidden
               from public view on Clubspace until you reactivate it.
             </p>
           </div>
-          <ToggleSwitch
-            checked={!isActive}
-            onChange={handleActivation}
-            label="Deactivate club"
-            disabled={patchClub.isPending}
-          />
+          <div className="shrink-0">
+            <ToggleSwitch
+              checked={!isActive}
+              onChange={handleActivation}
+              label="Deactivate club"
+              disabled={patchClub.isPending}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-zinc-900 px-6 py-5">
-        <div className="flex items-start justify-between gap-6">
+      <div className="rounded-2xl bg-zinc-900 px-4 sm:px-6 py-5">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">
           <div>
             <h3 className="text-base font-semibold text-red-500">
               Delete this club
@@ -84,7 +86,7 @@ export function SettingTab({ username, club }: SettingTabProps) {
           <Button
             onClick={show}
             variant="outline"
-            className="cursor-pointer shrink-0 rounded-lg border-[#FF0000]/20 hover:bg-[#FF0000]/5 bg-[#FF0000]/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#FF0000] transition"
+            className="cursor-pointer w-full sm:w-auto shrink-0 rounded-lg border-[#FF0000]/20 hover:bg-[#FF0000]/5 bg-[#FF0000]/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#FF0000] transition"
           >
             Delete
           </Button>

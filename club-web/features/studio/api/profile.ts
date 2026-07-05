@@ -4,11 +4,12 @@ import { SocialLink } from "./common";
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/profile`;
 
 export interface Profile {
+  id?: string;
   displayName: string;
   username: string;
   socialLinks: SocialLink[];
   joinedAt: number; // epoch seconds
-  imageUrl: string;
+  imageUrl?: string;
   bio: string;
   bannerUrl: string;
   email: string;

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 interface AvatarProps {
-  userId: string;
+  userId?: string | null;
   imageUrl?: string | null;
   initials: string;
   className?: string;
@@ -42,7 +42,7 @@ export function Avatar({
   className,
   size = 24,
 }: AvatarProps) {
-  const [from, to] = getGradient(userId);
+  const [from, to] = getGradient(userId ? userId : "12345678910");
 
   if (imageUrl) {
     return (

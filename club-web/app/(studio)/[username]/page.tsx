@@ -95,126 +95,127 @@ function CreatorHomePage() {
   }
 
   return (
-    <div className="relative min-h-screen h-0 bg-black">
-      <BackgroundCover />
+    <div className="relative">
       <StudioHeader />
+      <div className="relative sm:min-h-screen sm:h-0 bg-black">
+        <BackgroundCover />
+        <div className="h-full flex flex-col text-white overflow-y-scroll">
+          <div className="relative px-6 pb-5 flex flex-col gap-3">
+            <div className="flex items-center gap-4">
+              <Avatar
+                userId={user.id}
+                imageUrl={profile?.imageUrl}
+                initials={usernameInitials}
+                size={72}
+              />
+              <div className="flex flex-col gap-0.5 mb-0.5">
+                <h1 className="text-xl font-bold text-white leading-tight">
+                  {profile?.displayName ? profile.displayName : "-"}
+                </h1>
 
-      <div className="relative z-0 flex h-full w-full flex-col overflow-y-auto text-white">
-        <div className="relative px-6 pt-4 mt-10 pb-5 flex flex-col gap-3">
-          <div className="flex items-center gap-4">
-            <Avatar
-              userId={user.id}
-              imageUrl={profile?.imageUrl}
-              initials={usernameInitials}
-              size={72}
-            />
-            <div className="flex flex-col gap-0.5 mb-0.5">
-              <h1 className="text-xl font-bold text-white leading-tight">
-                {profile?.displayName ? profile.displayName : "-"}
-              </h1>
-
-              <p
-                className={
-                  user.username
-                    ? "text-sm text-white/60"
-                    : "text-2xl font-bold text-white"
-                }
-              >
-                @{user.username}
-              </p>
+                <p
+                  className={
+                    user.username
+                      ? "text-sm text-white/60"
+                      : "text-2xl font-bold text-white"
+                  }
+                >
+                  @{user.username}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {profile?.joinedAt && (
-              <span className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-white/60 uppercase tracking-wide">
-                Joined at {formatUnixDate(profile.joinedAt)}
-              </span>
-            )}
+            <div className="flex items-center gap-3 flex-wrap">
+              {profile?.joinedAt && (
+                <span className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-white/60 uppercase tracking-wide">
+                  Joined at {formatUnixDate(profile.joinedAt)}
+                </span>
+              )}
 
-            {activeSocialLinks.length > 0 && (
-              <>
-                <div className="h-6 w-px bg-white/30" />
-                <div className="flex items-center gap-3.5">
-                  {activeSocialLinks.map(([platform, url]) => (
-                    <a
-                      key={platform}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-white/70 hover:text-white transition-colors"
-                      aria-label={platform}
-                    >
-                      <SocialIcon platform={platform} />
-                    </a>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          <Button
-            onClick={show}
-            className="absolute bottom-5 right-6 rounded-full bg-white text-black px-4 py-1.5 text-sm font-medium hover:bg-white/85 transition-colors"
-          >
-            <Edit3Icon /> Edit profile
-          </Button>
-        </div>
-
-        <div className="flex gap-6 overflow-x-auto border-b border-white/10 px-6">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap cursor-pointer pb-3 text-sm font-medium transition-colors ${
-                activeTab === tab
-                  ? "border-b-2 border-white text-white"
-                  : "text-white/40 hover:text-white/70"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-col items-center justify-center gap-4 px-6 text-center">
-          {activeTab === "Home" ? (
-            <div className="w-full flex justify-center mt-24">
-              {hasSetUpProfile ? (
-                <ProfileInfo
-                  profile={profile}
-                  hasSetUpProfile={hasSetUpProfile}
-                  clubsFounded={userClubs?.stats.clubFounded || 0}
-                  clubMembership={userClubs?.stats.clubMembership || 0}
-                  clubsJoined={userClubs?.stats.clubJoined || 0}
-                  onEditProfile={show}
-                />
-              ) : (
-                <FirstStart
-                  user={user}
-                  onSave={handleSaveProfile}
-                  profileData={profileData}
-                  hasSetUpProfile={hasSetUpProfile}
-                  clubFounded={userClubs?.stats.clubFounded || 0}
-                />
+              {activeSocialLinks.length > 0 && (
+                <>
+                  <div className="h-6 w-px bg-white/30" />
+                  <div className="flex items-center gap-3.5">
+                    {activeSocialLinks.map(([platform, url]) => (
+                      <a
+                        key={platform}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white/70 hover:text-white transition-colors"
+                        aria-label={platform}
+                      >
+                        <SocialIcon platform={platform} />
+                      </a>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
-          ) : activeTab === "Clubs" ? (
-            <ClubTab clubs={userClubs?.clubs} username={user.username} />
-          ) : (
-            <AccountSettingTab />
-          )}
-        </div>
-      </div>
 
-      {visible && (
-        <EditProfileModal
-          initialData={profileData}
-          username={user?.username}
-          onSave={handleSaveProfile}
-          onClose={close}
-        />
-      )}
+            <Button
+              onClick={show}
+              className="absolute bottom-5 right-6 rounded-full bg-white text-black px-4 py-1.5 text-sm font-medium hover:bg-white/85 transition-colors"
+            >
+              <Edit3Icon /> Edit profile
+            </Button>
+          </div>
+
+          <div className="flex gap-6 overflow-x-auto border-b border-white/10 px-6">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`whitespace-nowrap cursor-pointer pb-3 text-sm font-medium transition-colors ${
+                  activeTab === tab
+                    ? "border-b-2 border-white text-white"
+                    : "text-white/40 hover:text-white/70"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-4 px-6 text-center mb-12 sm:mb-0">
+            {activeTab === "Home" ? (
+              <div className="w-full flex justify-center mt-12 sm:mt-24">
+                {hasSetUpProfile ? (
+                  <ProfileInfo
+                    profile={profile}
+                    hasSetUpProfile={hasSetUpProfile}
+                    clubsFounded={userClubs?.stats.clubFounded || 0}
+                    clubMembership={userClubs?.stats.clubMembership || 0}
+                    clubsJoined={userClubs?.stats.clubJoined || 0}
+                    onEditProfile={show}
+                  />
+                ) : (
+                  <FirstStart
+                    user={user}
+                    onSave={handleSaveProfile}
+                    profileData={profileData}
+                    hasSetUpProfile={hasSetUpProfile}
+                    clubFounded={userClubs?.stats.clubFounded || 0}
+                  />
+                )}
+              </div>
+            ) : activeTab === "Clubs" ? (
+              <ClubTab clubs={userClubs?.clubs} username={user.username} />
+            ) : (
+              <AccountSettingTab />
+            )}
+          </div>
+        </div>
+
+        {visible && (
+          <EditProfileModal
+            initialData={profileData}
+            username={user?.username}
+            onSave={handleSaveProfile}
+            onClose={close}
+          />
+        )}
+      </div>
     </div>
   );
 }

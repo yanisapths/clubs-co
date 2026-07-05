@@ -9,7 +9,7 @@ export const BackgroundCover = () => {
 
   return (
     <div
-      className="fixed left-0 top-0 z-0 h-72 w-full blur-3xl opacity-90"
+      className="relative h-40 w-full z-0 blur-3xl opacity-90 overflow-hidden rounded-none lg:rounded-xl"
       style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
     />
   );

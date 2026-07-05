@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Button } from "@/design-system/components/button";
 import { useDeleteUser } from "@/features/studio/hooks/use-profile";
 import { toast } from "@heroui/react";
@@ -34,15 +33,15 @@ export function AccountSettingTab() {
   };
 
   return (
-    <div>
-      <div className="mx-auto w-4xl space-y-4 m-auto py-20 mt-10">
-        <div className="rounded-2xl bg-zinc-900 px-6 py-5">
-          <div className="flex items-start justify-between gap-6">
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-4xl space-y-4 px-4 sm:px-6 md:px-0 py-10 sm:py-16 md:py-20 mt-4 sm:mt-10">
+        <div className="rounded-2xl bg-zinc-900 px-4 sm:px-6 py-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-4 sm:gap-6">
             <div className="flex flex-col justify-start text-left">
               <h3 className="text-base font-semibold text-red-500">
                 Delete this account
               </h3>
-              <p className="mt-1 text-sm text-white/60 w-[450px]">
+              <p className="mt-1 text-sm text-white/60 max-w-full sm:max-w-[450px]">
                 Once you delete an account, there is no going back.
                 <br />
                 All clubs owned by you will also be removed. Please be certain.
@@ -52,7 +51,7 @@ export function AccountSettingTab() {
             <Button
               onClick={show}
               variant="outline"
-              className="cursor-pointer shrink-0 rounded-lg border-[#FF0000]/20 hover:bg-[#FF0000]/5 bg-[#FF0000]/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#FF0000] transition"
+              className="cursor-pointer w-full sm:w-auto shrink-0 rounded-lg border-[#FF0000]/20 hover:bg-[#FF0000]/5 bg-[#FF0000]/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#FF0000] transition"
             >
               Delete
             </Button>

@@ -20,11 +20,11 @@ function ClubStudioPage() {
     clubs?.reduce((total, club) => total + club.memberCount, 0) ?? 0;
 
   return (
-    <div className="relative bg-black">
-      <BackgroundCover />
+    <div className="relative">
       <StudioHeader />
+      <BackgroundCover />
       <div className="relative z-10 flex h-full w-full flex-col overflow-y-auto text-white">
-        <div className="px-6 pb-4 pt-4 mt-40">
+        <div className="px-6 pb-4">
           <div className="flex gap-3 text-4xl items-center">
             <div className="flex items-center rounded-md bg-white/10 px-2.5 py-2.5 text-white/80 border border-white/20 backdrop-blur-sm">
               <Edit3Icon />

@@ -112,7 +112,7 @@ export function ProfileInfo({
           </motion.div>
         )}
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 text-center">
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">
             <p className="text-sm text-white/60">Club Founded</p>
             <p className="text-3xl font-bold text-white">{clubsFounded}</p>

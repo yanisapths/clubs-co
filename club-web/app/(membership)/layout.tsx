@@ -8,8 +8,9 @@ interface RootLayoutProps {
 
 const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
   return (
-    <div>
+    <div className="relative">
       <Header />
+
       {children}
       <Footer />
     </div>
