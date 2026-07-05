@@ -40,7 +40,7 @@ export function GalleryPreview({
     >
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+        className="cursor-pointer absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
         aria-label="Close preview"
       >
         <X className="h-5 w-5 text-white" />
@@ -81,7 +81,7 @@ export function GalleryPreview({
             e.stopPropagation();
             next();
           }}
-          className="absolute right-4 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          className="cursor-pointer  absolute right-4 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
           aria-label="Next image"
         >
           <ChevronRight className="h-6 w-6 text-white" />

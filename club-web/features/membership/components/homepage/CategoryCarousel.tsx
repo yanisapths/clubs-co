@@ -16,7 +16,7 @@ export function CategoryCarousel({ categories }: CategoryCarouselProps) {
     <Carousel
       items={categories}
       keyExtractor={(category) => category.id}
-      itemClassName="w-[140px]"
+      itemClassName="w-[140px] sm:w-[240px]"
       gapClassName="gap-3"
       minItemsForNav={8}
       scrollAmount={200}

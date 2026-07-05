@@ -25,7 +25,9 @@ export function ClubFormHeader({
           creator studio <span className="mx-2 text-zinc-600">/</span>
           {isEdit ? (
             <div onClick={onBack} className="flex">
-              <p className="hover:text-white cursor-pointer">{clubName}</p>
+              <p className="hover:text-white cursor-pointer max-w-16 sm:w-full sm:max-w-full truncate text-ellipsis">
+                {clubName}
+              </p>
               <div className="mx-2"> / </div>
             </div>
           ) : null}

@@ -124,7 +124,7 @@ export function EditClubForm({
 
       <div className="flex min-h-0 flex-1 flex-col gap-12 overflow-hidden lg:flex-row lg:gap-16">
         <div className="shrink-0 lg:w-1/3 bg-[#141415] border-r border-white/20">
-          <div className="lg:sticky px-24 pt-8">
+          <div className="lg:sticky p-4 sm:px-24 sm:pt-8">
             <ClubImageUpload
               imagePreview={formData.imagePreview}
               onImageChange={handleImageChange}
@@ -136,7 +136,7 @@ export function EditClubForm({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto lg:w-2/3">
-          <div className="flex flex-col gap-8 pb-10 px-20 pt-12">
+          <div className="flex flex-col gap-8 pb-10 px-4 sm:px-20 sm:pt-12">
             <section>
               <ClubBasicInfoForm
                 data={formData}

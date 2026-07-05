@@ -149,7 +149,9 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     const session = await getSession();
     if (session) {
       setStoredToken(session.accessToken);
-      toast.success("login successfully!");
+      toast.success(
+        `Welcome back ${session.username || session.displayName} 👋`,
+      );
       router.replace(result?.url ?? callbackUrl);
     }
   };

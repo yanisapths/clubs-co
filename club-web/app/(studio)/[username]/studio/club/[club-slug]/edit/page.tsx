@@ -6,7 +6,6 @@ import { visibilityReverseMap } from "@/features/studio/components/club/constant
 import {
   ClubFormData,
   initialClubFormData,
-  SocialPlatform,
 } from "@/features/studio/components/club/create";
 import { EditClubForm } from "@/features/studio/components/club/edit/Form";
 import { useGetClubById } from "@/features/studio/hooks/use-club";
@@ -22,19 +21,12 @@ export default function EditClubPage() {
 
   const { query, club, isLoading: isLoadingClub } = useGetClubById(clubId);
 
-  const platformDisplayMap: Record<string, SocialPlatform> = {
-    website: "Website",
-    x: "X",
-    meta: "Meta",
-    instagram: "Instagram",
-  };
-
   const derivedInitialData = useMemo<ClubFormData>(() => {
     if (!club) return initialClubFormData;
     const socialLinks: SocialLink[] = (club.socialLinks ?? []).map(
       (record: Record<string, string>) => {
         const [apiKey, url] = Object.entries(record)[0] ?? ["website", ""];
-        return { [apiKey]: url }; // preserve as-is, apiKey already correct from backend
+        return { [apiKey]: url };
       },
     );
     const spaces = (club.spaces ?? []).map((s: Space) => ({

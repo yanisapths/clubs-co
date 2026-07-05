@@ -39,7 +39,7 @@ export const CategoryCard = ({
   return (
     <div
       onClick={onClick}
-      className="flex flex-col gap-2.5 p-4 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:border-white/30 hover:bg-white/10 transition-colors h-full"
+      className="flex flex-col sm:min-w-60 gap-2.5 p-4 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:border-white/30 hover:bg-white/10 transition-colors h-full"
     >
       <div
         className={`w-10 h-10 rounded-[10px] flex items-center justify-center ${iconColors[colorVariant]}`}

@@ -19,11 +19,10 @@ const ClubDetailPage = () => {
   const router = useRouter();
   const params = useParams<{ "club-slug": string }>();
   const clubSlug = params["club-slug"];
-
   const { club, members, isLoading, query } =
     useGetMembershipClubByName(clubSlug);
-
   const [activeTab, setActiveTab] = useState<Tab>("General");
+  const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
 
   if (isLoading) {
     return (
@@ -74,13 +73,21 @@ const ClubDetailPage = () => {
       </div>
 
       {activeTab === "General" ? (
-        <ClubDetailsTab club={club} isOwner={club.isOwner} />
+        <ClubDetailsTab
+          club={club}
+          isOwner={club.isOwner}
+          setIsGalleryOpen={setIsGalleryOpen}
+        />
       ) : (
         <MembersTab members={members ?? []} isOwner={club.isOwner} />
       )}
 
-      {activeTab === "General" ? (
-        <div className="sticky mt-6 bottom-0 z-50">
+      {activeTab == "General" ? (
+        <div
+          className={`sticky bottom-0 mt-6 z-50 transition-opacity duration-200 ${
+            isGalleryOpen ? "pointer-events-none opacity-0" : "opacity-100"
+          }`}
+        >
           <JoinFooter club={club} />
         </div>
       ) : null}

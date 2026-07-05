@@ -2,9 +2,8 @@ import { Club } from "@/features/studio/api/club";
 import { MapPin } from "lucide-react";
 
 import { Tag } from "@/features/shared/components/Tag";
-import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { GalleryPreview } from "@/features/studio/components/club/detail/GalleryPreview";
 import { GalleryGrid } from "./GalleryGrid";
 import { SocialIcon } from "@/features/studio/components/club/detail/SocialIcons";
@@ -13,18 +12,19 @@ import { GalleryEmptyState } from "@/features/studio/components/club/detail/Gall
 export function ClubDetailsTab({
   club,
   isOwner,
+  setIsGalleryOpen,
 }: {
   club: Club;
   isOwner?: boolean;
+  setIsGalleryOpen?: Dispatch<SetStateAction<boolean>>;
 }) {
-  const { user } = useAccountAuth();
   const MAX_TAGS = 5;
   const MAX_SPACES = 4;
   const visibleTags = (club.tags ?? []).slice(0, MAX_TAGS);
   const extraTags = Math.max(0, (club.tags ?? []).length - MAX_TAGS);
   const visibleSpaces = (club.spaces ?? []).slice(0, MAX_SPACES);
   const extraSpaces = Math.max(0, (club.spaces ?? []).length - MAX_SPACES);
-  const { visible, show, close } = useModal();
+  const { show } = useModal();
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -38,6 +38,9 @@ export function ClubDetailsTab({
 
   const galleryUrls = club.galleryUrls ?? [];
 
+  useEffect(() => {
+    setIsGalleryOpen?.(lightboxIndex !== null);
+  }, [lightboxIndex, setIsGalleryOpen]);
   return (
     <div className="px-6 py-6 space-y-6">
       <div>
@@ -106,7 +109,10 @@ export function ClubDetailsTab({
           <GalleryGrid
             galleryUrls={galleryUrls}
             onAddClick={show}
-            onImageClick={setLightboxIndex}
+            onImageClick={(index) => {
+              setLightboxIndex(index);
+              setIsGalleryOpen?.(true);
+            }}
           />
         ) : (
           <GalleryEmptyState onAddClick={show} isMember={true} />
