@@ -7,11 +7,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        identifier: {
+          label: "Email or Username",
+          type: "text",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+        },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.identifier || !credentials?.password) return null;
         try {
           const res = await fetch(
             `${process.env.API_BASE_URL}/api/v1/auth/login`,
@@ -19,7 +25,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                identifier: credentials.email,
+                identifier: credentials.identifier,
                 password: credentials.password,
               }),
             },

@@ -12,6 +12,7 @@ import type {
   SearchCategory,
 } from "@/features/shared/api/api";
 import { toClubSlug } from "@/lib/utils";
+import { useAccountAuth } from "@/hooks/use-account-auth";
 
 interface GlobalSearchTriggerProps {
   placeholder?: string;
@@ -31,6 +32,7 @@ export function GlobalSearchTrigger({
   containerClassName,
 }: GlobalSearchTriggerProps) {
   const router = useRouter();
+  const { user } = useAccountAuth();
   const { close, visible, show } = useModal();
 
   const goToClub = (club: SearchClub) => {
@@ -39,7 +41,11 @@ export function GlobalSearchTrigger({
   };
   const goToMember = (member: SearchMember) => {
     close();
-    router.push(`/profile/${member.username}`);
+    if (user.id == member.id) {
+      router.push(`/${member.username}`);
+    } else {
+      router.push(`/profile/${member.username}`);
+    }
   };
   const goToSpace = (space: SearchSpace) => {
     close();

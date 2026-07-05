@@ -14,9 +14,8 @@ import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { checkUserExist } from "@/features/shared/api/api";
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
-
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
+  identifier: z.string().min(1, "Please enter your email or username"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -27,13 +26,20 @@ const signupSchema = z
       .min(3, "Username must be at least 3 characters")
       .max(30, "Username must be at most 30 characters")
       .regex(
-        /^[a-z0-9_]+$/,
-        "Username can only contain lowercase letters, numbers, and underscores",
+        /^[^\s"<>?=+%]+$/,
+        'Username cannot contain spaces, double quotes ("), <, >, ?, =, +, or %',
       ),
     email: z.string().email("Please enter a valid email"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirm_password: z.string(),
-    displayName: z.string().min(3).max(50),
+    displayName: z
+      .string()
+      .min(3, "Display name must be at least 3 characters")
+      .max(50, "Display name must be at most 50 characters")
+      .regex(
+        /^[^"<>?=+%]+$/,
+        'Display name cannot contain ", <, >, ?, =, +, or %',
+      ),
   })
   .refine((d) => d.password === d.confirm_password, {
     message: "Passwords don't match",
@@ -129,7 +135,7 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
   const onSubmit = async (values: LoginValues) => {
     setServerError(null);
     const result = await signIn("credentials", {
-      email: values.email,
+      identifier: values.identifier,
       password: values.password,
       redirect: false,
     });
@@ -148,11 +154,11 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <Field
-        label="Email"
-        type="email"
-        autoComplete="email"
-        {...register("email")}
-        error={errors.email?.message}
+        label="Email or username"
+        type="text"
+        autoComplete="username"
+        {...register("identifier")}
+        error={errors.identifier?.message}
       />
       <Field
         label="Password"

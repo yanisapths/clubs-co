@@ -1,4 +1,3 @@
-// club-backend/internal/validator/validator.go
 package validator
 
 import (
@@ -8,13 +7,22 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`);
+var (
+	usernameRegex    = regexp.MustCompile(`^[^\s"<>?=+%]+$`)
+	displayNameRegex = regexp.MustCompile(`^[^"<>?=+%]+$`)
+)
 
 func init() {
 	v, ok := binding.Validator.Engine().(*validator.Validate)
-	if ok {
-		v.RegisterValidation("username", func(fl validator.FieldLevel) bool {
-			return usernameRegex.MatchString(fl.Field().String())
-		})
+	if !ok {
+		return
 	}
+
+	v.RegisterValidation("username", func(fl validator.FieldLevel) bool {
+		return usernameRegex.MatchString(fl.Field().String())
+	})
+
+	v.RegisterValidation("displayName", func(fl validator.FieldLevel) bool {
+		return displayNameRegex.MatchString(fl.Field().String())
+	})
 }

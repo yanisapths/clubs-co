@@ -20,7 +20,7 @@ type SignUpRequest struct {
 	Email     string `json:"email"      binding:"required,email"`
 	Username  string `json:"username"   binding:"required,min=3,max=30,username"`
 	Password  string `json:"password"   binding:"required,min=8"`
-	DisplayName  string `json:"displayName"   binding:"required,min=3,max=50,displayName"`
+	DisplayName string `json:"displayName" binding:"required,min=3,max=50,displayName"`
 }
 
 type LoginRequest struct {
@@ -97,6 +97,7 @@ func (s *authService) SignUp(ctx context.Context, req *SignUpRequest) (*AuthResp
 	}
 
 	user := &model.User{
+		DisplayName:  req.DisplayName,
 		Email:        req.Email,
 		Username:     req.Username,
 		PasswordHash: string(hash),
