@@ -1,4 +1,4 @@
-// internal/studio/club/update_club_handler.go
+// internal/studio/club/patch_club_handler.go
 package club
 
 import (
@@ -53,6 +53,13 @@ func (s *PatchClub) Handler(c *gin.Context) {
 			s.logger.Error("failed to get club image url", zap.Error(err))
 		}
 	}
+	var oldBannerURL *string
+	if req.BannerURL.Present {
+		oldBannerURL, err = s.repo.GetClubBannerURL(c.Request.Context(), clubID, claims.UserID.String())
+		if err != nil {
+			s.logger.Error("failed to get club banner url", zap.Error(err))
+		}
+	}
 
 	patchResult, err := s.repo.PatchClub(c.Request.Context(), claims.UserID.String(), clubID, req)
 	if err != nil {
@@ -74,6 +81,18 @@ func (s *PatchClub) Handler(c *gin.Context) {
 		)
 		response.InternalServerError(c, err.Error())
 		return
+	}
+
+	if oldImageURL != nil && *oldImageURL != "" {
+		if err := s.uploadSvc.Delete(c.Request.Context(), *oldImageURL); err != nil {
+			s.logger.Warn("failed to delete old club image from GCS", zap.Error(err), zap.String("url", *oldImageURL))
+		}
+	}
+
+	if oldBannerURL != nil && *oldBannerURL != "" {
+		if err := s.uploadSvc.Delete(c.Request.Context(), *oldBannerURL); err != nil {
+			s.logger.Warn("failed to delete old club banner from GCS", zap.Error(err), zap.String("url", *oldBannerURL))
+		}
 	}
 
 	if oldImageURL != nil && *oldImageURL != "" {

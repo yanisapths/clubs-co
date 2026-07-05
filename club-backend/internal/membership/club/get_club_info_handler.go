@@ -77,6 +77,12 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 		ts := clubInfo.JoinedAt.Unix()
 		joinedAt = &ts
 	}
+
+	bannerURL := ""
+	if clubInfo.BannerURL != nil {
+		bannerURL = *clubInfo.BannerURL
+	}
+
 	resp := GetClubByIDResponse{
 		ClubInfo: ClubInfoResponse{
 			ID:             clubInfo.ID,
@@ -85,6 +91,7 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 			Name:           clubInfo.Name,
 			Description:    description,
 			ImageURL:       imageURL,
+			BannerURL: 		&bannerURL,
 			GalleryURLs: 	clubInfo.GalleryURLs,
 			ClubType:       clubInfo.ClubType,
 			Visibility:     clubInfo.Visibility,

@@ -55,6 +55,7 @@ type ClubInfoResponse struct {
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
 	ImageURL       string              `json:"imageUrl"`
+	BannerURL      *string            `db:"banner_url"`
 	GalleryURLs    []string            `json:"galleryUrls"`
 	ClubType       string              `json:"clubType"`
     Visibility     string  			   `json:"visibility"`

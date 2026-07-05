@@ -13,6 +13,7 @@ type Club struct {
 	Name           string            `db:"name"`
 	Description    *string            `db:"description"`
 	ImageURL       *string            `db:"image_url"`
+	BannerURL      *string            `db:"banner_url"`
 	ClubType       string            `db:"club_type"`
 	Visibility     string            `db:"visibility"`
 	MaxSeats       int               `db:"max_seats"`

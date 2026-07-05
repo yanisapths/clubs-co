@@ -27,6 +27,7 @@ type PatchClubByIdRepo interface {
 	GetClubImageURL(ctx context.Context, clubID int64, ownerID string) (*string, error)
 	GetClubGalleryURLs(ctx context.Context, clubID int64, ownerID string) ([]string, error)
 	PatchClub(ctx context.Context, ownerID string, clubID int64, req PatchClubRequest) (*PatchClubResult, error) 
+	GetClubBannerURL(ctx context.Context, clubID int64, ownerID string) (*string, error)
 }
 
 type GetClubExistRepo interface {

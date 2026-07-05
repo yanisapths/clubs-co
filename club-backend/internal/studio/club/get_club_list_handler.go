@@ -41,13 +41,18 @@ func (s *GetClub) Handler(c *gin.Context) {
 			imageURL = *club.ImageURL
 		}
 		
-		
+		bannerURL := ""
+		if club.BannerURL != nil {
+			bannerURL = *club.BannerURL
+		}
+
 		item := ClubResponse{
 			ID:             club.ID,
 			Owner:          club.Owner,
 			Name:           club.Name,
 			Description:    description,
 			ImageURL:       imageURL,
+			BannerURL:      bannerURL,
 			ClubType:       club.ClubType,
 			Visibility:     club.Visibility,
 			MaxSeats:       club.MaxSeats,

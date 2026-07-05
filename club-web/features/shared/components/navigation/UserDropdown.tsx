@@ -32,7 +32,7 @@ export const UserDropdown = () => {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="cursor-pointer flex items-center gap-2 rounded-full border border-white/10 bg-white/10 py-2 pl-3 pr-3 text-sm text-white/80 transition-colors hover:bg-white/15"
+        className="backdrop-blur-md  cursor-pointer flex items-center gap-2 rounded-full border border-white/10 bg-white/10 py-2 pl-3 pr-3 text-sm text-white/80 transition-colors hover:bg-white/15"
       >
         <Avatar
           userId={user.id}

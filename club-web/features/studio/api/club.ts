@@ -39,6 +39,7 @@ export interface Club {
   galleryUrls?: string[];
   isOwner?: boolean;
   memberCount: number;
+  bannerUrl?: string;
 }
 
 export interface CreateClubPayload {
@@ -144,6 +145,7 @@ export interface PatchClubPayload {
   galleriesToRemove?: string[];
   socialLinks?: SocialLink[];
   activate?: boolean;
+  bannerUrl?: string | null;
 }
 
 export const patchClubById = (

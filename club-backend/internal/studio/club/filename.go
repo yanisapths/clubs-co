@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -36,4 +37,8 @@ func GalleryFilename(clubName string, clubID int64, ext string) string {
 		ext = "png"
 	}
 	return fmt.Sprintf("club_%s_%d_%s_gallery.%s", slug, clubID, uuid.NewString(), ext)
+}
+
+func BannerFilename(clubName string, clubID int64, ext string) string {
+	return fmt.Sprintf("%s-%d-banner-%d.%s", toSlug(clubName), clubID, time.Now().UnixNano(), ext)
 }

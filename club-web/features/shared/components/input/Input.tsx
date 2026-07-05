@@ -15,7 +15,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div
         className={cn(
-          "flex min-h-12 sm:min-h-14 w-full items-center gap-3 rounded-full border duration-200 border-white/20 bg-transparent px-4 transition-colors",
+          "backdrop-blur-md flex min-h-12 sm:min-h-14 w-full items-center gap-3 rounded-full border duration-200 border-white/20 bg-transparent px-4 transition-colors",
           "focus-within:border-white/30",
           containerClassName,
         )}

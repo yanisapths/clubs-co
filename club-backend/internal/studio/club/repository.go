@@ -28,6 +28,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			c.name,
 			c.description,
 			c.image_url,
+			c.banner_url,
 			COALESCE(ARRAY_TO_JSON(c.gallery_urls)::text, '[]') AS gallery_urls,
 			c.club_type,
 			c.visibility,
@@ -59,12 +60,13 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 		LEFT JOIN public.users u ON u.id = c.owner_id
 		LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.owner_id = $1
-		  AND c.is_deleted = false
+		AND c.is_deleted = false
 		GROUP BY
 			c.id,
 			c.name,
 			c.description,
 			c.image_url,
+			c.banner_url,
 			c.gallery_urls,
 			c.club_type,
 			c.visibility,
@@ -79,7 +81,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			c.owner_id,
 			cg.name,
 			cg.id,
-		    u.username 
+			u.username 
 		ORDER BY c.created_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, ownerID)
@@ -105,6 +107,7 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			&club.Name,
 			&club.Description,
 			&club.ImageURL,
+			&club.BannerURL,
 			&galleryRaw,
 			&club.ClubType,
 			&club.Visibility,
@@ -492,6 +495,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 			c.name,
 			c.description,
 			c.image_url,
+			c.banner_url,
 			COALESCE(ARRAY_TO_JSON(c.gallery_urls)::text, '[]') AS gallery_urls,
 			c.club_type,
 			c.visibility,
@@ -517,18 +521,19 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 				FROM public.space s
 				WHERE s.id = ANY(c.space_ids)
 			) AS spaces,
-			 u.display_name
+			u.display_name
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
 		WHERE c.id = $1
-		  AND c.owner_id = $2
-		  AND c.is_deleted = false
+		AND c.owner_id = $2
+		AND c.is_deleted = false
 		GROUP BY
 			c.id,
 			c.name,
 			c.description,
 			c.image_url,
+			c.banner_url,
 			c.gallery_urls,
 			c.club_type,
 			c.visibility,
@@ -563,6 +568,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 		&club.Name,
 		&club.Description,
 		&club.ImageURL,
+		&club.BannerURL,
 		&galleryRaw,
 		&club.ClubType,
 		&club.Visibility,
@@ -760,6 +766,7 @@ func (r *clubRepository) PatchClub(
 	}
 
 	var promoted []promotedGalleryImage
+	var warnings []error  
 
 	for _, tempURL := range req.GalleriesToAdd {
 		ext := extFromURL(tempURL)
@@ -801,6 +808,29 @@ func (r *clubRepository) PatchClub(
 	if err != nil {
 		return nil, fmt.Errorf("marshal social_links: %w", err)
 	}
+
+	var (
+		bannerURLChanged bool
+		bannerURLValue   *string
+	)
+	if req.BannerURL.Present {
+		bannerURLChanged = true
+		if req.BannerURL.Value != nil && *req.BannerURL.Value != "" {
+			ext := extFromURL(*req.BannerURL.Value)
+			filename := BannerFilename(clubName, clubID, ext)
+
+			result, moveErr := r.uploadSvc.MoveObject(ctx, *req.BannerURL.Value, "club/banner", filename)
+			if moveErr != nil && result == nil {
+				return nil, fmt.Errorf("promote banner image: %w", moveErr)
+			}
+			bannerURLValue = &result.URL
+			if moveErr != nil {
+				warnings = append(warnings, moveErr)
+			}
+		}
+		// else: Value is nil -> clearing the banner, bannerURLValue stays nil
+	}
+
 	query := `
 		UPDATE public.club SET
 			name           = COALESCE($1, name),
@@ -814,11 +844,15 @@ func (r *clubRepository) PatchClub(
 								WHEN $8::boolean THEN $9
 								ELSE image_url
 							END,
+			banner_url     = CASE
+								WHEN $17::boolean THEN $18
+								ELSE banner_url
+							END,
 			tag_ids        = $10,
 			space_ids      = $11,
 			gallery_urls   = $12,
 			social_links   = COALESCE($13, social_links),
-			activate	   = $16,
+			activate	   = COALESCE($16, activate),
 			updated_at     = NOW()
 		WHERE id = $14
 		AND owner_id = $15::uuid
@@ -833,7 +867,9 @@ func (r *clubRepository) PatchClub(
 		socialLinksJSON,   // $13
 		clubID,            // $14
 		ownerID,           // $15
-		req.Activate,
+		req.Activate,      // $16
+		bannerURLChanged,  // $17
+		bannerURLValue,    // $18
 	)
 
 	if err != nil {
@@ -855,7 +891,6 @@ func (r *clubRepository) PatchClub(
 		return nil, fmt.Errorf("commit: %w", err)
 	}
 
-	var warnings []error
 	for _, p := range promoted {
 		if p.Warning != nil {
 			warnings = append(warnings, p.Warning)
@@ -934,4 +969,16 @@ func (r *clubRepository) GetExistClub(
 	}
 
 	return exist, nil
+}
+
+func (r *clubRepository) GetClubBannerURL(ctx context.Context, clubID int64, ownerID string) (*string, error) {
+	var bannerURL *string
+	err := r.db.QueryRowContext(ctx,
+		`SELECT banner_url FROM public.club WHERE id = $1 AND owner_id = $2::uuid AND is_deleted = false`,
+		clubID, ownerID,
+	).Scan(&bannerURL)
+	if err != nil {
+		return nil, fmt.Errorf("get club banner url: %w", err)
+	}
+	return bannerURL, nil
 }

@@ -64,9 +64,7 @@ const ClubDetailPage = () => {
 
   return (
     <div className="relative min-h-screen bg-black">
-      <StudioHeader />
-
-      <div className="relative flex flex-col text-white">
+      <div className="relative">
         <ClubBanner
           club={club}
           isOwner={isOwner}
@@ -75,6 +73,12 @@ const ClubDetailPage = () => {
           }
         />
 
+        <div className="absolute inset-x-0 top-0 z-20">
+          <StudioHeader overlay />
+        </div>
+      </div>
+
+      <div className="relative flex flex-col text-white">
         <ClubMeta club={club} members={members} />
 
         <div className="mt-5 flex gap-6 overflow-x-auto border-b border-white/10 px-6">

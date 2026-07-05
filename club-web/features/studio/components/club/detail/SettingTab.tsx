@@ -49,7 +49,7 @@ export function SettingTab({ username, club }: SettingTabProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-4 px-4 sm:px-6 md:px-0 py-10 sm:py-16 md:py-20 mt-4 sm:mt-10">
+    <div className="mx-auto w-full max-w-4xl space-y-4 px-4 sm:px-6 md:px-0 py-10 mb-8 sm:py-16 md:py-20 sm:mt-10">
       <div className="rounded-2xl bg-zinc-900 px-4 sm:px-6 py-5">
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">
           <div>

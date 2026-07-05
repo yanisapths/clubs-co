@@ -33,6 +33,7 @@ type SpaceInput struct {
 	Country *string `json:"country"`
 	City    *string `json:"city"`
 }
+
 type ClubResponse struct {
 	ID             int64               `json:"id"`
 	Owner          string              `json:"owner"`
@@ -40,6 +41,7 @@ type ClubResponse struct {
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
 	ImageURL       string              `json:"imageUrl"`
+	BannerURL      string              `json:"bannerUrl"`
 	GalleryURLs    []string            `json:"galleryUrls"`
 	ClubType       string              `json:"clubType"`
     Visibility     string  			   `json:"visibility"`
@@ -102,6 +104,7 @@ type Member struct {
 }
 
 const MaxGalleryImages = 20
+
 type PatchClubRequest struct {
 	Name          *string      `json:"name"          binding:"omitempty,min=2,max=100"`
 	Description   *string      `json:"description"   binding:"omitempty,max=250"`
@@ -113,11 +116,13 @@ type PatchClubRequest struct {
 	Tags          []TagInput   `json:"tags"          binding:"omitempty,max=3"`
 	Spaces        []SpaceInput `json:"spaces"`
 	ThumbnailImage utils.NullableString `json:"thumbnailImage"`
+	BannerURL     utils.NullableString `json:"bannerUrl"`
 	GalleriesToAdd []string `json:"galleriesToAdd" binding:"omitempty,dive,url"`
 	GalleriesToRemove []string `json:"galleriesToRemove" binding:"omitempty,dive,url"`
 	SocialLinks json.RawMessage `json:"socialLinks"`
 	Activate *bool `json:"activate"`
 }
+
 type promotedGalleryImage struct {
 	URL     string
 	Warning error
