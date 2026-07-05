@@ -34,7 +34,7 @@ type Club struct {
 
 type ClubMember struct {
 	MemberUsername  string 		`db:"username"`
-	MemberDisplayName  string 	`db:"display_name"`
+	MemberDisplayName  *string 	`db:"display_name"`
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`
 	JoinedAt 		time.Time   `db:"joined_at"`

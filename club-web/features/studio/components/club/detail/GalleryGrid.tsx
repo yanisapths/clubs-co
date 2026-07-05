@@ -67,10 +67,17 @@ export function GalleryGrid({
   );
 }
 
-export function GalleryEmptyState({ onAddClick }: { onAddClick: () => void }) {
+interface GalleryEmptyStateProps {
+  onAddClick?: VoidFunction;
+  isMember?: boolean;
+}
+export function GalleryEmptyState({
+  onAddClick,
+  isMember,
+}: GalleryEmptyStateProps) {
   return (
     <div className="relative flex flex-col justify-center place-content-center mx-auto w-full">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-12">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-16">
         {Array.from({ length: TOTAL_SLOTS }).map((_, i) => (
           <div
             key={i}
@@ -79,17 +86,35 @@ export function GalleryEmptyState({ onAddClick }: { onAddClick: () => void }) {
         ))}
       </div>
       <div className="pointer-events-none absolute left-0 bottom-0 h-60 w-full z-10 bg-gradient-to-t from-black to-transparent transition-opacity duration-200" />
-      <div className="absolute z-20 inset-0 top-20">
-        <div className="flex flex-col w-full items-center gap-4">
-          <h2 className="text-2xl font-bold">Featured galleries</h2>
-          <Button
-            onClick={onAddClick}
-            className="rounded-md border border-white/30 bg-black/80 py-4 px-6 text-white/90 hover:bg-white/10 backdrop-blur-md"
-          >
-            Add gallery
-          </Button>
+      {isMember ? (
+        <div className="absolute z-50 inset-0 top-20">
+          <div className="flex flex-col w-full items-center gap-4">
+            <div className="flex -space-x-6">
+              <div className="h-32 w-24 rotate-[-8deg] rounded-xl bg-sky-200" />
+              <div className="h-32 w-24 rounded-xl bg-rose-300" />
+              <div className="h-32 w-24 rotate-[8deg] rounded-xl bg-zinc-700" />
+            </div>
+            <h2 className="text-white mt-2 text-3xl font-bold">
+              No featured galleries
+            </h2>
+            <p className="max-w-sm text-white/50">
+              This club hasn&apos;t added any galleries yet.
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="absolute z-20 inset-0 top-20">
+          <div className="flex flex-col w-full items-center gap-4">
+            <h2 className="text-2xl font-bold">Featured galleries</h2>
+            <Button
+              onClick={onAddClick}
+              className="rounded-md border border-white/30 bg-black/80 py-4 px-6 text-white/90 hover:bg-white/10 backdrop-blur-md"
+            >
+              Add gallery
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

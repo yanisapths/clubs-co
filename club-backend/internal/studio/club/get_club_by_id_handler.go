@@ -99,8 +99,9 @@ func (s *GetClubById) Handler(c *gin.Context) {
 	}
 
 	for _, m := range members {
+		displayName := m.MemberDisplayName
 		resp.Members = append(resp.Members, Member{
-			MemberDisplayName: m.MemberDisplayName,
+			MemberDisplayName: displayName,
 			MemberUsername: m.MemberUsername,
 			MemberID:       m.MemberID,
 			Role:           m.Role,

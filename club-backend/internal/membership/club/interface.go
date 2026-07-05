@@ -24,7 +24,7 @@ type GetClubCategoryRepo interface {
 }
 
 type JoinClubRepo interface {
-	JoinClub(ctx context.Context, userID string, clubID int64) error
+	JoinClub(ctx context.Context, userID string, clubID int64) (string, error)
 }
 
 type LeaveClubRepo interface {

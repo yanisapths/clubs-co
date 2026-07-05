@@ -46,6 +46,7 @@ export const getMembershipClubs = () =>
       : undefined,
   });
 
+type MemberRole = "Founder" | "CoFounder" | "Member";
 export interface Club {
   id: number;
   name: string;
@@ -67,6 +68,9 @@ export interface Club {
   galleryUrls?: string[];
   isOwner: boolean;
   activate: boolean;
+  joinedAt: number | null;
+  memberRole?: MemberRole;
+  isPending?: boolean;
 }
 
 export interface MembershipClubDetailResponse {
@@ -96,18 +100,18 @@ export const getMembershipClubByName = (encodedName: string) =>
     },
   });
 
-export const joinClub = (id: number) =>
+export const joinClub = (id: number, token: string) =>
   apiFetch<MembershipMessage>(`${baseApi}/${id}/join`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${getStoredToken()}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 
-export const leaveClub = (id: number) =>
+export const leaveClub = (id: number, token: string) =>
   apiFetch<MembershipMessage>(`${baseApi}/${id}/leave`, {
     method: "DELETE",
     headers: {
-      Authorization: `Bearer ${getStoredToken()}`,
+      Authorization: `Bearer ${token}`,
     },
   });

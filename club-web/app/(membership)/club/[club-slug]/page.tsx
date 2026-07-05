@@ -9,6 +9,8 @@ import {
 } from "@/features/studio/components/club/detail/ClubMeta";
 import { useGetMembershipClubByName } from "@/features/membership/hooks/use-club";
 import { ClubDetailsTab } from "@/features/membership/components/club/DetailTab";
+import { JoinFooter } from "@/features/membership/components/club/JoinFooter";
+import { formatUnixDate } from "@/lib/utils";
 
 const TABS = ["General", "Members"] as const;
 type Tab = (typeof TABS)[number];
@@ -50,34 +52,38 @@ const ClubDetailPage = () => {
   }
 
   return (
-    <div className="relative min-h-screen bg-black">
-      <div className="relative flex flex-col text-white">
-        <ClubBanner club={club} isOwner={club.isOwner} />
+    <div className="relative bg-black flex flex-col min-h-screen">
+      <ClubBanner club={club} isOwner={club.isOwner} />
 
-        <ClubMeta club={club} members={members} />
+      <ClubMeta club={club} members={members} />
 
-        <div className="mt-5 flex gap-6 overflow-x-auto border-b border-white/10 px-6">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap cursor-pointer pb-3 text-sm font-medium transition-colors ${
-                activeTab === tab
-                  ? "border-b-2 border-white text-white"
-                  : "text-white/40 hover:text-white/70"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {activeTab === "General" ? (
-          <ClubDetailsTab club={club} isOwner={club.isOwner} />
-        ) : (
-          <MembersTab members={members ?? []} isOwner={club.isOwner} />
-        )}
+      <div className="mt-5 flex gap-6 overflow-x-auto border-b border-white/10 px-6">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`whitespace-nowrap cursor-pointer pb-3 text-sm font-medium transition-colors ${
+              activeTab === tab
+                ? "border-b-2 border-white text-white"
+                : "text-white/40 hover:text-white/70"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
+
+      {activeTab === "General" ? (
+        <ClubDetailsTab club={club} isOwner={club.isOwner} />
+      ) : (
+        <MembersTab members={members ?? []} isOwner={club.isOwner} />
+      )}
+
+      {activeTab === "General" ? (
+        <div className="sticky mt-6 bottom-0 z-50">
+          <JoinFooter club={club} />
+        </div>
+      ) : null}
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getSession, signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@heroui/react";
 import Link from "next/link";
 import { setStoredToken } from "@/lib/storage";
@@ -131,6 +131,8 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({ resolver: zodResolver(loginSchema) });
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
   const onSubmit = async (values: LoginValues) => {
     setServerError(null);
@@ -138,6 +140,7 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
       identifier: values.identifier,
       password: values.password,
       redirect: false,
+      callbackUrl,
     });
     if (result?.error) {
       setServerError("Invalid email or password");
@@ -145,9 +148,9 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     }
     const session = await getSession();
     if (session) {
-      router.back();
       setStoredToken(session.accessToken);
       toast.success("login successfully!");
+      router.replace(result?.url ?? callbackUrl);
     }
   };
 
@@ -228,9 +231,6 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
   });
   const username = watch("username");
   const email = watch("email");
-  const checking = usernameState === "loading" || emailState === "loading";
-
-  const invalid = usernameState === "exist" || emailState === "exist";
 
   const onSubmit = async (values: SignupValues) => {
     setServerError(null);

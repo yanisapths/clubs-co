@@ -11,8 +11,13 @@ const buttonVariants = tv({
   variants: {
     color: {
       default: "bg-white/4 hover:bg-white/16 focus:shadow-focus-ring-primary",
-      primary: "focus:shadow-focus-ring-primary",
+      primary:
+        "bg-[#29FF9F] text-[#16422F] hover:opacity-90 focus:shadow-focus-ring-primary",
       secondary: "bg-white/4 focus:shadow-focus-ring-primary",
+      warning:
+        "bg-[#FDFF73] hover:bg-[#FDFF73]/90 text-[#5B5C08] focus:shadow-focus-ring-primary",
+      accent:
+        "bg-[#A889FF] text-[#380556] hover:bg-[#A889FF]/90 focus:shadow-focus-ring-primary",
       danger: "focus:shadow-focus-ring-danger",
       transparent:
         "bg-transparent hover:bg-transparent focus:shadow-none active:shadow-none",
@@ -98,6 +103,7 @@ export function Button({
   weight,
   customSize,
   customVariant,
+  variant,
   iconOnly,
   content,
   hidden,
@@ -116,6 +122,7 @@ export function Button({
       isDisabled={isDisabled}
       isPending={isPending ?? isLoading}
       isIconOnly={isIconOnly ?? iconOnly}
+      variant={variant}
       className={cn(
         buttonVariants({
           color,

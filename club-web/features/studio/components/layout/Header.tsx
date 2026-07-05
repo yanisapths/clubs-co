@@ -5,9 +5,9 @@ import { UserDropdown } from "@/features/shared/components/navigation/UserDropdo
 
 export const StudioHeader = () => {
   return (
-    <div className="relative p-6">
-      <header className="flex w-full items-center justify-between bg-transparent">
-        <div className="w-full lg:w-[350px]">
+    <div className="relative sm:p-6 p-4">
+      <header className="flex gap-2 w-full items-center justify-between bg-transparent">
+        <div className="lg:w-[350px]">
           <GlobalSearchTrigger />
         </div>
 

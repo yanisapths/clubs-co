@@ -10,7 +10,6 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
   return (
     <div className="relative">
       <Header />
-
       {children}
       <Footer />
     </div>

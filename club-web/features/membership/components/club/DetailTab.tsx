@@ -4,12 +4,11 @@ import { MapPin } from "lucide-react";
 import { Tag } from "@/features/shared/components/Tag";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
-import { usePatchClub } from "@/features/studio/hooks/use-club";
-import { toast } from "@heroui/react";
 import { useState } from "react";
 import { GalleryPreview } from "@/features/studio/components/club/detail/GalleryPreview";
 import { GalleryGrid } from "./GalleryGrid";
 import { SocialIcon } from "@/features/studio/components/club/detail/SocialIcons";
+import { GalleryEmptyState } from "@/features/studio/components/club/detail/GalleryGrid";
 
 export function ClubDetailsTab({
   club,
@@ -43,7 +42,7 @@ export function ClubDetailsTab({
     <div className="px-6 py-6 space-y-6">
       <div>
         <p className="text-sm text-white/50 mb-2">About this club</p>
-        <p className="text-white/80 leading-relaxed whitespace-pre-line line-clamp-3 max-w-[800px]">
+        <p className="text-white/80 leading-relaxed whitespace-pre-line line-clamp-3 max-w-[800px] sm:min-h-24">
           {club.description || "No description provided."}
         </p>
       </div>
@@ -72,8 +71,8 @@ export function ClubDetailsTab({
         <div className="flex flex-col items-end gap-2">
           {visibleTags.length > 0 && (
             <div className="flex flex-wrap justify-end items-center gap-2">
-              {visibleTags.map((tag) => (
-                <Tag key={tag.id}>{tag.name}</Tag>
+              {visibleTags.map((tag, index) => (
+                <Tag key={index}>{tag.name}</Tag>
               ))}
               {extraTags > 0 && (
                 <span className="text-sm text-white/40">+{extraTags} more</span>
@@ -109,7 +108,9 @@ export function ClubDetailsTab({
             onAddClick={show}
             onImageClick={setLightboxIndex}
           />
-        ) : null}
+        ) : (
+          <GalleryEmptyState onAddClick={show} isMember={true} />
+        )}
       </div>
 
       {lightboxIndex !== null && (

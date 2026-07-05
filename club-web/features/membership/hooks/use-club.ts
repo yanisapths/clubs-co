@@ -1,3 +1,4 @@
+import { getStoredToken } from "@/lib/storage";
 import {
   getMembershipClubById,
   getMembershipClubByName,
@@ -7,6 +8,7 @@ import {
   MembershipClub,
 } from "../api/club";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 const CLUB_KEYS = {
   all: ["membership-clubs"] as const,
@@ -65,15 +67,12 @@ export const useJoinClub = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (clubId: number) => joinClub(clubId),
+    mutationFn: (clubId: number) => {
+      return joinClub(clubId, getStoredToken()!);
+    },
     onSuccess: (_, clubId) => {
-      queryClient.invalidateQueries({
-        queryKey: CLUB_KEYS.all,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: CLUB_KEYS.detail(clubId),
-      });
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.detail(clubId) });
     },
   });
 };
@@ -82,7 +81,7 @@ export const useLeaveClub = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (clubId: number) => leaveClub(clubId),
+    mutationFn: (clubId: number) => leaveClub(clubId, getStoredToken()!),
     onSuccess: (_, clubId) => {
       queryClient.invalidateQueries({
         queryKey: CLUB_KEYS.all,

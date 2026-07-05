@@ -26,10 +26,14 @@ type Club struct {
 	Spaces         []Space           `db:"spaces"`
 	IsMember       bool      		 `db:"is_member"`
 	MemberCount    int64             `db:"member_count"`
+	IsOwner        bool      		 `db:"is_owner"`
+	JoinedAt 	   *time.Time 		 `db:"joined_at"`
+	MemberRole 	   *string           `db:"member_role"`
+	IsPending      bool      		 `db:"is_pending"`
 }
 
 type ClubMember struct {
-	MemberDisplayName  string 		`db:"display_name"`
+	MemberDisplayName  *string 		`db:"display_name"`
 	MemberUsername  string 		`db:"username"`
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`

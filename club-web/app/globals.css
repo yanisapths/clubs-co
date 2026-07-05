@@ -54,7 +54,7 @@ body.inspect * {
   }
 
   .toast--success {
-    background: rgba(0, 0, 0) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
   }
 
   .toast--success .toast__indicator {
@@ -66,7 +66,7 @@ body.inspect * {
   }
 
   .toast--danger {
-    background: rgba(0, 0, 0) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
   }
 
   .toast--danger .toast__indicator {
@@ -78,7 +78,7 @@ body.inspect * {
   }
 
   .toast--warning {
-    background: rgba(0, 0, 0) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
   }
 
   .toast--warning .toast__indicator {
@@ -96,5 +96,17 @@ body.inspect * {
 
   .toast__close:hover {
     color: rgba(255, 255, 255, 0.6);
+  }
+
+  .toast--accent {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .toast--accent .toast__indicator {
+    color: #2f8cff;
+  }
+
+  .toast--accent .toast__title {
+    color: #2f8cff !important;
   }
 }

@@ -1,6 +1,7 @@
 package club
 
 import (
+	"club-backend/internal/auth"
 	"club-backend/pkg/response"
 	"errors"
 	"net/http"
@@ -18,48 +19,42 @@ func NewJoinClub(repo JoinClubRepo) *joinClubHandler {
 }
 
 func (h *joinClubHandler) Handler(c *gin.Context) {
-	userID := c.GetString("userID")
-	if userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	var userID string
+	if claimsValue, exists := c.Get("claims"); exists {
+		if claims, ok := claimsValue.(*auth.Claims); ok {
+			userID = claims.UserID.String()
+		}
 	}
 
-	clubID, err := strconv.ParseInt(c.Param("clubID"), 10, 64)
+	clubID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "invalid club id",
-		})
+		response.BadRequest(c, "invalid club id")
 		return
 	}
 
-	err = h.repo.JoinClub(c.Request.Context(), userID, clubID)
+	status, err := h.repo.JoinClub(c.Request.Context(), userID, clubID)
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrClubNotFound):
-			c.JSON(http.StatusNotFound, gin.H{
-				"message": err.Error(),
-			})
+			c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		case errors.Is(err, ErrClubNotPublic):
-			c.JSON(http.StatusForbidden, gin.H{
-				"message": err.Error(),
-			})
+			c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
 		case errors.Is(err, ErrClubFull):
-			c.JSON(http.StatusConflict, gin.H{
-				"message": err.Error(),
-			})
+			c.JSON(http.StatusConflict, gin.H{"message": err.Error()})
 		case errors.Is(err, ErrAlreadyMember):
-			c.JSON(http.StatusConflict, gin.H{
-				"message": err.Error(),
-			})
+			c.JSON(http.StatusConflict, gin.H{"message": err.Error()})
+		case errors.Is(err, ErrRequestPending):
+			c.JSON(http.StatusConflict, gin.H{"message": err.Error()})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "failed to join club",
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to join club"})
 		}
 		return
 	}
 
-	response.OK(c,nil)
-}	
+	if status == "Pending" {
+		response.Created(c, gin.H{"message": "join request sent, pending approval"})
+		return
+	}
+
+	response.Created(c, gin.H{"message": "joined club successfully"})
+}

@@ -11,7 +11,7 @@ export function ClubFormHeader({
   clubName,
 }: ClubFormHeaderProps) {
   return (
-    <header className="border-b border-zinc-800 py-4 px-8">
+    <header className="border-b border-zinc-800 py-4 px-4 sm:px-8">
       <div className="flex items-center gap-4">
         <button
           type="button"
@@ -21,7 +21,7 @@ export function ClubFormHeader({
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <div className="flex text-xl text-zinc-400">
+        <div className="flex sm:text-xl text-zinc-400">
           creator studio <span className="mx-2 text-zinc-600">/</span>
           {isEdit ? (
             <div onClick={onBack} className="flex">

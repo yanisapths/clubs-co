@@ -71,6 +71,12 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 		imageURL = *clubInfo.ImageURL
 	}
 
+	var joinedAt *int64
+
+	if clubInfo.JoinedAt != nil {
+		ts := clubInfo.JoinedAt.Unix()
+		joinedAt = &ts
+	}
 	resp := GetClubByIDResponse{
 		ClubInfo: ClubInfoResponse{
 			ID:             clubInfo.ID,
@@ -95,7 +101,11 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 			CreatedAt:      clubInfo.CreatedAt.Unix(),
 			UpdatedAt:      clubInfo.UpdatedAt.Unix(),
 			IsMember:       clubInfo.IsMember,
+			IsPending: 		clubInfo.IsPending,
 			MemberCount:    clubInfo.MemberCount,
+			IsOwner: 		clubInfo.IsOwner,
+			JoinedAt:	    joinedAt,
+			MemberRole:     clubInfo.MemberRole,
 		},
 		Members: make([]Member, 0, len(members)),
 	}

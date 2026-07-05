@@ -32,6 +32,7 @@ type ClubResponse struct {
 	Spaces 		   []Space   		   `json:"spaces"`
 	CreatedAt      int64               `json:"createdAt"`
 	IsMember       bool      		   `json:"isMember"`
+	IsPending      bool  				`json:"isPending"`
 	MemberCount    int64               `json:"memberCount"`
 }
 
@@ -40,7 +41,7 @@ type GetClubByIDResponse struct {
 	Members  []Member `json:"members"`
 }
 type Member struct {
-	MemberDisplayName string `json:"displayName"`
+	MemberDisplayName *string `json:"displayName"`
 	MemberUsername  string `json:"username"`
 	MemberID 		string `json:"id"`
 	Role    		string `json:"role"`
@@ -68,7 +69,11 @@ type ClubInfoResponse struct {
 	CreatedAt      int64               `json:"createdAt"`
 	UpdatedAt      int64               `json:"updatedAt"`
 	IsMember       bool      		   `json:"isMember"`
+	IsPending      bool  				`json:"isPending"`
 	MemberCount    int64               `json:"memberCount"`
+	IsOwner        bool      		   `json:"isOwner"`
+	JoinedAt       *int64         	   `json:"joinedAt"`
+	MemberRole	   *string  		   `json:"memberRole"`
 }
 
 // ── Global search ────────────────────────────────────────────────────────────

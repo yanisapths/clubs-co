@@ -94,7 +94,7 @@ type GetClubByIDResponse struct {
 }
 
 type Member struct {
-	MemberDisplayName string `json:"displayName"`
+	MemberDisplayName *string `json:"displayName"`
 	MemberUsername  string `json:"username"`
 	MemberID 		string `json:"id"`
 	Role    		string `json:"role"`

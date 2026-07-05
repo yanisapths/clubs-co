@@ -16,7 +16,7 @@ export const StickyFooter = ({ pathToCreateClub }: StickyFooterProps) => {
           onClick={() => router.push(pathToCreateClub)}
           className=" rounded-full bg-white px-6 text-black hover:bg-white/90"
         >
-          <Plus /> Create club
+          <Plus /> Join
         </Button>
       </div>
     </div>

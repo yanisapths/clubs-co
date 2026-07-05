@@ -1,6 +1,7 @@
 package club
 
 import (
+	"club-backend/internal/auth"
 	"club-backend/pkg/response"
 	"errors"
 	"strconv"
@@ -17,13 +18,16 @@ func NewLeaveClub(repo LeaveClubRepo) *leaveClubHandler {
 }
 
 func (h *leaveClubHandler) Handler(c *gin.Context) {
-	userID := c.GetString("userID")
-	if userID == "" {
-		response.Unauthorized(c, "unauthorized")
-		return
+	var userID string
+
+	if claimsValue, exists := c.Get("claims"); exists {
+		if claims, ok := claimsValue.(*auth.Claims); ok {
+			id := claims.UserID.String()
+			userID = id
+		}
 	}
 
-	clubID, err := strconv.ParseInt(c.Param("clubID"), 10, 64)
+	clubID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		response.BadRequest(c, "invalid club id")
 		return

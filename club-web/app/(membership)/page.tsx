@@ -1,32 +1,19 @@
 "use client";
 
 import { ArrowRight } from "@/design-system/components/icons/ArrowRight";
-import { CategoryCard } from "@/features/membership/components/homepage/CategoryCard";
+import { CategoryCarousel } from "@/features/membership/components/homepage/CategoryCarousel";
 import { ClubCard } from "@/features/membership/components/homepage/ClubCard";
 import { ClubsCarousel } from "@/features/membership/components/homepage/ClubCarousel";
-import { MOBILE_CATEGORY_LIMIT } from "@/features/membership/components/homepage/constants";
 import { useGetMembershipClubs } from "@/features/membership/hooks/use-club";
 import { GlobalSearchTrigger } from "@/features/shared/components/GlobalSearchTrigger";
 import { categories } from "@/features/shared/constants";
-import { useBreakpoints } from "@/hooks/use-breakpoints";
-import { useNoScroll } from "@/hooks/use-no-scroll";
 import { toClubSlug } from "@/lib/utils";
 import { Typography } from "@heroui/react/typography";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function Home() {
   const { clubs } = useGetMembershipClubs();
   const router = useRouter();
-  const { sm } = useBreakpoints();
-  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
-
-  const visibleCategories = sm
-    ? categories
-    : categoriesExpanded
-      ? categories
-      : categories.slice(0, MOBILE_CATEGORY_LIMIT);
 
   return (
     <div className="flex flex-col items-center justify-center bg-black text-white">
@@ -57,28 +44,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-5">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
-                    {visibleCategories.map((category) => (
-                      <CategoryCard key={category.id} {...category} />
-                    ))}
-                  </div>
-
-                  <div className="block sm:hidden">
-                    <button
-                      onClick={() => setCategoriesExpanded((prev) => !prev)}
-                      className="cursor-pointer flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl border border-white/15 text-white/55 text-sm hover:border-white/30 hover:text-white/80 transition-colors lg:hidden"
-                    >
-                      {categoriesExpanded ? (
-                        <>
-                          See less <ChevronUp size={14} />
-                        </>
-                      ) : (
-                        <>
-                          See all categories <ChevronDown size={14} />
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  <CategoryCarousel categories={categories} />
                 </div>
               </div>
             </div>
@@ -108,27 +74,6 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-
-                {/* <div
-                  className="grid gap-2"
-                  style={{
-                    gridTemplateRows: "repeat(2, auto)",
-                    gridAutoFlow: "column",
-                    gridAutoColumns: "185px",
-                    width: "max-content",
-                  }}
-                >
-                  {clubs.slice(0, 30).map((club) => (
-                    <div key={club.id} className="w-[180px]">
-                      <ClubCard
-                        club={club}
-                        onClick={() =>
-                          router.push(`/club/${toClubSlug(club.name)}`)
-                        }
-                      />
-                    </div>
-                  ))}
-                </div> */}
               </div>
 
               <div className="block sm:hidden">

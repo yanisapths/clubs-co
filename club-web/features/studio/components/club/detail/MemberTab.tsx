@@ -5,6 +5,9 @@ import { useState } from "react";
 import { ClubMember, MemberAvatar } from "./MemberAvatar";
 import { NOW_SECONDS, SEVEN_DAYS } from "../constants";
 
+const ROW_GRID_COLS =
+  "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_120px_120px_48px]";
+
 export function MembersTab({
   members,
   isOwner,
@@ -23,40 +26,57 @@ export function MembersTab({
     !m.joinedAt || m.role.toLowerCase().includes("pending");
 
   return (
-    <div className="px-6 py-6">
+    <div className="px-3 sm:px-6 py-4 sm:py-6">
       {isOwner && (
-        <div className="flex justify-end mb-5">
+        <div className="flex justify-end mb-4 sm:mb-5">
           <Button
             onClick={onInvite}
-            className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
+            className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 w-full sm:w-auto justify-center"
           >
             <UserPlus className="h-4 w-4" />+ Invite member
           </Button>
         </div>
       )}
 
-      <div className="grid grid-cols-[1fr_120px_120px_48px] items-center border-b border-white/10 pb-2 text-xs uppercase tracking-wider text-white/40">
+      {/* Desktop/tablet header row */}
+      <div
+        className={`hidden md:grid ${ROW_GRID_COLS} items-center border-b border-white/10 pb-2 text-xs uppercase tracking-wider text-white/40`}
+      >
         <span>Member</span>
         <span className="text-right">Type</span>
         <span className="text-right">Joined</span>
         <span />
       </div>
 
+      {/* Mobile-only lightweight header */}
+      <div className="md:hidden flex items-center justify-between border-b border-white/10 pb-2 text-xs uppercase tracking-wider text-white/40">
+        <span>Members</span>
+        <span>{members.length}</span>
+      </div>
+
       <ul className="divide-y divide-white/5">
         {members.map((member) => {
           const pending = isPending(member);
           const menuOpen = openMenuId === member.id;
+          const joined = member.joinedAt
+            ? formatUnixDate(member.joinedAt)
+            : "—";
 
           return (
             <li key={member.id} className="relative">
-              <div className="grid grid-cols-[1fr_120px_120px_48px] items-center py-3">
-                <div className="flex items-center gap-3">
-                  <MemberAvatar displayName={member.displayName} />
-                  <div className="flex flex-col">
-                    <span className="text-base font-medium text-white">
+              <div
+                className={`flex flex-col gap-2 md:grid ${ROW_GRID_COLS} items-start md:items-center py-3`}
+              >
+                {/* Avatar + name — always full width on mobile */}
+                <div className="flex items-center gap-3 w-full min-w-0">
+                  <MemberAvatar
+                    displayName={member.displayName || member?.username}
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-base font-medium text-white truncate">
                       {member.displayName}
                     </span>
-                    <span className="text-xs font-medium text-white/40">
+                    <span className="text-xs font-medium text-white/40 truncate">
                       @{member.username}
                     </span>
                   </div>
@@ -64,23 +84,46 @@ export function MembersTab({
                   {!pending &&
                     member.joinedAt &&
                     NOW_SECONDS - member.joinedAt < SEVEN_DAYS && (
-                      <span className="rounded bg-[#2F8CFF]/12 border border-[#2F8CFF]/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#2F8CFF]/80">
+                      <span className="shrink-0 rounded bg-[#2F8CFF]/12 border border-[#2F8CFF]/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#2F8CFF]/80">
                         New Member
                       </span>
                     )}
+
+                  {isOwner && (
+                    <button
+                      onClick={() => toggleMenu(member.id)}
+                      className="md:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
 
+                {/* Mobile: role + joined date inline under the name */}
+                <div className="flex items-center gap-3 pl-11 md:hidden">
+                  <span
+                    className={`text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
+                  >
+                    {pending ? "Pending Invitation" : member.role}
+                  </span>
+                  <span className="text-white/20">•</span>
+                  <span className="text-sm text-white/40">{joined}</span>
+                </div>
+
+                {/* Desktop/tablet: role column */}
                 <span
-                  className={`text-right text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
+                  className={`hidden md:block text-right text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
                 >
                   {pending ? "Pending Invitation" : member.role}
                 </span>
 
-                <span className="text-right text-sm text-white/40">
-                  {member.joinedAt ? formatUnixDate(member.joinedAt) : "—"}
+                {/* Desktop/tablet: joined column */}
+                <span className="hidden md:block text-right text-sm text-white/40">
+                  {joined}
                 </span>
 
-                <div className="flex justify-end">
+                {/* Desktop/tablet: menu button */}
+                {/* <div className="hidden md:flex justify-end">
                   {isOwner && (
                     <button
                       onClick={() => toggleMenu(member.id)}
@@ -89,10 +132,10 @@ export function MembersTab({
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                   )}
-                </div>
+                </div> */}
               </div>
 
-              {menuOpen && (
+              {/* {menuOpen && (
                 <div className="absolute right-0 top-10 z-50 w-44 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-xl">
                   <button
                     onClick={() => setOpenMenuId(null)}
@@ -111,7 +154,7 @@ export function MembersTab({
                     </button>
                   )}
                 </div>
-              )}
+              )} */}
             </li>
           );
         })}
