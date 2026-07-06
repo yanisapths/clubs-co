@@ -54,7 +54,15 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 				FROM public.space s
 				WHERE s.id = ANY(c.space_ids)
 			) AS spaces,
-			COUNT(cm.user_id) as member_count
+			COUNT(*) FILTER (WHERE cm.status = 'Active')  AS member_count,
+			COUNT(*) FILTER (WHERE cm.status = 'Pending') AS pending_member_count,
+			(
+				SELECT COUNT(*)
+				FROM public.club_member_invite cmi
+				WHERE cmi.club_id = c.id
+				AND cmi.invitation_response = false
+				AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
+			) AS pending_invite_count
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
@@ -126,6 +134,8 @@ func (r *clubRepository) GetListClubByOwnerID(ctx context.Context, ownerID strin
 			&tagsRaw,
 			&spacesRaw,
 			&club.MemberCount,
+			&club.PendingMemberCount,
+			&club.PendingInviteCount,
 		); err != nil {
 			return nil, err
 		}
@@ -472,6 +482,21 @@ func (r *clubRepository) InviteClubMember(ctx context.Context, inviterID string,
 		return ErrAlreadyMember
 	}
 
+	var alreadyRequested bool
+	err = r.db.QueryRowContext(ctx,
+		`SELECT EXISTS(
+			SELECT 1 FROM public.club_member
+			WHERE club_id = $1 AND user_id = $2 AND status = 'Pending'
+		)`,
+		clubID, req.RecipientID,
+	).Scan(&alreadyRequested)
+	if err != nil {
+		return err
+	}
+	if alreadyRequested {
+		return ErrUserAlreadyRequestedToJoin
+	}
+
 	_, err = r.db.ExecContext(ctx, `
 		INSERT INTO public.club_member_invite
 			(inviter_id, recipient_id, club_id, recipient_role_id, created_at)
@@ -521,13 +546,23 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 				FROM public.space s
 				WHERE s.id = ANY(c.space_ids)
 			) AS spaces,
-			u.display_name
+			u.display_name,
+			COUNT(*) FILTER (WHERE cm.status = 'Active')  AS member_count,
+			COUNT(*) FILTER (WHERE cm.status = 'Pending') AS pending_member_count,
+			(
+				SELECT COUNT(*)
+				FROM public.club_member_invite cmi
+				WHERE cmi.club_id = c.id
+				AND cmi.invitation_response = false
+				AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
+			) AS pending_invite_count
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
+		LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.id = $1
-		AND c.owner_id = $2
-		AND c.is_deleted = false
+			AND c.owner_id = $2
+			AND c.is_deleted = false
 		GROUP BY
 			c.id,
 			c.name,
@@ -587,6 +622,9 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 		&tagsRaw,
 		&spacesRaw,
 		&club.OwnerDisplayName,
+		&club.MemberCount,
+		&club.PendingMemberCount,
+		&club.PendingInviteCount,
 	)
 	if err != nil {
 		return nil, err
@@ -622,14 +660,39 @@ func (r *clubRepository) GetClubMemberByClubID(
 			u.display_name,
 			u.id,
 			r.name AS role,
-			cm.joined_at
+			cm.joined_at AS joined_at,
+			(cm.status = 'Pending') AS is_pending,
+			false AS is_invited
 		FROM public.club_member cm
 		INNER JOIN public.users u
 			ON u.id = cm.user_id
 		INNER JOIN public.club_member_roles r
 			ON r.id = cm.role_id
 		WHERE cm.club_id = $1
-		ORDER BY cm.joined_at ASC
+
+		UNION ALL
+
+		SELECT
+			u.username,
+			u.display_name,
+			u.id,
+			r.name AS role,
+			cmi.created_at AS joined_at,
+			(
+				cmi.invitation_response = false
+				AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
+			) AS is_pending,
+			true AS is_invited
+		FROM public.club_member_invite cmi
+		INNER JOIN public.users u
+			ON u.id = cmi.recipient_id
+		INNER JOIN public.club_member_roles r
+			ON r.id = cmi.recipient_role_id
+		WHERE cmi.club_id = $1
+			AND cmi.invitation_response = false
+			AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
+
+		ORDER BY joined_at ASC
 	`
 
 	rows, err := r.db.QueryContext(ctx, query, clubID)
@@ -649,6 +712,8 @@ func (r *clubRepository) GetClubMemberByClubID(
 			&member.MemberID,
 			&member.Role,
 			&member.JoinedAt,
+			&member.IsPending,
+			&member.IsInvited,
 		); err != nil {
 			return nil, err
 		}

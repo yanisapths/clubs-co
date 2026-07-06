@@ -1,3 +1,4 @@
+// club-backend/internal/studio/club/invite_member_handler.go
 package club
 
 import (
@@ -51,6 +52,9 @@ func (h *inviteClubMemberHandler) Handler(c *gin.Context) {
 
 		case errors.Is(err, ErrInviteAlreadyPending):
 			response.Conflict(c, "an invitation is already pending for this user")
+		
+		case errors.Is(err, ErrUserAlreadyRequestedToJoin):
+			response.Conflict(c, "member already requested to join")
 
 		default:
 			response.InternalServerError(c, "internal server error")

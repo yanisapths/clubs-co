@@ -1,42 +1,83 @@
 import { formatUnixDate } from "@/lib/utils";
 import { Button } from "@heroui/react";
-import { UserPlus, MoreHorizontal, LogOut, RefreshCw } from "lucide-react";
+import {
+  UserPlus,
+  MoreHorizontal,
+  LogOut,
+  RefreshCw,
+  Check,
+  X,
+  UserX,
+} from "lucide-react";
 import { useState } from "react";
 import { ClubMember, MemberAvatar } from "./MemberAvatar";
 import { NOW_SECONDS, SEVEN_DAYS } from "../constants";
 
 const ROW_GRID_COLS =
-  "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_120px_120px_48px]";
+  "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_220px_160px_88px]";
+
+function getStatusLabel(member: ClubMember) {
+  if (member.isInvited) return "Pending Invitation Response";
+  if (member.isPending) return "Pending Acceptance Response";
+  return null;
+}
 
 export function MembersTab({
   members,
   isOwner,
   onInvite,
+  onAcceptRequest,
+  onCancelRequest,
+  onRemoveMember,
 }: {
   members: ClubMember[];
   isOwner: boolean;
   onInvite?: () => void;
+  onAcceptRequest?: (member: ClubMember) => void;
+  onCancelRequest?: (member: ClubMember) => void;
+  onRemoveMember?: (member: ClubMember) => void;
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const toggleMenu = (id: string) =>
     setOpenMenuId((prev) => (prev === id ? null : id));
 
-  const isPending = (m: ClubMember) =>
-    !m.joinedAt || m.role.toLowerCase().includes("pending");
+  const closeMenu = () => setOpenMenuId(null);
+
+  const isPending = (m: ClubMember) => m.isPending || m.isInvited;
+  const isJoinRequest = (m: ClubMember) => m.isPending && !m.isInvited;
+
+  const pendingRequestsCount = members.filter(
+    (m) => m.isPending && !m.isInvited,
+  ).length;
+  const invitedCount = members.filter((m) => m.isInvited).length;
 
   return (
     <div className="px-3 sm:px-6 py-4 sm:py-6">
-      {isOwner && (
-        <div className="flex justify-end mb-4 sm:mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-5">
+        <div className="flex items-center gap-2 flex-wrap">
+          {pendingRequestsCount > 0 && (
+            <span className="rounded-full bg-amber-400/10 border border-amber-400/20 px-3 py-1 text-xs font-medium text-amber-300">
+              {pendingRequestsCount} pending request
+              {pendingRequestsCount !== 1 ? "s" : ""}
+            </span>
+          )}
+          {invitedCount > 0 && (
+            <span className="rounded-full bg-[#2F8CFF]/10 border border-[#2F8CFF]/20 px-3 py-1 text-xs font-medium text-[#2F8CFF]/80">
+              {invitedCount} invite{invitedCount !== 1 ? "s" : ""} sent
+            </span>
+          )}
+        </div>
+
+        {isOwner && (
           <Button
             onClick={onInvite}
             className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 w-full sm:w-auto justify-center"
           >
             <UserPlus className="h-4 w-4" />+ Invite member
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Desktop/tablet header row */}
       <div
@@ -57,6 +98,8 @@ export function MembersTab({
       <ul className="divide-y divide-white/5">
         {members.map((member) => {
           const pending = isPending(member);
+          const joinRequest = isJoinRequest(member);
+          const statusLabel = getStatusLabel(member);
           const menuOpen = openMenuId === member.id;
           const joined = member.joinedAt
             ? formatUnixDate(member.joinedAt)
@@ -67,7 +110,6 @@ export function MembersTab({
               <div
                 className={`flex flex-col gap-2 md:grid ${ROW_GRID_COLS} items-start md:items-center py-3`}
               >
-                {/* Avatar + name — always full width on mobile */}
                 <div className="flex items-center gap-3 w-full min-w-0">
                   <MemberAvatar
                     displayName={member.displayName || member?.username}
@@ -99,62 +141,106 @@ export function MembersTab({
                   )}
                 </div>
 
-                {/* Mobile: role + joined date inline under the name */}
-                <div className="flex items-center gap-3 pl-11 md:hidden">
+                <div className="flex items-center gap-3 md:hidden">
                   <span
                     className={`text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
                   >
-                    {pending ? "Pending Invitation" : member.role}
+                    {statusLabel ?? member.role}
                   </span>
                   <span className="text-white/20">•</span>
                   <span className="text-sm text-white/40">{joined}</span>
                 </div>
 
-                {/* Desktop/tablet: role column */}
                 <span
                   className={`hidden md:block text-right text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
                 >
-                  {pending ? "Pending Invitation" : member.role}
+                  {statusLabel ?? member.role}
                 </span>
 
-                {/* Desktop/tablet: joined column */}
                 <span className="hidden md:block text-right text-sm text-white/40">
-                  {joined}
+                  {statusLabel ? "-" : joined}
                 </span>
 
-                {/* Desktop/tablet: menu button */}
-                {/* <div className="hidden md:flex justify-end">
+                <div className="hidden md:flex justify-end">
                   {isOwner && (
                     <button
                       onClick={() => toggleMenu(member.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
+                      className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                   )}
-                </div> */}
+                </div>
               </div>
 
-              {/* {menuOpen && (
-                <div className="absolute right-0 top-10 z-50 w-44 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-xl">
-                  <button
-                    onClick={() => setOpenMenuId(null)}
-                    className="flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Leave club
-                  </button>
-                  {!pending && (
-                    <button
-                      onClick={() => setOpenMenuId(null)}
-                      className="flex w-full items-center gap-2 px-4 py-3 text-sm text-white/70 hover:bg-white/5 transition-colors"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                      Change role
-                    </button>
-                  )}
-                </div>
-              )} */}
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={closeMenu} />
+                  <div className="absolute right-0 top-15 z-50 w-56 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-xl">
+                    {joinRequest && (
+                      <>
+                        <button
+                          onClick={() => {
+                            onAcceptRequest?.(member);
+                            closeMenu();
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-3 text-sm text-emerald-400 hover:bg-white/5 transition-colors"
+                        >
+                          <Check className="h-4 w-4" />
+                          Accept request
+                        </button>
+                        <button
+                          onClick={() => {
+                            onCancelRequest?.(member);
+                            closeMenu();
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                          Cancel request
+                        </button>
+                      </>
+                    )}
+
+                    {member.isInvited && (
+                      <button
+                        onClick={() => {
+                          onCancelRequest?.(member);
+                          closeMenu();
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                        Cancel invite
+                      </button>
+                    )}
+
+                    {!pending && (
+                      <>
+                        <button
+                          onClick={closeMenu}
+                          disabled={isOwner}
+                          className="disabled:opacity-50 flex w-full items-center gap-2 px-4 py-3 text-sm disabled:text-gray-600 text-red-400 !disabled:hover:bg-white/5 transition-colors"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Leave club
+                        </button>
+                        <button
+                          onClick={() => {
+                            onRemoveMember?.(member);
+                            closeMenu();
+                          }}
+                          disabled={isOwner}
+                          className="disabled:opacity-50 flex w-full items-center gap-2 px-4 py-3 text-sm disabled:text-gray-600 text-white/70 !disabled:hover:bg-white/5 transition-colors"
+                        >
+                          <UserX className="h-4 w-4" />
+                          Remove member
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
             </li>
           );
         })}

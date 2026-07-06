@@ -1,3 +1,4 @@
+// club-backend/internal/membership/club/join_club_handler.go
 package club
 
 import (

@@ -68,6 +68,8 @@ func (s *GetClub) Handler(c *gin.Context) {
 			CreatedAt:      club.CreatedAt.Unix(),
 			UpdatedAt:      club.UpdatedAt.Unix(),
 			MemberCount:    club.MemberCount,
+			PendingMemberCount: club.PendingMemberCount,
+			PendingInviteCount: club.PendingInviteCount,
 		}
 		result = append(result, item)
 	}

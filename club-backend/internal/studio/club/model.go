@@ -55,6 +55,8 @@ type ClubResponse struct {
 	CreatedAt      int64               `json:"createdAt"`
 	UpdatedAt      int64               `json:"updatedAt"`
 	MemberCount    int                 `json:"memberCount"`
+	PendingMemberCount	int            `json:"pendingMemberCount"`
+	PendingInviteCount 	int 		   `json:"pendingInviteCount"`
 }
 
 type ClubCategory struct {
@@ -101,6 +103,8 @@ type Member struct {
 	MemberID 		string `json:"id"`
 	Role    		string `json:"role"`
 	JoinedAt		int64  `json:"joinedAt"`
+	IsPending       bool   `json:"isPending"`
+	IsInvited       bool   `json:"isInvited"`
 }
 
 const MaxGalleryImages = 20

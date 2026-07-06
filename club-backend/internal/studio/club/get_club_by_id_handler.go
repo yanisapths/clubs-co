@@ -100,6 +100,9 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			CreatedAt:      clubInfo.CreatedAt.Unix(),
 			UpdatedAt:      clubInfo.UpdatedAt.Unix(),
 			OwnerDisplayName: clubInfo.OwnerDisplayName,
+			MemberCount: 		clubInfo.MemberCount,	
+			PendingMemberCount: clubInfo.PendingMemberCount,
+			PendingInviteCount: clubInfo.PendingInviteCount,
 		},
 		Members: make([]Member, 0, len(members)),
 	}
@@ -112,6 +115,8 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			MemberID:       m.MemberID,
 			Role:           m.Role,
 			JoinedAt:       m.JoinedAt.Unix(),
+			IsPending: 		m.IsPending,
+			IsInvited:      m.IsInvited,
 		})
 	}
 

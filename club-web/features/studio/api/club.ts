@@ -38,8 +38,10 @@ export interface Club {
   updatedAt?: number;
   galleryUrls?: string[];
   isOwner?: boolean;
-  memberCount: number;
   bannerUrl?: string;
+  memberCount: number;
+  pendingMemberCount?: number;
+  pendingInviteCount?: number;
 }
 
 export interface CreateClubPayload {
@@ -80,6 +82,8 @@ export interface ClubMember {
   id: string;
   role: string;
   joinedAt: number;
+  isPending: boolean;
+  isInvited?: boolean;
 }
 // --- API Functions ---
 

@@ -89,7 +89,7 @@ export function ClubMeta({
   return (
     <div className="flex flex-col gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
       <div
-        className={`${isStudio ? "-mt-16" : "-mt-10"} flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left`}
+        className={`${isStudio ? "" : "-mt-10"} flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left`}
       >
         <div className="h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-xl bg-white/10 border border-white/15 overflow-hidden">
           <ClubThumbnail
@@ -150,7 +150,7 @@ export function ClubMeta({
               Members
             </p>
             <p className="mt-0.5 font-semibold text-white">
-              {members?.length} <span>/</span> {club?.maxSeats}
+              {club.memberCount} <span>/</span> {club?.maxSeats}
             </p>
           </div>
         </div>

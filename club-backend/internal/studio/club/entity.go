@@ -30,7 +30,9 @@ type Club struct {
 	Tags           []Tag             `db:"tags"`
 	GalleryURLs    []string 		 `db:"gallery_urls"`
 	OwnerDisplayName string          `db:"display_name"`
-	MemberCount 	int               `db:"member_count"`
+	MemberCount 	int              `db:"member_count"`
+	PendingMemberCount	int          `db:"pending_member_count"`
+	PendingInviteCount  int          `db:"pending_invite_count"`
 }
 
 type ClubMember struct {
@@ -39,6 +41,8 @@ type ClubMember struct {
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`
 	JoinedAt 		time.Time   `db:"joined_at"`
+	IsPending       bool        `db:"is_pending"`
+	IsInvited       bool        `db:"is_invited"`
 }
 
 func isUniqueViolation(err error) bool {
