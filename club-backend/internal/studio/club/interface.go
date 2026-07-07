@@ -15,9 +15,6 @@ type UpdateClubRepo interface {
 type DeleteClubRepo interface {
 	DeleteClub(ctx context.Context, ownerID string, clubID int64) error 
 }
-type InviteClubMemberRepo interface {
-	InviteClubMember(ctx context.Context, inviterID string, clubID int64, req InviteClubMemberRequest) error
-}
 
 type GetClubByIdRepo interface {
 	GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error)
@@ -39,7 +36,6 @@ type ClubRepository interface {
 	GetClubRepo
 	UpdateClubRepo
 	DeleteClubRepo
-	InviteClubMemberRepo
 	GetClubByIdRepo
 	PatchClubByIdRepo
 	GetClubExistRepo

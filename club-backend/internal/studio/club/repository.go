@@ -2,7 +2,6 @@ package club
 
 import (
 	"club-backend/internal/file"
-	"club-backend/internal/utils"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -439,79 +438,6 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 	return tx.Commit()
 }
 
-func (r *clubRepository) InviteClubMember(ctx context.Context, inviterID string, clubID int64, req InviteClubMemberRequest) error {
-	var ownerID string
-	err := r.db.QueryRowContext(ctx,
-		`SELECT owner_id FROM public.club WHERE id = $1 AND is_deleted = false`,
-		clubID,
-	).Scan(&ownerID)
-	if err == sql.ErrNoRows {
-		return ErrClubNotFound
-	}
-	if err != nil {
-		return err
-	}
-	if ownerID != inviterID {
-		return ErrNotClubOwner
-	}
-
-	var rank int
-	err = r.db.QueryRowContext(ctx,
-		`SELECT rank FROM public.club_member_roles WHERE id = $1`,
-		req.RoleID,
-	).Scan(&rank)
-	if err == sql.ErrNoRows || rank == 1 {
-		return ErrInvalidInviteRole
-	}
-	if err != nil {
-		return err
-	}
-
-	var exists bool
-	err = r.db.QueryRowContext(ctx,
-		`SELECT EXISTS(
-			SELECT 1 FROM public.club_member
-			WHERE club_id = $1 AND user_id = $2
-		)`,
-		clubID, req.RecipientID,
-	).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return ErrAlreadyMember
-	}
-
-	var alreadyRequested bool
-	err = r.db.QueryRowContext(ctx,
-		`SELECT EXISTS(
-			SELECT 1 FROM public.club_member
-			WHERE club_id = $1 AND user_id = $2 AND status = 'Pending'
-		)`,
-		clubID, req.RecipientID,
-	).Scan(&alreadyRequested)
-	if err != nil {
-		return err
-	}
-	if alreadyRequested {
-		return ErrUserAlreadyRequestedToJoin
-	}
-
-	_, err = r.db.ExecContext(ctx, `
-		INSERT INTO public.club_member_invite
-			(inviter_id, recipient_id, club_id, recipient_role_id, created_at)
-		VALUES ($1, $2, $3, $4, NOW())`,
-		inviterID, req.RecipientID, clubID, req.RoleID,
-	)
-	if err != nil {
-		if utils.IsUniqueViolation(err) {
-			return ErrInviteAlreadyPending
-		}
-		return err
-	}
-
-	return nil
-}
 
 func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error) {
 	query := `

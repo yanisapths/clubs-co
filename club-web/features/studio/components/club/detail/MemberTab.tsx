@@ -4,7 +4,6 @@ import {
   UserPlus,
   MoreHorizontal,
   LogOut,
-  RefreshCw,
   Check,
   X,
   UserX,
@@ -55,18 +54,25 @@ export function MembersTab({
   return (
     <div className="px-3 sm:px-6 py-4 sm:py-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-5">
-        <div className="flex items-center gap-2 flex-wrap">
-          {pendingRequestsCount > 0 && (
-            <span className="rounded-full bg-amber-400/10 border border-amber-400/20 px-3 py-1 text-xs font-medium text-amber-300">
-              {pendingRequestsCount} pending request
-              {pendingRequestsCount !== 1 ? "s" : ""}
-            </span>
-          )}
-          {invitedCount > 0 && (
-            <span className="rounded-full bg-[#2F8CFF]/10 border border-[#2F8CFF]/20 px-3 py-1 text-xs font-medium text-[#2F8CFF]/80">
-              {invitedCount} invite{invitedCount !== 1 ? "s" : ""} sent
-            </span>
-          )}
+        <div className="flex flex-wrap items-center text-center justify-center gap-6 sm:gap-8">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-white/40">
+              Total
+            </p>
+            <p className="mt-0.5 text-white">{members.length}</p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wider text-white/40">
+              Pending
+            </p>
+            <p className="mt-0.5 text-white">{pendingRequestsCount}</p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wider text-white/40">
+              Invited
+            </p>
+            <p className="mt-0.5 font-semibold text-white">{invitedCount}</p>
+          </div>
         </div>
 
         {isOwner && (

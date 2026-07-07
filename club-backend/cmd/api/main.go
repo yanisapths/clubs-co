@@ -20,6 +20,7 @@ import (
 	"club-backend/internal/repository"
 	"club-backend/internal/service"
 	studioclub "club-backend/internal/studio/club"
+	clubmember "club-backend/internal/studio/club/member"
 	_ "club-backend/internal/validator"
 
 	filePkg "club-backend/internal/file"
@@ -95,20 +96,29 @@ func main() {
 
 	// ── Repositories ──────────────────────────────────────────────────────────
 	studioClubRepo := studioclub.NewClubRepository(sqlDB, uploadSvc)
+	studioClubMemberRepo := clubmember.NewMemberRepository(sqlDB)
+
 	memberRepo      := membershipclub.NewMembershipRepository(sqlDB)
 	profileRepo      := profile.NewProfileRepository(sqlDB, uploadSvc)
 	memberUserRepo      := membershipuser.NewMembershipUserRepository(sqlDB)
 	// ── Routes ────────────────────────────────────────────────────────────────
 	studio := api.Group("/studio")
 	studio.Use(middleware.Auth(cfg.JWT.Secret))
-	studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
-	studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo, logger).Handler)
-	studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo, uploadSvc, logger).Handler)
-	studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
-	studio.POST("/club/:id/invite", studioclub.NewInviteClubMember(studioClubRepo).Handler)
-	studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
-	studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
-	studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
+	{
+		studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
+		studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo, logger).Handler)
+		studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo, uploadSvc, logger).Handler)
+		studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
+		studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
+		studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
+		studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
+		studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
+		
+		studio.POST("/club/:id/member/invite", clubmember.NewInviteClubMember(studioClubMemberRepo).Handler)
+		studio.DELETE("/club/:id/member/:member_id/cancel-request", clubmember.NewCancelRequest(studioClubMemberRepo, logger).Handler)
+		studio.DELETE("/club/:id/member/:member_id", clubmember.NewRemoveClubMember(studioClubMemberRepo, logger).Handler)
+		studio.PATCH("/club/:id/member/:member_id/approve-request", clubmember.NewApproveMemberRequest(studioClubMemberRepo, logger).Handler)
+	}
 
 	profileApi := api.Group("/profile")
 	profileApi.Use(middleware.Auth(cfg.JWT.Secret))

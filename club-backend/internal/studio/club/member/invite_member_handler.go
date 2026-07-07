@@ -1,5 +1,5 @@
 // club-backend/internal/studio/club/invite_member_handler.go
-package club
+package member
 
 import (
 	"club-backend/pkg/response"
@@ -10,10 +10,10 @@ import (
 )
 
 type inviteClubMemberHandler struct {
-	repo ClubRepository
+	repo MemberRepository
 }
 
-func NewInviteClubMember(repo ClubRepository) *inviteClubMemberHandler {
+func NewInviteClubMember(repo MemberRepository) *inviteClubMemberHandler {
 	return &inviteClubMemberHandler{repo: repo}
 }
 
