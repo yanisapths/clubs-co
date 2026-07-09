@@ -31,15 +31,15 @@ Sends a membership invitation to a user. Only the club owner (founder) can invit
 
 ```json
 {
-  "recipient_id": "uuid-of-user-to-invite",
-  "role_id": 2
+  "recipientId": "uuid-of-user-to-invite",
+  "roleId": 2
 }
 ```
 
-| Field          | Type | Required | Notes                                                           |
-| -------------- | ---- | -------- | --------------------------------------------------------------- |
-| `recipient_id` | uuid | ✅       | Must reference an existing user                                 |
-| `role_id`      | int  | ✅       | `2` = co-founder, `3` = member. Role `1` (founder) is rejected. |
+| Field         | Type | Required | Notes                                                           |
+| ------------- | ---- | -------- | --------------------------------------------------------------- |
+| `recipientId` | uuid | ✅       | Must reference an existing user                                 |
+| `roleId`      | int  | ✅       | `2` = co-founder, `3` = member. Role `1` (founder) is rejected. |
 
 **Response `201`**
 

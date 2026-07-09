@@ -2,6 +2,7 @@
 package club
 
 import (
+	"strconv"
 	"strings"
 
 	"club-backend/internal/auth"
@@ -11,22 +12,41 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	defaultSearchLimit = 20
+	maxSearchLimit     = 100
+)
+
 type searchHandler struct {
 	repo   SearchRepo
 	logger *zap.Logger
 }
 
-// NewSearchClubList builds the handler for GET /membership/search.
-// Despite the name (kept for route-wiring compatibility), it performs a
-// global search across clubs, members, spaces, and categories.
 func NewSearchClubList(repo SearchRepo, logger *zap.Logger) *searchHandler {
 	return &searchHandler{repo: repo, logger: logger}
 }
 
+func parseLimitOffset(c *gin.Context) (limit, offset int) {
+	limit = defaultSearchLimit
+	if raw := c.Query("limit"); raw != "" {
+		if v, err := strconv.Atoi(raw); err == nil && v > 0 {
+			limit = v
+		}
+	}
+	if limit > maxSearchLimit {
+		limit = maxSearchLimit
+	}
+
+	offset = 0
+	if raw := c.Query("offset"); raw != "" {
+		if v, err := strconv.Atoi(raw); err == nil && v >= 0 {
+			offset = v
+		}
+	}
+	return limit, offset
+}
+
 func (h *searchHandler) Handler(c *gin.Context) {
-	// Auth is optional: if a valid token is present we use it to compute
-	// isMember on club results, but unauthenticated requests are served
-	// the same search results minus that flag.
 	var userID *string
 	if claimsValue, exists := c.Get("claims"); exists {
 		if claims, ok := claimsValue.(*auth.Claims); ok {
@@ -36,35 +56,38 @@ func (h *searchHandler) Handler(c *gin.Context) {
 	}
 
 	query := strings.TrimSpace(c.Query("q"))
+	limit, offset := parseLimitOffset(c)
 
 	logFields := []zap.Field{
 		zap.String("path", c.Request.URL.Path),
 		zap.String("method", c.Request.Method),
 		zap.String("query", query),
+		zap.Int("limit", limit),
+		zap.Int("offset", offset),
 	}
 
-	clubs, err := h.repo.SearchClubs(c.Request.Context(), userID, query)
+	clubs, err := h.repo.SearchClubs(c.Request.Context(), userID, query, limit, offset)
 	if err != nil {
 		h.logger.Error("failed to search clubs", append(logFields, zap.Error(err))...)
 		response.InternalServerError(c, "failed to search")
 		return
 	}
 
-	members, err := h.repo.SearchMembers(c.Request.Context(), query)
+	members, err := h.repo.SearchMembers(c.Request.Context(), query, limit, offset)
 	if err != nil {
 		h.logger.Error("failed to search members", append(logFields, zap.Error(err))...)
 		response.InternalServerError(c, "failed to search")
 		return
 	}
 
-	spaces, err := h.repo.SearchSpaces(c.Request.Context(), query)
+	spaces, err := h.repo.SearchSpaces(c.Request.Context(), query, limit, offset)
 	if err != nil {
 		h.logger.Error("failed to search spaces", append(logFields, zap.Error(err))...)
 		response.InternalServerError(c, "failed to search")
 		return
 	}
 
-	categories, err := h.repo.SearchCategories(c.Request.Context(), query)
+	categories, err := h.repo.SearchCategories(c.Request.Context(), query, limit, offset)
 	if err != nil {
 		h.logger.Error("failed to search categories", append(logFields, zap.Error(err))...)
 		response.InternalServerError(c, "failed to search")

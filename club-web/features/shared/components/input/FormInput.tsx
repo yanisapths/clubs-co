@@ -164,19 +164,47 @@ interface SelectOption {
   label: string;
 }
 
+type FormSelectVariant = "sm" | "default";
+
 interface FormSelectProps extends Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   "onChange" | "value"
 > {
   id: string;
-  label: string;
+  label?: string;
   value: string | number | null | undefined;
   onChange: (value: string) => void;
   options: SelectOption[];
   placeholder?: string;
   hint?: string;
   error?: string;
+  variant?: FormSelectVariant;
 }
+
+const SIZE_STYLES: Record<
+  FormSelectVariant,
+  {
+    select: string;
+    chevron: string;
+    chevronPos: string;
+    wrapperMargin: string;
+  }
+> = {
+  default: {
+    select:
+      "w-full appearance-none rounded-2xl border bg-zinc-900 px-5 py-4 text-base",
+    chevron: "h-4 w-4",
+    chevronPos: "right-5",
+    wrapperMargin: "mt-3",
+  },
+  sm: {
+    select:
+      "appearance-none rounded-full border-0 pl-4 pr-8 py-2 text-sm font-medium",
+    chevron: "h-3.5 w-3.5",
+    chevronPos: "right-3",
+    wrapperMargin: "",
+  },
+};
 
 export function FormSelect({
   id,
@@ -187,14 +215,22 @@ export function FormSelect({
   placeholder = "Select an option",
   hint,
   error,
+  variant = "default",
+  className,
   ...rest
 }: FormSelectProps) {
+  const s = SIZE_STYLES[variant];
+  const isSm = variant === "sm";
+
   return (
     <div>
-      <label htmlFor={id} className="text-base font-semibold text-white">
-        {label}
-      </label>
-      <div className="relative mt-3">
+      {label ? (
+        <label htmlFor={id} className="text-base font-semibold text-white">
+          {label}
+        </label>
+      ) : null}
+
+      <div className={["relative", s.wrapperMargin].join(" ")}>
         <select
           id={id}
           value={value ?? ""}
@@ -202,26 +238,41 @@ export function FormSelect({
           aria-describedby={hint || error ? `${id}-hint` : undefined}
           aria-invalid={!!error}
           className={[
-            "w-full appearance-none rounded-2xl border bg-zinc-900 px-5 py-4",
-            "text-base text-white outline-none transition-colors",
-            error
-              ? "border-red-500 focus:border-red-400"
-              : "border-zinc-700 focus:border-zinc-500",
+            s.select,
+            "text-white outline-none transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
+            isSm
+              ? "bg-white/[0.08]"
+              : error
+                ? "border-red-500 focus:border-red-400"
+                : "border-zinc-700 focus:border-zinc-500",
+            className ?? "",
           ].join(" ")}
           {...rest}
         >
-          <option value="" disabled className="text-zinc-500">
-            {placeholder}
-          </option>
+          {!isSm && (
+            <option value="" disabled className="cursor-pointer text-zinc-500">
+              {placeholder}
+            </option>
+          )}
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option
+              key={opt.value}
+              value={opt.value}
+              style={{ color: "#000" }}
+              className="cursor-pointer"
+            >
               {opt.label}
             </option>
           ))}
         </select>
 
         <svg
-          className="pointer-events-none absolute right-5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+          className={[
+            "cursor-pointer pointer-events-none absolute top-1/2 -translate-y-1/2",
+            s.chevron,
+            s.chevronPos,
+            isSm ? "text-white/50" : "text-zinc-400",
+          ].join(" ")}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

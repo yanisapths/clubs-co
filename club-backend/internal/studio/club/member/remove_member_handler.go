@@ -1,6 +1,7 @@
 package member
 
 import (
+	"club-backend/internal/auth"
 	"club-backend/pkg/response"
 	"errors"
 	"strconv"
@@ -19,9 +20,9 @@ func NewRemoveClubMember(repo MemberRepository, logger *zap.Logger) *removeClubM
 }
 
 func (h *removeClubMemberHandler) Handler(c *gin.Context) {
-	ownerID := c.GetString("userID")
-	if ownerID == "" {
-		response.Unauthorized(c, "unauthorized")
+	claims, ok := c.MustGet("claims").(*auth.Claims)
+	if !ok {
+		response.Unauthorized(c, "invalid token claims")
 		return
 	}
 
@@ -37,7 +38,7 @@ func (h *removeClubMemberHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	if err := h.repo.RemoveClubMember(c.Request.Context(), ownerID, clubID, memberID); err != nil {
+	if err := h.repo.RemoveClubMember(c.Request.Context(), claims.UserID.String(), clubID, memberID); err != nil {
 		switch {
 		case errors.Is(err, ErrClubNotFound):
 			response.NotFound(c, "club not found")

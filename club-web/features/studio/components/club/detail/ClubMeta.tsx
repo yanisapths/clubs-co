@@ -101,7 +101,7 @@ export function ClubMeta({
             className="h-full w-full"
           />
         </div>
-        <div className="relative z-50">
+        <div className="relative z-10">
           <h2 className="text-lg sm:text-xl font-semibold text-white">
             {club.name}
           </h2>

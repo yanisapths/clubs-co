@@ -2,6 +2,7 @@
 package member
 
 import (
+	"club-backend/internal/auth"
 	"club-backend/pkg/response"
 	"errors"
 	"strconv"
@@ -20,12 +21,11 @@ func NewApproveMemberRequest(repo MemberRepository, logger *zap.Logger) *approve
 }
 
 func (h *approveMemberRequestHandler) Handler(c *gin.Context) {
-	ownerID := c.GetString("userID")
-	if ownerID == "" {
-		response.Unauthorized(c, "unauthorized")
+	claims, ok := c.MustGet("claims").(*auth.Claims)
+	if !ok {
+		response.Unauthorized(c, "invalid token claims")
 		return
 	}
-
 	clubID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		response.BadRequest(c, "invalid club id")
@@ -38,7 +38,7 @@ func (h *approveMemberRequestHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	if err := h.repo.ApproveMemberRequest(c.Request.Context(), ownerID, clubID, memberID); err != nil {
+	if err := h.repo.ApproveMemberRequest(c.Request.Context(), claims.UserID.String(), clubID, memberID); err != nil {
 		switch {
 		case errors.Is(err, ErrClubNotFound):
 			response.NotFound(c, "club not found")

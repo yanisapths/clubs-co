@@ -104,6 +104,8 @@ const ClubDetailPage = () => {
             members={members ?? []}
             isOwner={isOwner}
             onInvite={showInvite}
+            clubId={clubId}
+            onMemberInvited={() => query.refetch()}
           />
         ) : (
           <SettingTab club={club} username={user.username} />

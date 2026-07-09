@@ -2,6 +2,6 @@ package member
 
 
 type InviteClubMemberRequest struct {
-	RecipientID string `json:"recipient_id" validate:"required,uuid"`
-	RoleID      int64  `json:"role_id"      validate:"required"` // co-founder or member only
+	RecipientID string `json:"recipientId" validate:"required,uuid"`
+	RoleID      int64  `json:"roleId"      validate:"required"` // co-founder or member only
 }

@@ -2,6 +2,7 @@
 package member
 
 import (
+	"club-backend/internal/auth"
 	"club-backend/pkg/response"
 	"errors"
 	"strconv"
@@ -20,9 +21,9 @@ func NewCancelRequest(repo MemberRepository, logger *zap.Logger) *cancelRequestH
 }
 
 func (h *cancelRequestHandler) Handler(c *gin.Context) {
-	ownerID := c.GetString("userID")
-	if ownerID == "" {
-		response.Unauthorized(c, "unauthorized")
+	claims, ok := c.MustGet("claims").(*auth.Claims)
+	if !ok {
+		response.Unauthorized(c, "invalid token claims")
 		return
 	}
 
@@ -38,7 +39,7 @@ func (h *cancelRequestHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	if err := h.repo.CancelMemberRequest(c.Request.Context(), ownerID, clubID, memberID); err != nil {
+	if err := h.repo.CancelMemberRequest(c.Request.Context(), claims.UserID.String(), clubID, memberID); err != nil {
 		switch {
 		case errors.Is(err, ErrClubNotFound):
 			response.NotFound(c, "club not found")

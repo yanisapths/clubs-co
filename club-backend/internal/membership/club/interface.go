@@ -7,16 +7,11 @@ import (
 type GetClubListRepo interface {
 	GetClubList(ctx context.Context, userID *string) ([]Club, error)
 }
-
-// SearchRepo backs the unified GET /membership/search endpoint.
-// It searches across clubs, members, spaces, and categories independently —
-// each method applies its own ILIKE filter and returns [] rather than erroring
-// when nothing matches.
 type SearchRepo interface {
-	SearchClubs(ctx context.Context, userID *string, query string) ([]Club, error)
-	SearchMembers(ctx context.Context, query string) ([]MemberSearchResult, error)
-	SearchSpaces(ctx context.Context, query string) ([]SpaceSearchResult, error)
-	SearchCategories(ctx context.Context, query string) ([]ClubCategory, error)
+	SearchClubs(ctx context.Context, userID *string, query string, limit, offset int) ([]Club, error)
+	SearchMembers(ctx context.Context, query string, limit, offset int) ([]MemberSearchResult, error)
+	SearchSpaces(ctx context.Context, query string, limit, offset int) ([]SpaceSearchResult, error)
+	SearchCategories(ctx context.Context, query string, limit, offset int) ([]ClubCategory, error)
 }
 
 type GetClubCategoryRepo interface {

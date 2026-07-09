@@ -422,7 +422,7 @@ func (r *membershipRepository) GetClubByName(ctx context.Context, userID *string
 // SearchClubs matches clubs by name, description, category name, tag name,
 // or associated space name. An empty query returns all browsable clubs
 // (same behavior as GetClubList).
-func (r *membershipRepository) SearchClubs(ctx context.Context, userID *string, query string) ([]Club, error) {
+func (r *membershipRepository) SearchClubs(ctx context.Context, userID *string, query string, limit, offset int) ([]Club, error) {
 	sqlQuery := `
 		SELECT
 			c.id,
@@ -481,9 +481,9 @@ func (r *membershipRepository) SearchClubs(ctx context.Context, userID *string, 
 		  )
 		GROUP BY c.id, cg.name
 		ORDER BY c.created_at DESC
-		LIMIT 20`
+		LIMIT $3 OFFSET $4`
 
-	rows, err := r.db.QueryContext(ctx, sqlQuery, userID, query)
+	rows, err := r.db.QueryContext(ctx, sqlQuery, userID, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -531,9 +531,7 @@ func (r *membershipRepository) SearchClubs(ctx context.Context, userID *string, 
 	return clubs, rows.Err()
 }
 
-// SearchMembers matches active users by display name or username.
-// An empty query returns all active users (capped by LIMIT).
-func (r *membershipRepository) SearchMembers(ctx context.Context, query string) ([]MemberSearchResult, error) {
+func (r *membershipRepository) SearchMembers(ctx context.Context, query string, limit, offset int) ([]MemberSearchResult, error) {
 	sqlQuery := `
 		SELECT
 			u.id,
@@ -552,9 +550,9 @@ func (r *membershipRepository) SearchMembers(ctx context.Context, query string) 
 		  		OR u.username ILIKE '%' || $1 || '%'
 		  )
 		ORDER BY u.display_name ASC
-		LIMIT 20`
+		LIMIT $2 OFFSET $3`
 
-	rows, err := r.db.QueryContext(ctx, sqlQuery, query)
+	rows, err := r.db.QueryContext(ctx, sqlQuery, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -578,9 +576,7 @@ func (r *membershipRepository) SearchMembers(ctx context.Context, query string) 
 	return members, rows.Err()
 }
 
-// SearchSpaces matches location spaces by name, city, or country.
-// An empty query returns all spaces.
-func (r *membershipRepository) SearchSpaces(ctx context.Context, query string) ([]SpaceSearchResult, error) {
+func (r *membershipRepository) SearchSpaces(ctx context.Context, query string, limit, offset int) ([]SpaceSearchResult, error) {
 	sqlQuery := `
 		SELECT
 			s.id,
@@ -602,9 +598,9 @@ func (r *membershipRepository) SearchSpaces(ctx context.Context, query string) (
 		  		OR s.country ILIKE '%' || $1 || '%'
 		  )
 		ORDER BY s.name ASC
-		LIMIT 20`
+		LIMIT $2 OFFSET $3`
 
-	rows, err := r.db.QueryContext(ctx, sqlQuery, query)
+	rows, err := r.db.QueryContext(ctx, sqlQuery, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -629,15 +625,15 @@ func (r *membershipRepository) SearchSpaces(ctx context.Context, query string) (
 	return spaces, rows.Err()
 }
 
-// SearchCategories matches categories by name. An empty query returns all categories.
-func (r *membershipRepository) SearchCategories(ctx context.Context, query string) ([]ClubCategory, error) {
+func (r *membershipRepository) SearchCategories(ctx context.Context, query string, limit, offset int) ([]ClubCategory, error) {
 	sqlQuery := `
 		SELECT id, name
 		FROM public.category
 		WHERE ($1 = '' OR name ILIKE '%' || $1 || '%')
-		ORDER BY name ASC`
+		ORDER BY name ASC
+		LIMIT $2 OFFSET $3`
 
-	rows, err := r.db.QueryContext(ctx, sqlQuery, query)
+	rows, err := r.db.QueryContext(ctx, sqlQuery, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -655,6 +651,8 @@ func (r *membershipRepository) SearchCategories(ctx context.Context, query strin
 	return categories, rows.Err()
 }
 
+const maxCategoryListSize = 100
+
 func (r *membershipRepository) GetClubCategoryList(ctx context.Context) ([]ClubCategory, error) {
-	return r.SearchCategories(ctx, "")
+	return r.SearchCategories(ctx, "", maxCategoryListSize, 0)
 }

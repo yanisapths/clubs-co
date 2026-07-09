@@ -2,27 +2,31 @@
 package member
 
 import (
+	"club-backend/internal/auth"
 	"club-backend/pkg/response"
 	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type inviteClubMemberHandler struct {
 	repo MemberRepository
+	logger *zap.Logger
 }
 
-func NewInviteClubMember(repo MemberRepository) *inviteClubMemberHandler {
-	return &inviteClubMemberHandler{repo: repo}
+func NewInviteClubMember(repo MemberRepository, logger *zap.Logger) *inviteClubMemberHandler {
+	return &inviteClubMemberHandler{repo: repo,logger:logger}
 }
 
 func (h *inviteClubMemberHandler) Handler(c *gin.Context) {
-	inviterID := c.GetString("userID")
-	if inviterID == "" {
-		response.Unauthorized(c, "unauthorized")
+	claims, ok := c.MustGet("claims").(*auth.Claims)
+	if !ok {
+		response.Unauthorized(c, "invalid token claims")
 		return
 	}
+
 
 	clubID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -33,10 +37,15 @@ func (h *inviteClubMemberHandler) Handler(c *gin.Context) {
 	var req InviteClubMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, "invalid request body")
+		h.logger.Error("failed : invalid request body",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
 		return
 	}
 
-	if err := h.repo.InviteClubMember(c.Request.Context(), inviterID, clubID, req); err != nil {
+	if err := h.repo.InviteClubMember(c.Request.Context(), claims.UserID.String(), clubID, req); err != nil {
 		switch {
 		case errors.Is(err, ErrClubNotFound):
 			response.NotFound(c, "club not found")
@@ -59,6 +68,11 @@ func (h *inviteClubMemberHandler) Handler(c *gin.Context) {
 		default:
 			response.InternalServerError(c, "internal server error")
 		}
+		h.logger.Error("failed : InviteClubMember",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
 		return
 	}
 

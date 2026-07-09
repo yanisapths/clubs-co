@@ -67,17 +67,15 @@ export interface SearchResponse {
   categories: SearchCategory[];
 }
 
-/**
- * Global search across clubs, members, spaces, and categories.
- * No auth required — pass an AbortSignal to cancel in-flight requests
- * (e.g. when the user keeps typing).
- */
 export async function searchMembership(
   q: string,
   signal?: AbortSignal,
+  options?: { limit?: number; offset?: number },
 ): Promise<SearchResponse> {
   const query = new URLSearchParams();
   if (q) query.set("q", q);
+  if (options?.limit != null) query.set("limit", String(options.limit));
+  if (options?.offset != null) query.set("offset", String(options.offset));
 
   const res = await fetch(`${membershipApi}/search?${query.toString()}`, {
     signal,

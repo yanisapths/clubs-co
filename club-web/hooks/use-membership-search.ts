@@ -15,12 +15,12 @@ const EMPTY_RESULT: SearchResponse = {
 };
 
 interface UseMembershipSearchOptions {
-  /** Debounce delay in ms before firing the request. Default 300. */
   debounceMs?: number;
   /** Skip fetching until the trimmed query reaches this length. Default 0 (always fetch, browsing defaults on empty query). */
   minLength?: number;
-  /** Set false to pause fetching entirely (e.g. while a modal is closed). Default true. */
   enabled?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 interface UseMembershipSearchResult {
@@ -33,7 +33,13 @@ export function useMembershipSearch(
   query: string,
   options: UseMembershipSearchOptions = {},
 ): UseMembershipSearchResult {
-  const { debounceMs = 300, minLength = 0, enabled = true } = options;
+  const {
+    debounceMs = 300,
+    minLength = 0,
+    enabled = true,
+    limit,
+    offset,
+  } = options;
 
   const [data, setData] = useState<SearchResponse>(EMPTY_RESULT);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -48,8 +54,6 @@ export function useMembershipSearch(
 
     const trimmed: string = query.trim();
 
-    // Everything that touches state lives inside this callback so the
-    // effect body itself never calls setState synchronously.
     const timeout: ReturnType<typeof setTimeout> = setTimeout((): void => {
       if (trimmed.length < minLength) {
         setData(EMPTY_RESULT);
@@ -65,7 +69,7 @@ export function useMembershipSearch(
       setIsLoading(true);
       setError(null);
 
-      searchMembership(trimmed, controller.signal)
+      searchMembership(trimmed, controller.signal, { limit, offset })
         .then((result: SearchResponse): void => {
           setData(result);
           setIsLoading(false);

@@ -11,6 +11,9 @@ import {
 import { useState } from "react";
 import { ClubMember, MemberAvatar } from "./MemberAvatar";
 import { NOW_SECONDS, SEVEN_DAYS } from "../constants";
+import { InviteMemberModal } from "@/features/shared/components/InviteMemberModal";
+import { SearchMember } from "@/features/shared/api/api";
+import { MemberRoleId } from "@/features/studio/api/member";
 
 const ROW_GRID_COLS =
   "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_220px_160px_88px]";
@@ -22,21 +25,26 @@ function getStatusLabel(member: ClubMember) {
 }
 
 export function MembersTab({
+  clubId,
   members,
   isOwner,
   onInvite,
   onAcceptRequest,
   onCancelRequest,
   onRemoveMember,
+  onMemberInvited,
 }: {
+  clubId: number | string;
   members: ClubMember[];
   isOwner: boolean;
   onInvite?: () => void;
   onAcceptRequest?: (member: ClubMember) => void;
   onCancelRequest?: (member: ClubMember) => void;
   onRemoveMember?: (member: ClubMember) => void;
+  onMemberInvited?: (member: SearchMember, roleId: MemberRoleId) => void;
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
 
   const toggleMenu = (id: string) =>
     setOpenMenuId((prev) => (prev === id ? null : id));
@@ -50,6 +58,11 @@ export function MembersTab({
     (m) => m.isPending && !m.isInvited,
   ).length;
   const invitedCount = members.filter((m) => m.isInvited).length;
+
+  const handleInviteClick = () => {
+    onInvite?.();
+    setIsInviteOpen(true);
+  };
 
   return (
     <div className="px-3 sm:px-6 py-4 sm:py-6">
@@ -77,7 +90,7 @@ export function MembersTab({
 
         {isOwner && (
           <Button
-            onClick={onInvite}
+            onClick={handleInviteClick}
             className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 w-full sm:w-auto justify-center"
           >
             <UserPlus className="h-4 w-4" />+ Invite member
@@ -140,7 +153,7 @@ export function MembersTab({
                   {isOwner && (
                     <button
                       onClick={() => toggleMenu(member.id)}
-                      className="md:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
+                      className="cursor-pointer md:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
@@ -190,7 +203,7 @@ export function MembersTab({
                             onAcceptRequest?.(member);
                             closeMenu();
                           }}
-                          className="flex w-full items-center gap-2 px-4 py-3 text-sm text-emerald-400 hover:bg-white/5 transition-colors"
+                          className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-emerald-400 hover:bg-white/5 transition-colors"
                         >
                           <Check className="h-4 w-4" />
                           Accept request
@@ -200,7 +213,7 @@ export function MembersTab({
                             onCancelRequest?.(member);
                             closeMenu();
                           }}
-                          className="flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                          className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
                         >
                           <X className="h-4 w-4" />
                           Cancel request
@@ -214,7 +227,7 @@ export function MembersTab({
                           onCancelRequest?.(member);
                           closeMenu();
                         }}
-                        className="flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                        className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
                       >
                         <X className="h-4 w-4" />
                         Cancel invite
@@ -251,6 +264,13 @@ export function MembersTab({
           );
         })}
       </ul>
+      <InviteMemberModal
+        isOpen={isInviteOpen}
+        onClose={() => setIsInviteOpen(false)}
+        clubId={clubId}
+        existingMembers={members}
+        onInvited={onMemberInvited}
+      />
     </div>
   );
 }
