@@ -13,6 +13,11 @@ import {
   ClubMeta,
 } from "@/features/studio/components/club/detail/ClubMeta";
 import { ClubDetailsTab } from "@/features/studio/components/club/detail/DetailTab";
+import {
+  useCancelRequest,
+  useApproveMemberRequest,
+  useRemoveMember,
+} from "@/features/studio/hooks/use-member";
 
 const TABS = ["General", "Members", "Settings"] as const;
 type Tab = (typeof TABS)[number];
@@ -22,7 +27,6 @@ const ClubDetailPage = () => {
   const router = useRouter();
   const params = useParams<{ username: string; "club-slug": string }>();
   const clubId = params["club-slug"];
-
   const { club, members, isLoading, query } = useGetClubById(Number(clubId));
   const {
     visible: inviteOpen,

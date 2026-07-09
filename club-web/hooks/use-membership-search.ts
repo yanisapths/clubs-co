@@ -88,7 +88,6 @@ export function useMembershipSearch(
     };
   }, [query, debounceMs, minLength, enabled]);
 
-  // Also abort any in-flight request on unmount.
   useEffect((): (() => void) => {
     return (): void => {
       abortRef.current?.abort();

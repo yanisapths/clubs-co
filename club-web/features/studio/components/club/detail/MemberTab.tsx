@@ -1,5 +1,5 @@
 import { formatUnixDate } from "@/lib/utils";
-import { Button } from "@heroui/react";
+import { Button, toast } from "@heroui/react";
 import {
   UserPlus,
   MoreHorizontal,
@@ -14,6 +14,11 @@ import { NOW_SECONDS, SEVEN_DAYS } from "../constants";
 import { InviteMemberModal } from "@/features/shared/components/InviteMemberModal";
 import { SearchMember } from "@/features/shared/api/api";
 import { MemberRoleId } from "@/features/studio/api/member";
+import {
+  useApproveMemberRequest,
+  useCancelRequest,
+  useRemoveMember,
+} from "@/features/studio/hooks/use-member";
 
 const ROW_GRID_COLS =
   "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_220px_160px_88px]";
@@ -29,18 +34,12 @@ export function MembersTab({
   members,
   isOwner,
   onInvite,
-  onAcceptRequest,
-  onCancelRequest,
-  onRemoveMember,
   onMemberInvited,
 }: {
   clubId: number | string;
   members: ClubMember[];
   isOwner: boolean;
   onInvite?: () => void;
-  onAcceptRequest?: (member: ClubMember) => void;
-  onCancelRequest?: (member: ClubMember) => void;
-  onRemoveMember?: (member: ClubMember) => void;
   onMemberInvited?: (member: SearchMember, roleId: MemberRoleId) => void;
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -53,6 +52,9 @@ export function MembersTab({
 
   const isPending = (m: ClubMember) => m.isPending || m.isInvited;
   const isJoinRequest = (m: ClubMember) => m.isPending && !m.isInvited;
+  const cancelRequest = useCancelRequest(clubId as number);
+  const approveRequest = useApproveMemberRequest(clubId as number);
+  const removeMember = useRemoveMember(clubId as number);
 
   const pendingRequestsCount = members.filter(
     (m) => m.isPending && !m.isInvited,
@@ -98,7 +100,6 @@ export function MembersTab({
         )}
       </div>
 
-      {/* Desktop/tablet header row */}
       <div
         className={`hidden md:grid ${ROW_GRID_COLS} items-center border-b border-white/10 pb-2 text-xs uppercase tracking-wider text-white/40`}
       >
@@ -108,7 +109,6 @@ export function MembersTab({
         <span />
       </div>
 
-      {/* Mobile-only lightweight header */}
       <div className="md:hidden flex items-center justify-between border-b border-white/10 pb-2 text-xs uppercase tracking-wider text-white/40">
         <span>Members</span>
         <span>{members.length}</span>
@@ -200,9 +200,29 @@ export function MembersTab({
                       <>
                         <button
                           onClick={() => {
-                            onAcceptRequest?.(member);
+                            approveRequest.mutate(
+                              {
+                                clubId,
+                                memberId: member.id,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toast.success(
+                                    "Request has been approved. New member added!",
+                                  );
+                                },
+                                onError: (error) => {
+                                  toast.danger(
+                                    error instanceof Error
+                                      ? error.message
+                                      : "Failed to approve request.",
+                                  );
+                                },
+                              },
+                            );
                             closeMenu();
                           }}
+                          disabled={approveRequest.isPending}
                           className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-emerald-400 hover:bg-white/5 transition-colors"
                         >
                           <Check className="h-4 w-4" />
@@ -210,9 +230,27 @@ export function MembersTab({
                         </button>
                         <button
                           onClick={() => {
-                            onCancelRequest?.(member);
+                            cancelRequest.mutate(
+                              {
+                                clubId,
+                                memberId: member.id,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toast.success("Request has been cancelled.");
+                                },
+                                onError: (error) => {
+                                  toast.danger(
+                                    error instanceof Error
+                                      ? error.message
+                                      : "Failed to cancel request.",
+                                  );
+                                },
+                              },
+                            );
                             closeMenu();
                           }}
+                          disabled={cancelRequest.isPending}
                           className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
                         >
                           <X className="h-4 w-4" />
@@ -224,9 +262,27 @@ export function MembersTab({
                     {member.isInvited && (
                       <button
                         onClick={() => {
-                          onCancelRequest?.(member);
+                          cancelRequest.mutate(
+                            {
+                              clubId,
+                              memberId: member.id,
+                            },
+                            {
+                              onSuccess: () => {
+                                toast.success("Invitation has been cancelled.");
+                              },
+                              onError: (error) => {
+                                toast.danger(
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Failed to cancel invitation.",
+                                );
+                              },
+                            },
+                          );
                           closeMenu();
                         }}
+                        disabled={cancelRequest.isPending}
                         className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
                       >
                         <X className="h-4 w-4" />
@@ -246,10 +302,27 @@ export function MembersTab({
                         </button>
                         <button
                           onClick={() => {
-                            onRemoveMember?.(member);
+                            removeMember.mutate(
+                              {
+                                clubId,
+                                memberId: member.id,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toast.success("Member has been removed.");
+                                },
+                                onError: (error) => {
+                                  toast.danger(
+                                    error instanceof Error
+                                      ? error.message
+                                      : "Failed to remove member.",
+                                  );
+                                },
+                              },
+                            );
                             closeMenu();
                           }}
-                          disabled={isOwner}
+                          disabled={isOwner || removeMember.isPending}
                           className="disabled:opacity-50 flex w-full items-center gap-2 px-4 py-3 text-sm disabled:text-gray-600 text-white/70 !disabled:hover:bg-white/5 transition-colors"
                         >
                           <UserX className="h-4 w-4" />

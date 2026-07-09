@@ -193,7 +193,7 @@ export function InviteMemberModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-16"
+      className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-60"
       style={{ background: "rgba(0,0,0,0.78)", backdropFilter: "blur(8px)" }}
       onClick={handleBackdropClick}
     >

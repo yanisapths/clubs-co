@@ -1,3 +1,5 @@
+import { apiFetch } from "@/lib/api-types";
+
 const clubMemberApi = (clubId: number | string): string =>
   `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/studio/club/${clubId}/member`;
 
@@ -53,3 +55,33 @@ export async function inviteClubMember(
     throw new InviteMemberError(message, res.status);
   }
 }
+
+export const cancelRequest = (
+  token: string,
+  clubId: number | string,
+  memberId: string,
+) =>
+  apiFetch<null>(`${clubMemberApi(clubId)}/${memberId}/cancel-request`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const removeClubMember = (
+  token: string,
+  clubId: number | string,
+  memberId: string,
+) =>
+  apiFetch<null>(`${clubMemberApi(clubId)}/${memberId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const approveMemberRequest = (
+  token: string,
+  clubId: number | string,
+  memberId: string,
+) =>
+  apiFetch<null>(`${clubMemberApi(clubId)}/${memberId}/approve-request`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+  });

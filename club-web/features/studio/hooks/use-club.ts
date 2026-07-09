@@ -14,9 +14,9 @@ import {
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { getStoredToken } from "@/lib/storage";
 
-const CLUB_KEYS = {
+export const CLUB_KEYS = {
   all: ["clubs"] as const,
-  detail: (id: number) => ["clubs", id] as const,
+  detail: (id: number | string) => ["clubs", Number(id)] as const,
 };
 
 export const useGetOwnerClubs = () => {

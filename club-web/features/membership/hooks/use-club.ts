@@ -8,7 +8,6 @@ import {
   MembershipClub,
 } from "../api/club";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
 
 const CLUB_KEYS = {
   all: ["membership-clubs"] as const,
