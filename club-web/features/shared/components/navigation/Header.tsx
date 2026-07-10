@@ -19,7 +19,7 @@ export const Header = () => {
               <UserDropdown />
             ) : (
               <Link href="/login">
-                <Button className="bg-white text-black py-5.5 px-6 transition-colors duration-200 hover:border hover:border-white/20 hover:text-white hover:bg-white/10">
+                <Button className="bg-white text-black py-5 px-6 transition-colors duration-200 border hover:border-white/20 hover:text-white hover:bg-white/10">
                   Login
                 </Button>
               </Link>
