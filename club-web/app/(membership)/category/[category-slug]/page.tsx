@@ -24,8 +24,6 @@ export default function CategoryPage() {
   const { clubs, isLoading, hasMore, error, sentinelRef } =
     useInfiniteClubsByCategory(slug, { pageSize: 12 });
 
-  const otherCategories = categories.filter((c) => c.slug !== slug);
-
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center bg-black text-white">
@@ -38,14 +36,29 @@ export default function CategoryPage() {
 
   return (
     <div className="flex flex-col items-center justify-center bg-black text-white">
-      <main className="flex flex-col h-full w-screen px-4 md:px-6 lg:px-12 pb-10 pt-24">
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">
-            {category?.category ?? "Category"}
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-white/90">
-            {category?.caption}
-          </p>
+      <main className="flex flex-col gap-12 h-full w-screen px-4 md:px-6 lg:px-12 pb-10 pt-24">
+        <div className="flex flex-col gap-6">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-white sm:text-5xl">
+              {category?.category ?? "Category"}
+            </h1>
+            <p className="mx-auto mt-3 text-xl text-white/90">
+              {category?.caption}
+            </p>
+          </div>
+
+          <h2 className="text-xl font-semibold text-white">
+            Categories to explore
+          </h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {categories.map((c) => (
+              <CategoryCard
+                key={c.id}
+                {...c}
+                onClick={() => router.push(`/category/${c.slug}`)}
+              />
+            ))}
+          </div>
         </div>
 
         {error && (
@@ -87,20 +100,6 @@ export default function CategoryPage() {
             <div className="text-white/60">No clubs in this category.</div>
           </div>
         )}
-        <div className="mt-16">
-          <h2 className="mb-5 text-xl font-semibold text-white">
-            Other categories to explore
-          </h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {otherCategories.map((c) => (
-              <CategoryCard
-                key={c.id}
-                {...c}
-                onClick={() => router.push(`/category/${c.slug}`)}
-              />
-            ))}
-          </div>
-        </div>
       </main>
     </div>
   );

@@ -38,14 +38,14 @@ export default function AllClubListPage() {
         <div className="flex flex-col gap-6">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-white sm:text-5xl">Clubs</h1>
-            <p className="mx-auto mt-3 text-white/90">
+            <p className="mx-auto mt-3 text-xl text-white/90">
               Clubspace is the place to grow communities and share passion in
               spaces where people connect.
             </p>
           </div>
 
           <h2 className="text-xl font-semibold text-white">
-            Explore by category
+            Categories to explore
           </h2>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {categories.map((c) => (
