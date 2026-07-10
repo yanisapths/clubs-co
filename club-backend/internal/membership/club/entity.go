@@ -31,10 +31,11 @@ type Club struct {
 	JoinedAt 	   *time.Time 		 `db:"joined_at"`
 	MemberRole 	   *string           `db:"member_role"`
 	IsPending      bool      		 `db:"is_pending"`
+	Invite 		   *Invite       	 `db:"invite"`
 }
 
 type ClubMember struct {
-	MemberDisplayName  *string 		`db:"display_name"`
+	MemberDisplayName  *string  `db:"display_name"`
 	MemberUsername  string 		`db:"username"`
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`
@@ -60,4 +61,12 @@ type SpaceSearchResult struct {
 	City      *string `db:"city"`
 	Country   *string `db:"country"`
 	ClubCount int64   `db:"club_count"`
+}
+
+type Invite struct {
+	InviterUsername    *string    `db:"inviter_username"    json:"inviter_username"`
+	InviterDisplayName *string    `db:"inviter_display_name" json:"inviter_display_name"`
+	InviterImageURL    *string    `db:"inviter_image_url"    json:"inviter_image_url"`
+	InvitedAt          *time.Time `db:"invited_at"           json:"invited_at"`
+	InvitedAs          *string    `db:"invited_as"           json:"invited_as"`
 }

@@ -311,6 +311,7 @@ func (r *membershipRepository) GetClubMemberByClubID(
 
 	return members, nil
 }
+
 func (r *membershipRepository) GetClubByName(ctx context.Context, userID *string, clubSlug string) (*Club, error) {
 	query := `
 		SELECT
@@ -388,7 +389,25 @@ func (r *membershipRepository) GetClubByName(ctx context.Context, userID *string
 				WHERE me.club_id = c.id
 				AND me.user_id = $1::uuid
 				LIMIT 1
-			) AS member_role
+			) AS member_role,
+			(
+			SELECT JSON_BUILD_OBJECT(
+				'inviter_username',     iu.username,
+				'inviter_display_name', iu.display_name,
+				'inviter_image_url',    iu.image_url,
+				'invited_at',           cmi.created_at,
+				'invited_as',           r.name
+			)
+			FROM public.club_member_invite cmi
+			JOIN public.club_member_roles r
+				ON r.id = cmi.recipient_role_id
+			LEFT JOIN public.users iu
+				ON iu.id = cmi.inviter_id
+			WHERE cmi.club_id = c.id
+			AND $1::uuid IS NOT NULL
+			AND cmi.recipient_id = $1::uuid
+			LIMIT 1
+		) AS invite_info
 		FROM public.club c
 		LEFT JOIN public.category cg
 			ON cg.id = c.category_id
@@ -432,6 +451,8 @@ func (r *membershipRepository) GetClubByName(ctx context.Context, userID *string
 		galleryRaw     []byte
 	)
 	var joinedAt sql.NullTime
+	var inviteRaw sql.NullString
+
 	if joinedAt.Valid {
 		club.JoinedAt = &joinedAt.Time
 	}
@@ -465,6 +486,7 @@ func (r *membershipRepository) GetClubByName(ctx context.Context, userID *string
 		&club.IsOwner,
 		&club.JoinedAt,
 		&club.MemberRole,
+		&inviteRaw,
 	)
 	if err != nil {
 		return nil, err
@@ -483,6 +505,13 @@ func (r *membershipRepository) GetClubByName(ctx context.Context, userID *string
 		return nil, fmt.Errorf("unmarshal gallery_urls: %w", err)
 	}
 
+	if inviteRaw.Valid {
+		var inv Invite
+		if err := json.Unmarshal([]byte(inviteRaw.String), &inv); err != nil {
+			return nil, fmt.Errorf("unmarshal invite_info: %w", err)
+		}
+		club.Invite = &inv
+	}
 	return &club, nil
 }
 

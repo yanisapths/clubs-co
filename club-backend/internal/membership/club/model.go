@@ -66,6 +66,15 @@ type ClubInfoResponse struct {
 	IsOwner        bool      		   `json:"isOwner"`
 	JoinedAt       *int64         	   `json:"joinedAt"`
 	MemberRole	   *string  		   `json:"memberRole"`
+	Invite 		   *InviteInfo         `json:"invite"`
+}
+type InviteInfo struct {
+	InviterUsername    *string    `json:"inviterUsername"`
+	InviterDisplayName *string    `json:"inviterDisplayName"`
+	InviterImageURL    *string    `json:"inviterImageUrl"`
+	InvitedAt          *int64 	  `json:"invitedAt"`
+	InvitedAs          *string    `json:"invitedAs"`
+	IsInvited		   bool       `json:"isInvited"`
 }
 
 type ClubMemberResponse struct {

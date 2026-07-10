@@ -71,6 +71,28 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 		bannerURL = *clubInfo.BannerURL
 	}
 
+	var invite *InviteInfo
+	if clubInfo.Invite != nil {
+		inv := clubInfo.Invite
+
+		var invitedAt *int64
+		if inv.InvitedAt != nil {
+			ts := inv.InvitedAt.Unix()
+			invitedAt = &ts
+		}
+
+		isInvited := inv.InvitedAt != nil
+
+		invite = &InviteInfo{
+			InviterImageURL:    inv.InviterImageURL,
+			InviterDisplayName: inv.InviterDisplayName,
+			InviterUsername:    inv.InviterUsername,
+			InvitedAt:          invitedAt,
+			InvitedAs:          inv.InvitedAs,
+			IsInvited:          isInvited,
+		}
+	}
+
 	resp := GetClubByIDResponse{
 		ClubInfo: ClubInfoResponse{
 			ID:             clubInfo.ID,
@@ -101,10 +123,10 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 			IsOwner: 		clubInfo.IsOwner,
 			JoinedAt:	    joinedAt,
 			MemberRole:     clubInfo.MemberRole,
+			Invite: invite,
 		},
 	
 	}
-
 	
 	response.OK(c, resp)
 }

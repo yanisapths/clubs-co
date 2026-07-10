@@ -303,7 +303,18 @@ curl -X GET http://localhost:9090/api/v1/membership/club/:club_name \
       "tags": null,
       "createdAt": 1781916575,
       "isMember": false,
-      "memberCount": 1
+      "memberCount": 1,
+      "isOwner": false,
+      "joinedAt": null,
+      "memberRole": null,
+      "invite": {
+        "inviterUsername": "janedoe",
+        "inviterDisplayName": "Kritina Matini",
+        "inviterImageUrl": "https://xxxxxx/user/temp/temp_1782527718891_55x1spu4z1j.jpg",
+        "invitedAt": 1783653159,
+        "invitedAs": "CoFounder",
+        "isInvited": true
+      }
     }
   }
 }
