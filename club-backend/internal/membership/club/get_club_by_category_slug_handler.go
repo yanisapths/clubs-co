@@ -53,8 +53,9 @@ func (h *getClubListByCategorySlug) Handler(c *gin.Context) {
 	
 	categoryResp := ClubCategory{
 		ID:        category.ID,
-		Name:        category.Name,
-		Slug:        category.Slug,
+		Name:      category.Name,
+		Slug:      category.Slug,
+		Caption:   category.Caption,
 	}
 
 	clubs, totalRecords, err := h.repo.GetClubListByByCategorySlug(c.Request.Context(), userID, categorySlug, limit, offset)

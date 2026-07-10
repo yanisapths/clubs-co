@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type MembershipClub } from "../api/club";
-import { getClubByCategorySlug, getClubList } from "./use-club";
+import { getClubListPaginated, type MembershipClub } from "../api/club";
+import { mapPaginatedClubsResponse, PaginatedClubsResponse } from "./use-club";
+import { getClubByCategorySlug } from "./use-infinite-clubs-by-category";
 
 interface UseInfiniteClubsOptions {
   pageSize?: number;
@@ -106,4 +107,21 @@ export function useInfiniteClubs(
   useEffect(() => () => observerRef.current?.disconnect(), []);
 
   return { clubs, isLoading, isLoadingMore, hasMore, error, sentinelRef };
+}
+
+export interface GetClubsParams {
+  cursor?: number;
+  limit?: number;
+}
+
+export async function getClubList({
+  cursor = 0,
+  limit = 12,
+}: GetClubsParams): Promise<PaginatedClubsResponse> {
+  const response = await getClubListPaginated({
+    limit,
+    offset: cursor,
+  });
+
+  return mapPaginatedClubsResponse(response.data);
 }

@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "@/design-system/components/icons/ArrowRight";
 import { CategoryCarousel } from "@/features/membership/components/homepage/CategoryCarousel";
+import { ClubByCategoryGroup } from "@/features/membership/components/homepage/ClubByCategoryGroup";
 import { ClubCard } from "@/features/membership/components/homepage/ClubCard";
 import { ClubsCarousel } from "@/features/membership/components/homepage/ClubCarousel";
 import { useGetMembershipClubs } from "@/features/membership/hooks/use-club";
@@ -51,7 +52,7 @@ export default function Home() {
             {/* Clubs */}
             <div className="flex flex-col gap-6">
               <div>
-                <p className="text-2xl">Explore clubs</p>
+                <p className="text-3xl">Explore clubs</p>
                 <p className="text-base text-white/60 mt-1">
                   Clubspace is the place to grow communities and share passion
                   in spaces where people connect.
@@ -85,6 +86,9 @@ export default function Home() {
                 </button>
               </div>
             </div>
+
+            {/* Clubs by Categories */}
+            <ClubByCategoryGroup />
           </div>
         </div>
       </main>

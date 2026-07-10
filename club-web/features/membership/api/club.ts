@@ -147,6 +147,7 @@ export interface Pagination {
 
 export interface ClubListByCategorySlugResponse {
   clubs: MembershipClub[];
+  category: ClubCategory;
   pagination: Pagination;
 }
 
@@ -155,6 +156,7 @@ export interface GetClubByCategorySlugParams {
   limit?: number;
   offset?: number;
 }
+
 export const getClubListByCategorySlug = ({
   categorySlug,
   limit = 12,

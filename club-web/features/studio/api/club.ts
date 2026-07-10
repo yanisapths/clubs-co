@@ -10,6 +10,8 @@ export interface Tag {
 export interface ClubCategory {
   id: number;
   name: string;
+  slug?: string;
+  caption?: string;
 }
 
 export interface Space {

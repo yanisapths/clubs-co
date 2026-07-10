@@ -821,7 +821,8 @@ func (r *membershipRepository) GetCategoryBySlug(
 		SELECT
 			id,
 			name,
-			slug
+			slug,
+			caption
 		FROM public.category
 		WHERE LOWER(slug) = LOWER($1)
 		LIMIT 1
@@ -837,6 +838,7 @@ func (r *membershipRepository) GetCategoryBySlug(
 		&category.ID,
 		&category.Name,
 		&category.Slug,
+		&category.Caption,
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {

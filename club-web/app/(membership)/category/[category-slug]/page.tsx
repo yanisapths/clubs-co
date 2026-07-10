@@ -1,4 +1,3 @@
-//club-web/app/(membership)/category/[category-slug]/page.tsx
 "use client";
 
 import { useMemo } from "react";

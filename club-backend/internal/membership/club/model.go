@@ -10,6 +10,7 @@ type ClubCategory struct {
 	ID   int 	 	`json:"id"`
 	Name string     `json:"name"`
 	Slug string     `json:"slug"`
+	Caption string     `json:"caption"`
 }
 
 type Space struct {

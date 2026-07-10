@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getStoredToken } from "@/lib/storage";
 import {
   getClubListByCategorySlug,
@@ -11,6 +12,7 @@ import {
   MembershipClub,
 } from "../api/club";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ClubCategory } from "@/features/studio/api/club";
 
 export const CLUB_KEYS = {
   all: ["membership-clubs"] as const,
@@ -109,60 +111,41 @@ export const useGetClubMemberListByName = (clubName: string) => {
   };
 };
 
-export interface GetClubsByCategoryParams {
-  categorySlug: string;
-  cursor?: number;
-  limit?: number;
-}
-
 export interface PaginatedClubsResponse {
   clubs: MembershipClub[];
+  category?: ClubCategory;
   nextCursor: number | null;
   hasMore: boolean;
   total: number;
 }
 
-export async function getClubByCategorySlug({
-  categorySlug,
-  cursor = 0,
-  limit = 12,
-}: GetClubsByCategoryParams): Promise<PaginatedClubsResponse> {
-  const response = await getClubListByCategorySlug({
-    categorySlug,
-    limit,
-    offset: cursor,
-  });
-
-  const data = response.data;
-
+export function mapPaginatedClubsResponse(data: any): PaginatedClubsResponse {
   return {
     clubs: data.clubs,
+    category: data.category,
     nextCursor: data.pagination.next,
     hasMore: data.pagination.hasMore,
     total: data.pagination.totalRecords,
   };
 }
 
-export interface GetClubsParams {
-  cursor?: number;
-  limit?: number;
-}
-
-export async function getClubList({
-  cursor = 0,
-  limit = 12,
-}: GetClubsParams): Promise<PaginatedClubsResponse> {
-  const response = await getClubListPaginated({
-    limit,
-    offset: cursor,
+export const useGetClubsByCategory = (categorySlug: string, limit = 12) => {
+  const query = useQuery({
+    queryKey: ["clubs-by-category", categorySlug, limit],
+    queryFn: async () => {
+      const response = await getClubListByCategorySlug({
+        categorySlug,
+        limit,
+      });
+      return response.data;
+    },
+    enabled: !!categorySlug,
   });
 
-  const data = response.data;
-
   return {
-    clubs: data.clubs,
-    nextCursor: data.pagination.next,
-    hasMore: data.pagination.hasMore,
-    total: data.pagination.totalRecords,
+    query,
+    clubs: query.data?.clubs ?? [],
+    category: query.data?.category,
+    isLoading: query.isLoading,
   };
-}
+};
