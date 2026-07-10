@@ -137,6 +137,10 @@ func main() {
 		"/club",
 		membershipclub.NewGetClubList(memberRepo, logger).Handler,
 	)
+	mbr.GET(
+		"/club/list",
+		membershipclub.NewGetClubListPaginated(memberRepo, logger).Handler,
+	)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo).Handler)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo).Handler)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).PATCH("/club/:id/invite/response",   membershipclub.NewInvitationResponse(memberRepo).Handler)

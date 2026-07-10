@@ -171,3 +171,24 @@ export const getClubListByCategorySlug = ({
         : undefined,
     },
   );
+
+export interface GetClubListPaginatedParams {
+  limit?: number;
+  offset?: number;
+}
+
+export const getClubListPaginated = ({
+  limit = 12,
+  offset = 0,
+}: GetClubListPaginatedParams = {}) =>
+  apiFetch<ClubListByCategorySlugResponse>(
+    `${baseApi}/list?limit=${limit}&offset=${offset}`,
+    {
+      method: "GET",
+      headers: getStoredToken()
+        ? {
+            Authorization: `Bearer ${getStoredToken()}`,
+          }
+        : undefined,
+    },
+  );

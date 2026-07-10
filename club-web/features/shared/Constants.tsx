@@ -5,11 +5,49 @@ import {
   IconDeviceGamepad2,
   IconSchool,
   IconLayoutGrid,
+  ReactNode,
 } from "@tabler/icons-react";
 import { CircuitBoardIcon, Globe } from "lucide-react";
 import { Category } from "../membership/components/homepage/CategoryCard";
 import { SiInstagram, SiFacebook, SiX } from "@icons-pack/react-simple-icons";
 import { SocialPlatform } from "../studio/api/common";
+
+export const CATEGORY_META: Record<
+  string,
+  {
+    icon: ReactNode;
+    iconClass: string;
+  }
+> = {
+  Sports: {
+    icon: <IconBallFootball size={18} />,
+    iconClass: "bg-emerald-500/15 text-emerald-400",
+  },
+  "Art & Design": {
+    icon: <IconPalette size={18} />,
+    iconClass: "bg-purple-500/15 text-purple-400",
+  },
+  "Culture & Lifestyle": {
+    icon: <IconBooks size={18} />,
+    iconClass: "bg-orange-500/15 text-orange-400",
+  },
+  "e-Sport & Gaming": {
+    icon: <IconDeviceGamepad2 size={18} />,
+    iconClass: "bg-blue-500/15 text-blue-400",
+  },
+  Education: {
+    icon: <IconSchool size={18} />,
+    iconClass: "bg-yellow-500/15 text-yellow-400",
+  },
+  Technology: {
+    icon: <CircuitBoardIcon size={18} />,
+    iconClass: "bg-cyan-500/15 text-cyan-400",
+  },
+  Other: {
+    icon: <IconLayoutGrid size={18} />,
+    iconClass: "bg-white/10 text-white/50",
+  },
+};
 
 export const categories: Category[] = [
   {

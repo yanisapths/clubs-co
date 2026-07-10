@@ -5,10 +5,11 @@ import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { HeartCrackIcon, Loader2 } from "lucide-react";
 import { ClubCard } from "@/features/membership/components/homepage/ClubCard";
-import { useInfiniteClubs } from "@/features/membership/hooks/use-infinite-clubs";
+import { useInfiniteClubsByCategory } from "@/features/membership/hooks/use-infinite-clubs-by-category";
 import { categories } from "@/features/shared/constants";
 import { Spinner } from "@heroui/react";
 import { toClubSlug } from "@/lib/utils";
+import { CategoryCard } from "@/features/membership/components/homepage/CategoryCard";
 
 export default function CategoryPage() {
   const params = useParams<{ "category-slug": string }>();
@@ -20,17 +21,15 @@ export default function CategoryPage() {
     [slug],
   );
 
-  const { clubs, isLoading, hasMore, error, sentinelRef } = useInfiniteClubs(
-    slug,
-    { pageSize: 12 },
-  );
+  const { clubs, isLoading, hasMore, error, sentinelRef } =
+    useInfiniteClubsByCategory(slug, { pageSize: 12 });
 
   const otherCategories = categories.filter((c) => c.slug !== slug);
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center bg-black text-white">
-        <main className="flex flex-col h-screen w-screen px-4 md:px-6 lg:px-12 pb-10 pt-32 justify-center items-center">
+        <main className="flex flex-col h-screen w-screen px-4 md:px-6 lg:px-12 pb-10 pt-20 justify-center items-center">
           <Spinner />
         </main>
       </div>
@@ -39,7 +38,7 @@ export default function CategoryPage() {
 
   return (
     <div className="flex flex-col items-center justify-center bg-black text-white">
-      <main className="flex flex-col h-full w-screen px-4 md:px-6 lg:px-12 pb-10 pt-32">
+      <main className="flex flex-col h-full w-screen px-4 md:px-6 lg:px-12 pb-10 pt-24">
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">
             {category?.category ?? "Category"}
@@ -56,7 +55,7 @@ export default function CategoryPage() {
         )}
 
         {/* Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-5">
           {isLoading
             ? Array.from({ length: 10 }).map((_, i) => (
                 <div
@@ -65,11 +64,14 @@ export default function CategoryPage() {
                 />
               ))
             : clubs.map((club) => (
-                <ClubCard
-                  key={club.id}
-                  club={club}
-                  onClick={() => router.push(`/club/${toClubSlug(club.name)}`)}
-                />
+                <div key={club.id} className="w-[120px]">
+                  <ClubCard
+                    club={club}
+                    onClick={() =>
+                      router.push(`/club/${toClubSlug(club.name)}`)
+                    }
+                  />
+                </div>
               ))}
         </div>
 
@@ -89,18 +91,13 @@ export default function CategoryPage() {
           <h2 className="mb-5 text-xl font-semibold text-white">
             Other categories to explore
           </h2>
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {otherCategories.map((c) => (
-              <button
+              <CategoryCard
                 key={c.id}
+                {...c}
                 onClick={() => router.push(`/category/${c.slug}`)}
-                className="cursor-pointer flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-white/80 transition-colors hover:bg-white/10"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-                  {c.icon}
-                </span>
-                {c.category}
-              </button>
+              />
             ))}
           </div>
         </div>

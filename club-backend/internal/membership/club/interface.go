@@ -46,7 +46,9 @@ type GetClubListByCategorySlugRepo interface {
 	GetCategoryBySlug(ctx context.Context, slug string) (*ClubCategory, error)
 	GetClubListByByCategorySlug(ctx context.Context, userID *string, categorySlug string, limit,offset int) ([]Club, int, error)
 }
-
+type GetClubListPaginatedRepo interface {
+	GetClubListPaginated(ctx context.Context, userID *string, limit, offset int) ([]Club, int, error)
+}
 type MembershipClubRepository interface {
 	GetClubListRepo
 	SearchRepo
@@ -57,4 +59,5 @@ type MembershipClubRepository interface {
 	GetClubMemberListRepo
 	InvitationResponseRepo
 	GetClubListByCategorySlugRepo
+	GetClubListPaginatedRepo
 }

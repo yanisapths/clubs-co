@@ -18,7 +18,7 @@ export function ClubsCarousel({ clubs }: ClubsCarouselProps) {
     <Carousel
       items={clubs}
       keyExtractor={(club) => club.id}
-      itemClassName="w-[400px]"
+      itemClassName="w-[350px]"
       renderItem={(club) => (
         <ClubCard
           club={club}

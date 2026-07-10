@@ -61,7 +61,7 @@ export default function Home() {
               <div className="hidden sm:block">
                 <ClubsCarousel clubs={clubs} />
               </div>
-              <div className="block sm:hidden ">
+              <div className="block sm:hidden">
                 <div className="flex gap-4 overflow-x-auto scrollbar-none">
                   {clubs.map((club) => (
                     <div key={club.id} className="shrink-0 w-[220px]">
@@ -76,10 +76,10 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="block sm:hidden">
+              <div className="flex sm:justify-end">
                 <button
                   onClick={() => router.push("/club")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/20 text-white/70 text-sm hover:border-white/35 hover:text-white transition-colors lg:hidden"
+                  className="sm:w-fit sm:px-4 cursor-pointer flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/20 text-white/70 text-sm hover:border-white/35 hover:text-white transition-colors"
                 >
                   View all clubs <ArrowRight size={14} />
                 </button>

@@ -139,3 +139,8 @@ type GetClubByCategorySlugResponse struct {
 		Clubs      []ClubResponse        `json:"clubs"`
 		Pagination Pagination  			`json:"pagination"`
 }
+
+type GetClubListPaginatedResponse struct {
+	Clubs      []ClubResponse `json:"clubs"`
+	Pagination Pagination     `json:"pagination"`
+}

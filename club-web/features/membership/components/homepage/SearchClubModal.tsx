@@ -26,6 +26,8 @@ import type {
   SearchSpace,
   SearchCategory,
 } from "@/features/shared/api/api";
+import { IconLayoutGrid } from "@tabler/icons-react";
+import { CATEGORY_META } from "@/features/shared/constants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,20 +48,6 @@ interface TypeBadgeConfig {
 }
 
 type HoverableElement = HTMLButtonElement;
-
-// ─── Static UI data (category chip icons — not from the API) ─────────────────
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  Tennis: "🎾",
-  Polo: "🏇",
-  Swim: "🏊",
-  Art: "🎨",
-  Football: "⚽",
-  Basketball: "🏀",
-  Running: "🏃",
-  Yoga: "🧘",
-  "e-Sport": "🎮",
-};
 
 const KEYBOARD_HINTS: ReadonlyArray<readonly [string, string]> = [
   ["↵", "open"],
@@ -307,28 +295,31 @@ interface CategoryCellProps {
 function CategoryCell({ category, onSelect }: CategoryCellProps): JSX.Element {
   const handleClick = (): void => onSelect(category);
 
+  const meta = CATEGORY_META[category.name] ?? {
+    icon: <IconLayoutGrid size={18} />,
+    iconClass: "bg-white/10 text-white/50",
+  };
+
   return (
     <button
       type="button"
       onClick={handleClick}
-      className="cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors"
-      style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.07)",
-      }}
-      onMouseEnter={onCellHoverEnter}
-      onMouseLeave={onCellHoverLeave}
+      className="cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10"
     >
-      <span className="text-2xl">{CATEGORY_EMOJI[category.name] ?? "🏷️"}</span>
+      <div
+        className={`w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0 ${meta.iconClass}`}
+      >
+        {meta.icon}
+      </div>
+
       <div className="flex flex-col min-w-0">
-        <span className="text-[14px] font-bold text-white">
+        <span className="text-[14px] font-medium text-white/90 truncate">
           {category.name}
         </span>
       </div>
     </button>
   );
 }
-
 interface SectionLabelProps {
   children: ReactNode;
 }
@@ -711,7 +702,7 @@ export function SearchModal({
                       {categories.length === 0 ? (
                         <EmptyState label={`No categories match "${query}"`} />
                       ) : (
-                        <div className="grid grid-cols-2 gap-1 px-3">
+                        <div className="grid grid-cols-2 gap-3 px-3">
                           {categories.map(
                             (cat: SearchCategory): JSX.Element => (
                               <CategoryCell

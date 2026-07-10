@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type MembershipClub } from "../api/club";
-import { getClubByCategorySlug, getClubList } from "./use-club";
-
+import { getClubByCategorySlug } from "./use-club";
 interface UseInfiniteClubsOptions {
   pageSize?: number;
 }
@@ -17,8 +16,8 @@ interface UseInfiniteClubsResult {
   sentinelRef: (node: HTMLDivElement | null) => void;
 }
 
-export function useInfiniteClubs(
-  categorySlug: string | undefined,
+export function useInfiniteClubsByCategory(
+  categorySlug: string,
   options: UseInfiniteClubsOptions = {},
 ): UseInfiniteClubsResult {
   const { pageSize = 12 } = options;
@@ -49,16 +48,11 @@ export function useInfiniteClubs(
       }
 
       try {
-        const result = categorySlug
-          ? await getClubByCategorySlug({
-              categorySlug,
-              cursor: isFirstPage ? 0 : cursorRef.current,
-              limit: pageSize,
-            })
-          : await getClubList({
-              cursor: isFirstPage ? 0 : cursorRef.current,
-              limit: pageSize,
-            });
+        const result = await getClubByCategorySlug({
+          categorySlug,
+          cursor: isFirstPage ? 0 : cursorRef.current,
+          limit: pageSize,
+        });
 
         setClubs((prev) =>
           isFirstPage ? result.clubs : [...prev, ...result.clubs],

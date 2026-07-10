@@ -41,7 +41,7 @@ export function ClubCard({ club, onClick }: ClubCardProps) {
   return (
     <div
       onClick={onClick}
-      className="group h-full min-w-48 lg:w-[400px] overflow-hidden rounded-2xl bg-black p-1 lg:p-2 hover:bg-white/10 cursor-pointer transition-discrete duration-200"
+      className="group h-full min-w-48 lg:w-[350px] overflow-hidden rounded-2xl bg-black p-1 lg:p-2 hover:bg-white/10 cursor-pointer transition-discrete duration-200"
     >
       <div className="relative mb-3">
         <ClubThumbnail
