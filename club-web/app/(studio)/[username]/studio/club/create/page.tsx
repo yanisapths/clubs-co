@@ -1,4 +1,3 @@
-// app/(studio)/[username]/club/create/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -30,7 +29,7 @@ import { ClubImageUpload } from "@/features/studio/components/club/create/ClubIm
 import { ClubPreviewCard } from "@/features/studio/components/club/create/ClubPreviewCard";
 import { ClubPublishForm } from "@/features/studio/components/club/create/ClubPublishForm";
 import { ClubSettingsForm } from "@/features/studio/components/club/create/ClubSettingsForm";
-import { HeartCrackIcon, PlugZap } from "lucide-react";
+import { PlugZap } from "lucide-react";
 
 export default function CreateClubPage() {
   const router = useRouter();

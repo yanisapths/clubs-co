@@ -63,7 +63,7 @@ function ClubStudioPage() {
         </div>
 
         {clubs?.length > 0 ? (
-          <div className="relative pb-30 sm:pb-20">
+          <div className="relative mb-30 sm:mb-20">
             <div className="px-6 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {clubs.map((club) => (
                 <ClubCard
