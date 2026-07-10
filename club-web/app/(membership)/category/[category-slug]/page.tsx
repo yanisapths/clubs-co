@@ -21,6 +21,8 @@ export default function CategoryPage() {
     [slug],
   );
 
+  const otherCategories = categories.filter((c) => c.slug !== slug);
+
   const { clubs, isLoading, hasMore, error, sentinelRef } =
     useInfiniteClubsByCategory(slug, { pageSize: 12 });
 
@@ -47,17 +49,19 @@ export default function CategoryPage() {
             </p>
           </div>
 
-          <h2 className="text-xl font-semibold text-white">
-            Categories to explore
-          </h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {categories.map((c) => (
-              <CategoryCard
-                key={c.id}
-                {...c}
-                onClick={() => router.push(`/category/${c.slug}`)}
-              />
-            ))}
+          <div className="hidden md:flex flex-col gap-6">
+            <h2 className="text-xl font-semibold text-white">
+              Categories to explore
+            </h2>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {categories.map((c) => (
+                <CategoryCard
+                  key={c.id}
+                  {...c}
+                  onClick={() => router.push(`/category/${c.slug}`)}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
@@ -100,6 +104,21 @@ export default function CategoryPage() {
             <div className="text-white/60">No clubs in this category.</div>
           </div>
         )}
+
+        <div className="md:hidden mt-4 flex flex-col gap-6">
+          <h2 className="text-xl font-semibold text-white">
+            Other categories to explore
+          </h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {otherCategories.map((c) => (
+              <CategoryCard
+                key={c.id}
+                {...c}
+                onClick={() => router.push(`/category/${c.slug}`)}
+              />
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
