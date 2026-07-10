@@ -16,6 +16,7 @@ import {
   ClubMeta,
 } from "@/features/studio/components/club/detail/ClubMeta";
 import { ClubDetailsTab } from "@/features/studio/components/club/detail/DetailTab";
+import { toClubSlug } from "@/lib/utils";
 const TABS = ["General", "Members", "Settings"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -109,6 +110,7 @@ const ClubDetailPage = () => {
             clubId={clubId}
             onMemberInvited={() => memberQuery.refetch()}
             currentUserId={user.id}
+            clubSlug={toClubSlug(club.name)}
           />
         ) : (
           <SettingTab club={club} username={user.username} />

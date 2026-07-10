@@ -36,6 +36,13 @@ type GetClubMemberListRepo interface {
 	IsClubOwnerOrCoFounder(ctx context.Context,clubID int64,userID string,) (bool, error)
 }
 
+
+type InvitationResponseRepo interface {
+	GetClubById(ctx context.Context, clubID int) (*Club, error)
+	ResponseToClubInvitation(ctx context.Context, clubID int, userID string, resp InvitationResponse) error
+}
+
+
 type MembershipClubRepository interface {
 	GetClubListRepo
 	SearchRepo
@@ -44,4 +51,5 @@ type MembershipClubRepository interface {
 	LeaveClubRepo
 	GetClubInfoRepo
 	GetClubMemberListRepo
+	InvitationResponseRepo
 }

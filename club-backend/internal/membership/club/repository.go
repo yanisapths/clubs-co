@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -752,3 +753,65 @@ const maxCategoryListSize = 100
 func (r *membershipRepository) GetClubCategoryList(ctx context.Context) ([]ClubCategory, error) {
 	return r.SearchCategories(ctx, "", maxCategoryListSize, 0)
 }
+
+
+ 
+func (r *membershipRepository) GetClubById(ctx context.Context, clubID int) (*Club, error) {
+	var club Club
+	err := r.db.QueryRowContext(ctx,
+		`SELECT id FROM public.club WHERE id = $1 AND is_deleted = false`,
+		clubID,
+	).Scan(&club.ID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrClubNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("get club by id: %w", err)
+	}
+	return &club, nil
+}
+
+func (r *membershipRepository) ResponseToClubInvitation(ctx context.Context, clubID int, userID string, resp InvitationResponse) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback()
+ 
+	var recipientRoleID int64
+	err = tx.QueryRowContext(ctx,
+		`SELECT recipient_role_id
+		 FROM public.club_member_invite
+		 WHERE club_id = $1 AND recipient_id = $2
+		   AND invitation_response = false
+		   AND (expires_at IS NULL OR expires_at > NOW())
+		 FOR UPDATE`,
+		clubID, userID,
+	).Scan(&recipientRoleID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrInvitationNotFound
+	}
+	if err != nil {
+		return fmt.Errorf("get pending invitation: %w", err)
+	}
+ 
+	if _, err := tx.ExecContext(ctx,
+		`DELETE FROM public.club_member_invite WHERE club_id = $1 AND recipient_id = $2`,
+		clubID, userID,
+	); err != nil {
+		return fmt.Errorf("remove invitation: %w", err)
+	}
+ 
+	if resp.IsAccept {
+		if _, err := tx.ExecContext(ctx,
+			`INSERT INTO public.club_member (club_id, user_id, role_id, status)
+			 VALUES ($1, $2, $3, 'Active')`,
+			clubID, userID, recipientRoleID,
+		); err != nil {
+			return fmt.Errorf("add club member: %w", err)
+		}
+	}
+ 
+	return tx.Commit()
+}
+ 

@@ -22,6 +22,9 @@ import {
   useRemoveMember,
 } from "@/features/studio/hooks/use-member";
 import { Tooltip } from "@/design-system/components/tooltip";
+import { ConfirmationModal } from "@/features/shared/components/modal/ConfirmationModal";
+import { useModal } from "@/hooks/use-modal";
+import { useLeaveClub } from "@/features/membership/hooks/use-club";
 
 const ROW_GRID_COLS =
   "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_260px_160px_88px]";
@@ -40,6 +43,8 @@ export function MembersTab({
   onInvite,
   onMemberInvited,
   isPermit,
+  isPublicClub,
+  clubSlug,
 }: {
   clubId: number | string;
   members: ClubMember[];
@@ -48,10 +53,12 @@ export function MembersTab({
   onInvite?: () => void;
   onMemberInvited?: (member: SearchMember, roleId: MemberRoleId) => void;
   isPermit?: boolean;
+  isPublicClub?: boolean;
+  clubSlug: string;
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
-
+  const leaveClub = useLeaveClub();
   const toggleMenu = (id: string) =>
     setOpenMenuId((prev) => (prev === id ? null : id));
 
@@ -71,6 +78,24 @@ export function MembersTab({
   const handleInviteClick = () => {
     onInvite?.();
     setIsInviteOpen(true);
+  };
+
+  const { show, visible, close } = useModal();
+
+  const handleLeaveClub = () => {
+    leaveClub.mutate(
+      { clubId: clubId as number, clubName: clubSlug },
+      {
+        onSuccess: () => {
+          toast.success("Left club successfully. 😢");
+          close();
+        },
+        onError: () => {
+          toast.danger("Failed to leave club.");
+          close();
+        },
+      },
+    );
   };
 
   return (
@@ -326,7 +351,7 @@ export function MembersTab({
 
                     {!pending && isSelf && (
                       <button
-                        onClick={closeMenu}
+                        onClick={show}
                         className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
                       >
                         <LogOut className="h-4 w-4" />
@@ -371,6 +396,22 @@ export function MembersTab({
           );
         })}
       </ul>
+
+      {visible && (
+        <ConfirmationModal
+          title="Leave this club"
+          description={
+            isPublicClub
+              ? "Are you sure you want to leave this club? Once you leave a club, you can join again later."
+              : "Are you sure you want to leave this club? Once you leave a club, you have to be invited or can request to join again later."
+          }
+          isPending={leaveClub.isPending}
+          onConfirm={handleLeaveClub}
+          onClose={close}
+          variant="danger"
+        />
+      )}
+
       <InviteMemberModal
         isOpen={isInviteOpen}
         onClose={() => setIsInviteOpen(false)}

@@ -10,4 +10,5 @@ var (
 	ErrFounderCannotLeave = errors.New("founder cannot leave the club")
 	ErrAlreadyMember       = errors.New("already a member")
 	ErrRequestPending      = errors.New("join request already pending")
+	ErrInvitationNotFound  = errors.New("no invitation found for this user in this club")
 )

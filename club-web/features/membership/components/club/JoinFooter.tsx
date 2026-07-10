@@ -17,6 +17,8 @@ import { toast } from "@heroui/react";
 import { Club } from "../../api/club";
 import { formatUnixDate } from "@/lib/utils";
 import { InviteLetterCard } from "./InviteLetterCard";
+import { ConfirmationModal } from "@/features/shared/components/modal/ConfirmationModal";
+import { useModal } from "@/hooks/use-modal";
 
 interface JoinFooterProps {
   club: Club;
@@ -34,14 +36,17 @@ export const JoinFooter = ({
   const router = useRouter();
   const leaveClub = useLeaveClub();
   const joinClub = useJoinClub();
-  const { respond, pendingAction, error } = useClubInviteResponse(club.id);
+  const { respond, pendingAction } = useClubInviteResponse(club.id, clubSlug);
+  const {
+    show: showLeaveConfirm,
+    visible: leaveConfirmVisible,
+    close: closeLeaveConfirm,
+  } = useModal();
   const isOwner = club.isOwner;
   const isJoined = club.isMember || isOwner ? true : false;
   const isPrivate = club.clubType == "Private";
   const hasInvite = !isJoined && !isOwner && !!club.invite?.isInvited;
 
-  // Opens automatically the moment this club has a pending invite for the
-  // current user — re-openable afterwards via the footer row if dismissed.
   const [isLetterOpen, setIsLetterOpen] = useState<boolean>(hasInvite);
 
   const toggleMenu = () => {
@@ -85,6 +90,7 @@ export const JoinFooter = ({
             cancelRequest ? "Request cancelled." : "Left club successfully. 😢",
           );
           setOpenMenu(false);
+          closeLeaveConfirm();
         },
         onError: (error) => {
           toast.danger(
@@ -100,25 +106,25 @@ export const JoinFooter = ({
   };
 
   const handleAcceptInvite = async () => {
-    // const result = await respond("accept");
-    // if (result.ok) {
-    //   toast.success(`Welcome to ${club.name}!`);
-    //   setIsLetterOpen(false);
-    //   onInviteResponded?.();
-    // } else {
-    //   toast.danger(result.error ?? "Failed to accept invitation.");
-    // }
+    const result = await respond("accept");
+    if (result.ok) {
+      toast.success(`Welcome to ${club.name}!`);
+      setIsLetterOpen(false);
+      onInviteResponded?.();
+    } else {
+      toast.danger(result.error ?? "Failed to accept invitation.");
+    }
   };
 
   const handleDeclineInvite = async () => {
-    // const result = await respond("decline");
-    // if (result.ok) {
-    //   toast.info("Invitation declined.");
-    //   setIsLetterOpen(false);
-    //   onInviteResponded?.();
-    // } else {
-    //   toast.danger(result.error ?? "Failed to decline invitation.");
-    // }
+    const result = await respond("decline");
+    if (result.ok) {
+      toast.info("Invitation declined.");
+      setIsLetterOpen(false);
+      onInviteResponded?.();
+    } else {
+      toast.danger(result.error ?? "Failed to decline invitation.");
+    }
   };
 
   return (
@@ -165,14 +171,32 @@ export const JoinFooter = ({
       {openMenu && (
         <div className="shadow-2xl absolute right-6 bottom-14 z-50 w-44 overflow-hidden rounded-xl border border-white/10 bg-zinc-900">
           <button
-            onClick={() => handleLeaveClub({ cancelRequest: false })}
+            onClick={() => {
+              setOpenMenu(false);
+              showLeaveConfirm();
+            }}
             disabled={isOwner || leaveClub.isPending}
             className="disabled:hover:bg-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-base flex w-full items-center gap-2 px-4 py-4 disabled:text-gray-700 text-red-400 hover:bg-white/5 transition-colors"
           >
             <LogOut className="h-4 w-4" />
-            {leaveClub.isPending ? "Leaving..." : "Leave club"}
+            Leave club
           </button>
         </div>
+      )}
+
+      {leaveConfirmVisible && (
+        <ConfirmationModal
+          title="Leave this club"
+          description={
+            isPrivate
+              ? "Are you sure you want to leave this club? Once you leave, you'll have to be invited or request to join again later."
+              : "Are you sure you want to leave this club? Once you leave, you can join again later."
+          }
+          isPending={leaveClub.isPending}
+          onConfirm={() => handleLeaveClub({ cancelRequest: false })}
+          onClose={closeLeaveConfirm}
+          variant="danger"
+        />
       )}
 
       {hasInvite && club.invite && (
@@ -185,7 +209,6 @@ export const JoinFooter = ({
           onAccept={handleAcceptInvite}
           onDecline={handleDeclineInvite}
           pendingAction={pendingAction}
-          error={error}
         />
       )}
     </div>

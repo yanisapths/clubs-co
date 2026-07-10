@@ -1,8 +1,8 @@
-const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/studio/club`;
+// club-web/features/membership/api/invite.ts
 
-function url(clubId: number, path: string): string {
-  return `${baseApi}/${clubId}/member/invite/${path}`;
-}
+import { getStoredToken } from "@/lib/storage";
+
+const membershipApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/membership`;
 
 async function parseOrThrow(
   res: Response,
@@ -18,18 +18,21 @@ async function parseOrThrow(
   throw new Error(message);
 }
 
-export async function acceptClubInvite(clubId: number): Promise<void> {
-  const res = await fetch(url(clubId, "accept"), {
+export async function respondToClubInvite(
+  clubId: number,
+  isAccept: boolean,
+): Promise<void> {
+  const res = await fetch(`${membershipApi}/club/${clubId}/invite/response`, {
     method: "PATCH",
     credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getStoredToken()}`,
+    },
+    body: JSON.stringify({ isAccept }),
   });
-  await parseOrThrow(res, "Failed to accept invitation");
-}
-
-export async function declineClubInvite(clubId: number): Promise<void> {
-  const res = await fetch(url(clubId, "decline"), {
-    method: "PATCH",
-    credentials: "include",
-  });
-  await parseOrThrow(res, "Failed to decline invitation");
+  await parseOrThrow(
+    res,
+    isAccept ? "Failed to accept invitation" : "Failed to decline invitation",
+  );
 }

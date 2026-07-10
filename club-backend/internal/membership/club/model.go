@@ -119,3 +119,7 @@ type SpaceSearchResponse struct {
 	Country   string `json:"country"`
 	ClubCount int64  `json:"clubCount"`
 }
+
+type InvitationResponse struct {
+	IsAccept  bool       `json:"isAccept"`
+}

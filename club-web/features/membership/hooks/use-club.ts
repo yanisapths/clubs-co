@@ -10,7 +10,7 @@ import {
 } from "../api/club";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const CLUB_KEYS = {
+export const CLUB_KEYS = {
   all: ["membership-clubs"] as const,
   detail: (id: number) => ["membership-club", id] as const,
   detailByName: (name: string) =>

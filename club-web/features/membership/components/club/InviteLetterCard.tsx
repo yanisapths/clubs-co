@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import type { InviteInfo } from "@/features/membership/api/club";
+import { formatUnixDate } from "@/lib/utils";
 
 interface InviteLetterModalProps {
   open: boolean;
@@ -13,21 +14,12 @@ interface InviteLetterModalProps {
   onAccept: () => void;
   onDecline: () => void;
   pendingAction: "accept" | "decline" | null;
-  error?: string | null;
 }
 
 const roleLabel: Record<string, string> = {
   CoFounder: "co-founder",
   Member: "club member",
 };
-
-function formatInviteDate(unixSeconds: number): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(unixSeconds * 1000));
-}
 
 export function InviteLetterCard({
   open,
@@ -38,7 +30,6 @@ export function InviteLetterCard({
   onAccept,
   onDecline,
   pendingAction,
-  error,
 }: InviteLetterModalProps) {
   return (
     <AnimatePresence>
@@ -95,7 +86,7 @@ export function InviteLetterCard({
                   Dear, {recipientName}
                 </p>
                 <p className="text-xs text-zinc-500">
-                  {formatInviteDate(invite.invitedAt)}
+                  {formatUnixDate(invite.invitedAt)}
                 </p>
               </div>
 
@@ -120,8 +111,6 @@ export function InviteLetterCard({
                   @{invite.inviterUsername}
                 </p>
               </div>
-
-              {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
               <div className="mt-6 flex items-center justify-center gap-6">
                 <button
