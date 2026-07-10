@@ -1,5 +1,6 @@
 import Image from "next/image";
 import clsx from "clsx";
+import { getCategoryGradient } from "./constants";
 
 const gradientMap: Record<string, string> = {
   sports: "linear-gradient(160deg,#4a5a1a 0%,#7a8a2a 45%,#b8aa30 100%)",
@@ -28,8 +29,6 @@ export function ClubThumbnail({
   size = "video",
   className,
 }: ClubThumbnailProps) {
-  const gradient = gradientMap[colorVariant] ?? gradientMap.other;
-
   return (
     <div
       className={clsx(
@@ -39,7 +38,7 @@ export function ClubThumbnail({
           : "aspect-square rounded-xl",
         className,
       )}
-      style={{ background: gradient }}
+      style={{ background: getCategoryGradient(category ? category : "other") }}
     >
       {imageUrl ? (
         <Image src={imageUrl} alt={name} fill className="object-cover" />

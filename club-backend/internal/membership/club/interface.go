@@ -42,6 +42,10 @@ type InvitationResponseRepo interface {
 	ResponseToClubInvitation(ctx context.Context, clubID int, userID string, resp InvitationResponse) error
 }
 
+type GetClubListByCategorySlugRepo interface {
+	GetCategoryBySlug(ctx context.Context, slug string) (*ClubCategory, error)
+	GetClubListByByCategorySlug(ctx context.Context, userID *string, categorySlug string, limit,offset int) ([]Club, int, error)
+}
 
 type MembershipClubRepository interface {
 	GetClubListRepo
@@ -52,4 +56,5 @@ type MembershipClubRepository interface {
 	GetClubInfoRepo
 	GetClubMemberListRepo
 	InvitationResponseRepo
+	GetClubListByCategorySlugRepo
 }

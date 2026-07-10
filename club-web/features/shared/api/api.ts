@@ -58,6 +58,7 @@ export interface SearchSpace {
 export interface SearchCategory {
   id: number;
   name: string;
+  slug: string;
 }
 
 export interface SearchResponse {

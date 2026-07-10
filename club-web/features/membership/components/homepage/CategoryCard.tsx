@@ -13,6 +13,8 @@ export interface Category {
     | "tech"
     | "world"
     | "other";
+  slug: string;
+  caption: string;
 }
 
 interface CategoryCardProps extends Category {

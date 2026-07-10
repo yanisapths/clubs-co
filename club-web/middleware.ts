@@ -7,7 +7,15 @@ export async function middleware(req: NextRequest) {
 
   // (studio)/[username] resolves to /<username> at the URL level,
   // so match any top-level path that isn't a known reserved route.
-  const RESERVED = ["api", "login", "club", "profile", "favicon.ico", "_next"];
+  const RESERVED = [
+    "api",
+    "login",
+    "club",
+    "profile",
+    "category",
+    "favicon.ico",
+    "_next",
+  ];
 
   const segments = pathname.split("/").filter(Boolean);
   const first = segments[0];
@@ -43,6 +51,6 @@ export const config = {
      * - favicon.ico
      * - explicit (membership) routes (login, club, profile)
      */
-    "/((?!api|_next/static|_next/image|favicon\\.ico|login|club|profile).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico|login|club|profile|category).*)",
   ],
 };

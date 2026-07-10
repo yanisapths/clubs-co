@@ -724,7 +724,7 @@ func (r *membershipRepository) SearchSpaces(ctx context.Context, query string, l
 
 func (r *membershipRepository) SearchCategories(ctx context.Context, query string, limit, offset int) ([]ClubCategory, error) {
 	sqlQuery := `
-		SELECT id, name
+		SELECT id, name, slug
 		FROM public.category
 		WHERE ($1 = '' OR name ILIKE '%' || $1 || '%')
 		ORDER BY name ASC
@@ -739,7 +739,7 @@ func (r *membershipRepository) SearchCategories(ctx context.Context, query strin
 	categories := make([]ClubCategory, 0)
 	for rows.Next() {
 		var cat ClubCategory
-		if err := rows.Scan(&cat.ID, &cat.Name); err != nil {
+		if err := rows.Scan(&cat.ID, &cat.Name,&cat.Slug); err != nil {
 			return nil, err
 		}
 		categories = append(categories, cat)
@@ -815,3 +815,188 @@ func (r *membershipRepository) ResponseToClubInvitation(ctx context.Context, clu
 	return tx.Commit()
 }
  
+func (r *membershipRepository) GetCategoryBySlug(
+	ctx context.Context,
+	slug string,
+) (*ClubCategory, error) {
+	query := `
+		SELECT
+			id,
+			name,
+			slug
+		FROM public.category
+		WHERE LOWER(slug) = LOWER($1)
+		LIMIT 1
+	`
+
+	var category ClubCategory
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		slug,
+	).Scan(
+		&category.ID,
+		&category.Name,
+		&category.Slug,
+	)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("get category by slug: %w", err)
+	}
+
+	return &category, nil
+}
+
+func (r *membershipRepository) GetClubListByByCategorySlug(
+	ctx context.Context,
+	userID *string,
+	categorySlug string,
+	limit,
+	offset int,
+) ([]Club, int, error) {
+	query := `
+		SELECT
+			c.id,
+			c.name,
+			c.description,
+			c.image_url,
+			c.club_type,
+			c.visibility,
+			c.max_seats,
+			c.allow_followers,
+			c.created_at,
+			COALESCE(cg.name, '') AS category_name,
+			COUNT(cm.user_id) FILTER (WHERE cm.status = 'Active') AS member_count,
+			CASE
+				WHEN $1::uuid IS NULL THEN false
+				ELSE EXISTS (
+					SELECT 1
+					FROM public.club_member me
+					WHERE me.club_id = c.id
+					  AND me.user_id = $1::uuid
+					  AND me.status = 'Active'
+				)
+			END AS is_member,
+			CASE
+				WHEN $1::uuid IS NULL THEN false
+				ELSE EXISTS (
+					SELECT 1
+					FROM public.club_member me
+					WHERE me.club_id = c.id
+					  AND me.user_id = $1::uuid
+					  AND me.status = 'Pending'
+				)
+			END AS is_pending,
+			(
+				SELECT COALESCE(
+					JSON_AGG(
+						JSON_BUILD_OBJECT('id', t.id, 'name', t.name)
+					),
+					'[]'
+				)
+				FROM public.tag t
+				WHERE t.id = ANY(c.tag_ids)
+			) AS tags,
+			(
+				SELECT COALESCE(
+					JSON_AGG(
+						JSON_BUILD_OBJECT('id', s.id, 'name', s.name)
+					),
+					'[]'
+				)
+				FROM public.space s
+				WHERE s.id = ANY(c.space_ids)
+			) AS spaces
+		FROM public.club c
+		INNER JOIN public.category cg
+			ON cg.id = c.category_id
+		LEFT JOIN public.club_member cm
+			ON cm.club_id = c.id
+		WHERE c.is_deleted = false
+		  AND c.display_status = TRUE
+		  AND c.activate = TRUE
+		  AND LOWER(cg.slug) = LOWER($2)
+		GROUP BY c.id, cg.name
+		ORDER BY c.created_at DESC
+		LIMIT $3 OFFSET $4
+	`
+	countQuery := `
+	SELECT COUNT(*)
+	FROM public.club c
+	INNER JOIN public.category cg
+			ON cg.id = c.category_id
+		WHERE c.is_deleted = false
+		AND c.display_status = TRUE
+		AND c.activate = TRUE
+		AND LOWER(cg.slug) = LOWER($1)
+	`
+
+	var totalRecords int
+
+	err := r.db.QueryRowContext(
+		ctx,
+		countQuery,
+		categorySlug,
+	).Scan(&totalRecords)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		query,
+		userID,
+		categorySlug,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return  nil, 0, err
+	}
+	defer rows.Close()
+
+	var clubs []Club
+
+	for rows.Next() {
+		var club Club
+		var tagsRaw, spacesRaw []byte
+
+		if err := rows.Scan(
+			&club.ID,
+			&club.Name,
+			&club.Description,
+			&club.ImageURL,
+			&club.ClubType,
+			&club.Visibility,
+			&club.MaxSeats,
+			&club.AllowFollowers,
+			&club.CreatedAt,
+			&club.CategoryName,
+			&club.MemberCount,
+			&club.IsMember,
+			&club.IsPending,
+			&tagsRaw,
+			&spacesRaw,
+		); err != nil {
+			return nil, 0, err
+		}
+
+		if err := json.Unmarshal(tagsRaw, &club.Tags); err != nil {
+			return nil, 0, err
+		}
+
+		if err := json.Unmarshal(spacesRaw, &club.Spaces); err != nil {
+			return nil, 0, err
+		}
+
+		clubs = append(clubs, club)
+	}
+
+	return clubs, totalRecords ,rows.Err()
+}

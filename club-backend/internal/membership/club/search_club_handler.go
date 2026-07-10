@@ -26,7 +26,7 @@ func NewSearchClubList(repo SearchRepo, logger *zap.Logger) *searchHandler {
 	return &searchHandler{repo: repo, logger: logger}
 }
 
-func parseLimitOffset(c *gin.Context) (limit, offset int) {
+func parseLimitOffset(c *gin.Context, defaultSearchLimit int) (limit, offset int) {
 	limit = defaultSearchLimit
 	if raw := c.Query("limit"); raw != "" {
 		if v, err := strconv.Atoi(raw); err == nil && v > 0 {
@@ -56,7 +56,7 @@ func (h *searchHandler) Handler(c *gin.Context) {
 	}
 
 	query := strings.TrimSpace(c.Query("q"))
-	limit, offset := parseLimitOffset(c)
+	limit, offset := parseLimitOffset(c, defaultSearchLimit)
 
 	logFields := []zap.Field{
 		zap.String("path", c.Request.URL.Path),

@@ -9,6 +9,7 @@ type ClubRole struct {
 type ClubCategory struct {
 	ID   int 	 	`json:"id"`
 	Name string     `json:"name"`
+	Slug string     `json:"slug"`
 }
 
 type Space struct {
@@ -122,4 +123,19 @@ type SpaceSearchResponse struct {
 
 type InvitationResponse struct {
 	IsAccept  bool       `json:"isAccept"`
+}
+
+type Pagination struct {
+	Prev	   		*int     `json:"prev"`
+	Next	  		*int     `json:"next"`
+	Current	  		*int     `json:"current"`
+	HasMore   		bool     `json:"hasMore"`
+	TotalPages      int      `json:"totalPages"`
+	TotalRecords    int      `json:"totalRecords"`
+}
+
+type GetClubByCategorySlugResponse struct {
+		Category ClubCategory `json:"category"`
+		Clubs      []ClubResponse        `json:"clubs"`
+		Pagination Pagination  			`json:"pagination"`
 }

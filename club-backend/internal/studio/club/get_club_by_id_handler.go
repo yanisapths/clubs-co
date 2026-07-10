@@ -48,19 +48,6 @@ func (s *GetClubById) Handler(c *gin.Context) {
 		return
 	}
 
-	// members, err := s.repo.GetClubMemberByClubID(c.Request.Context(), clubID)
-	// if err != nil {
-	// 	s.logger.Error(
-	// 		"failed : GetClubMemberByClubID",
-	// 		zap.Error(err),
-	// 		zap.String("path", c.Request.URL.Path),
-	// 		zap.String("method", c.Request.Method),
-	// 	)
-	
-	// 	response.InternalServerError(c, "failed to load members")
-	// 	return
-	// }
-
 	description := ""
 	if clubInfo.Description != nil {
 		description = *clubInfo.Description

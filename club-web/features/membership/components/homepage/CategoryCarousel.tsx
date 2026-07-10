@@ -23,7 +23,7 @@ export function CategoryCarousel({ categories }: CategoryCarouselProps) {
       renderItem={(category) => (
         <CategoryCard
           {...category}
-          onClick={() => router.push(`/categories/${category.id}`)}
+          onClick={() => router.push(`/category/${category.slug}`)}
         />
       )}
     />

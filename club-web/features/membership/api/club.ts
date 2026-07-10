@@ -1,3 +1,4 @@
+//club-web/features/membership/api/club.ts
 import {
   ClubCategory,
   ClubMember,
@@ -134,3 +135,39 @@ export const getClubMemberListByName = (encodedName: string) =>
       Authorization: `Bearer ${getStoredToken()}`,
     },
   });
+
+export interface Pagination {
+  prev: number | null;
+  next: number | null;
+  current: number;
+  hasMore: boolean;
+  totalPages: number;
+  totalRecords: number;
+}
+
+export interface ClubListByCategorySlugResponse {
+  clubs: MembershipClub[];
+  pagination: Pagination;
+}
+
+export interface GetClubByCategorySlugParams {
+  categorySlug: string;
+  limit?: number;
+  offset?: number;
+}
+export const getClubListByCategorySlug = ({
+  categorySlug,
+  limit = 12,
+  offset = 0,
+}: GetClubByCategorySlugParams) =>
+  apiFetch<ClubListByCategorySlugResponse>(
+    `${baseApi}/category/${categorySlug}?limit=${limit}&offset=${offset}`,
+    {
+      method: "GET",
+      headers: getStoredToken()
+        ? {
+            Authorization: `Bearer ${getStoredToken()}`,
+          }
+        : undefined,
+    },
+  );

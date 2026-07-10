@@ -1,5 +1,6 @@
 import { getStoredToken } from "@/lib/storage";
 import {
+  getClubListByCategorySlug,
   getClubMemberListByName,
   getMembershipClubById,
   getMembershipClubByName,
@@ -106,3 +107,37 @@ export const useGetClubMemberListByName = (clubName: string) => {
     isLoading: query.isLoading,
   };
 };
+
+export interface GetClubsByCategoryParams {
+  categorySlug: string;
+  cursor?: number;
+  limit?: number;
+}
+
+export interface PaginatedClubsResponse {
+  clubs: MembershipClub[];
+  nextCursor: number | null;
+  hasMore: boolean;
+  total: number;
+}
+
+export async function getClubByCategorySlug({
+  categorySlug,
+  cursor = 0,
+  limit = 12,
+}: GetClubsByCategoryParams): Promise<PaginatedClubsResponse> {
+  const response = await getClubListByCategorySlug({
+    categorySlug,
+    limit,
+    offset: cursor,
+  });
+
+  const data = response.data;
+
+  return {
+    clubs: data.clubs,
+    nextCursor: data.pagination.next,
+    hasMore: data.pagination.hasMore,
+    total: data.pagination.totalRecords,
+  };
+}

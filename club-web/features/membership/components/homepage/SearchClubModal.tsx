@@ -152,7 +152,7 @@ function ClubRow({ club, onSelect }: ClubRowProps): JSX.Element {
   return (
     <button
       type="button"
-      className="w-full flex items-center gap-4 px-4 py-3 text-left rounded-xl group transition-colors"
+      className="cursor-pointer w-full flex items-center gap-4 px-4 py-3 text-left rounded-xl group transition-colors"
       style={{ background: "transparent" }}
       onClick={handleClick}
       onMouseEnter={onRowHoverEnter}
@@ -228,7 +228,7 @@ function MemberRow({ member, onSelect }: MemberRowProps): JSX.Element {
   return (
     <button
       type="button"
-      className="w-full flex items-center gap-4 px-4 py-3 text-left rounded-xl group transition-colors"
+      className="cursor-pointer  w-full flex items-center gap-4 px-4 py-3 text-left rounded-xl group transition-colors"
       style={{ background: "transparent" }}
       onClick={handleClick}
       onMouseEnter={onRowHoverEnter}
@@ -273,7 +273,7 @@ function SpaceRow({ space, onSelect }: SpaceRowProps): JSX.Element {
   return (
     <button
       type="button"
-      className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left group transition-colors"
+      className="cursor-pointer w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left group transition-colors"
       style={{ background: "transparent" }}
       onClick={handleClick}
       onMouseEnter={onRowHoverEnter}
@@ -311,7 +311,7 @@ function CategoryCell({ category, onSelect }: CategoryCellProps): JSX.Element {
     <button
       type="button"
       onClick={handleClick}
-      className="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors"
+      className="cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors"
       style={{
         background: "rgba(255,255,255,0.04)",
         border: "1px solid rgba(255,255,255,0.07)",
@@ -389,7 +389,7 @@ export interface SearchModalProps {
 const SIDEBAR: SidebarItem[] = [
   { tab: "All", icon: <LayoutGrid size={16} />, label: "All" },
   { tab: "Clubs", icon: <Users size={16} />, label: "Clubs" },
-  { tab: "Spaces", icon: <MapPin size={16} />, label: "Spaces" },
+  // { tab: "Spaces", icon: <MapPin size={16} />, label: "Spaces" },
   { tab: "Members", icon: <Users size={16} />, label: "Members" },
   { tab: "Categories", icon: <Tag size={16} />, label: "Categories" },
 ];
@@ -408,6 +408,7 @@ export function SearchModal({
 
   const { data, isLoading } = useMembershipSearch(query, { enabled: isOpen });
   const { clubs, members, spaces, categories } = data;
+  const [hoveredTab, setHoveredTab] = useState<SidebarTab | null>(null);
 
   const resetState = useCallback((): void => {
     setQuery("");
@@ -509,7 +510,7 @@ export function SearchModal({
         <div className="flex flex-1 overflow-hidden">
           {/* ── Left sidebar ── */}
           <div
-            className="hidden sm:flex flex-col py-3 shrink-0"
+            className="hidden sm:flex flex-col py-3 gap-1 shrink-0"
             style={{
               width: 196,
               borderRight: "1px solid rgba(255,255,255,0.07)",
@@ -518,17 +519,27 @@ export function SearchModal({
             {SIDEBAR.map((item: SidebarItem): JSX.Element => {
               const isActive: boolean = tab === item.tab;
               const handleTabClick = (): void => setTab(item.tab);
+              const isHovered = hoveredTab === item.tab;
+
               return (
                 <button
                   type="button"
                   key={item.tab}
                   onClick={handleTabClick}
-                  className="flex items-center gap-3 mx-2 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-left transition-colors"
+                  onMouseEnter={() => setHoveredTab(item.tab)}
+                  onMouseLeave={() => setHoveredTab(null)}
+                  className="cursor-pointer flex items-center gap-3 mx-2 px-4 py-2.5 rounded-xl text-[15px] font-semibold text-left transition-colors"
                   style={{
                     background: isActive
                       ? "rgba(255,255,255,0.1)"
-                      : "transparent",
-                    color: isActive ? "#fff" : "rgba(255,255,255,0.42)",
+                      : isHovered
+                        ? "rgba(255,255,255,0.06)"
+                        : "transparent",
+                    color: isActive
+                      ? "#fff"
+                      : isHovered
+                        ? "rgba(255,255,255,0.75)"
+                        : "rgba(255,255,255,0.42)",
                   }}
                 >
                   <span style={{ opacity: isActive ? 1 : 0.65 }}>
@@ -542,7 +553,6 @@ export function SearchModal({
 
           {/* ── Right panel ── */}
           <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-            {/* ── Scrollable results ── */}
             <div className="overflow-y-auto flex-1 py-3">
               {isLoading ? (
                 <LoadingState />
@@ -554,19 +564,21 @@ export function SearchModal({
                       <SectionLabel>
                         {q ? "Clubs" : "Trending Clubs"}
                       </SectionLabel>
-                      {clubs.length === 0 ? (
-                        <EmptyState label={`No clubs match "${query}"`} />
-                      ) : (
-                        clubs.map(
-                          (c: SearchClub): JSX.Element => (
-                            <ClubRow
-                              key={c.id}
-                              club={c}
-                              onSelect={selectClub}
-                            />
-                          ),
-                        )
-                      )}
+                      <div className="px-1">
+                        {clubs.length === 0 ? (
+                          <EmptyState label={`No clubs match "${query}"`} />
+                        ) : (
+                          clubs.map(
+                            (c: SearchClub): JSX.Element => (
+                              <ClubRow
+                                key={c.id}
+                                club={c}
+                                onSelect={selectClub}
+                              />
+                            ),
+                          )
+                        )}
+                      </div>
 
                       {q && spaces.length > 0 && (
                         <>
@@ -606,15 +618,17 @@ export function SearchModal({
                         <>
                           <Divider />
                           <SectionLabel>Members</SectionLabel>
-                          {members.map(
-                            (m: SearchMember): JSX.Element => (
-                              <MemberRow
-                                key={m.id}
-                                member={m}
-                                onSelect={selectMember}
-                              />
-                            ),
-                          )}
+                          <div className="px-1">
+                            {members.map(
+                              (m: SearchMember): JSX.Element => (
+                                <MemberRow
+                                  key={m.id}
+                                  member={m}
+                                  onSelect={selectMember}
+                                />
+                              ),
+                            )}
+                          </div>
                         </>
                       )}
                     </>
@@ -624,19 +638,21 @@ export function SearchModal({
                   {tab === "Clubs" && (
                     <>
                       <SectionLabel>{q ? "Clubs" : "All Clubs"}</SectionLabel>
-                      {clubs.length === 0 ? (
-                        <EmptyState label={`No clubs match "${query}"`} />
-                      ) : (
-                        clubs.map(
-                          (c: SearchClub): JSX.Element => (
-                            <ClubRow
-                              key={c.id}
-                              club={c}
-                              onSelect={selectClub}
-                            />
-                          ),
-                        )
-                      )}
+                      <div className="px-1">
+                        {clubs.length === 0 ? (
+                          <EmptyState label={`No clubs match "${query}"`} />
+                        ) : (
+                          clubs.map(
+                            (c: SearchClub): JSX.Element => (
+                              <ClubRow
+                                key={c.id}
+                                club={c}
+                                onSelect={selectClub}
+                              />
+                            ),
+                          )
+                        )}
+                      </div>
                     </>
                   )}
 
@@ -668,19 +684,21 @@ export function SearchModal({
                       <SectionLabel>
                         {q ? "Members" : "Active Members"}
                       </SectionLabel>
-                      {members.length === 0 ? (
-                        <EmptyState label={`No members match "${query}"`} />
-                      ) : (
-                        members.map(
-                          (m: SearchMember): JSX.Element => (
-                            <MemberRow
-                              key={m.id}
-                              member={m}
-                              onSelect={selectMember}
-                            />
-                          ),
-                        )
-                      )}
+                      <div className="px-1">
+                        {members.length === 0 ? (
+                          <EmptyState label={`No members match "${query}"`} />
+                        ) : (
+                          members.map(
+                            (m: SearchMember): JSX.Element => (
+                              <MemberRow
+                                key={m.id}
+                                member={m}
+                                onSelect={selectMember}
+                              />
+                            ),
+                          )
+                        )}
+                      </div>
                     </>
                   )}
 

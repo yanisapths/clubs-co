@@ -144,6 +144,7 @@ func main() {
 	mbr.GET("/club/:club_name/member", membershipclub.NewGetClubMemberList(memberRepo, logger).Handler)
 	mbr.GET("/search", membershipclub.NewSearchClubList(memberRepo, logger).Handler)
 	mbr.GET("/club/category", membershipclub.NewGetClubCategoryList(memberRepo, logger).Handler)
+	mbr.GET("/club/category/:category_slug", membershipclub.NewGetClubListByCategorySlug(memberRepo, logger).Handler)
 
 	mbr.GET("/user/exist", membershipuser.NewGetUserExist(memberUserRepo, logger).Handler)
 

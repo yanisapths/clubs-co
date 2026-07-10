@@ -53,7 +53,7 @@ export function GlobalSearchTrigger({
   };
   const goToCategory = (category: SearchCategory) => {
     close();
-    router.push(`/club?category=${encodeURIComponent(category.name)}`);
+    router.push(`/category/${category.slug}`);
   };
 
   return (
