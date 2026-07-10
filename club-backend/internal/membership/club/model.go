@@ -38,16 +38,7 @@ type ClubResponse struct {
 
 type GetClubByIDResponse struct {
 	ClubInfo ClubInfoResponse `json:"clubInfo"`
-	Members  []Member `json:"members"`
 }
-type Member struct {
-	MemberDisplayName *string `json:"displayName"`
-	MemberUsername  string `json:"username"`
-	MemberID 		string `json:"id"`
-	Role    		string `json:"role"`
-	JoinedAt		int64  `json:"joinedAt"`
-}
-
 type ClubInfoResponse struct {
 	ID             int64               `json:"id"`
 	Owner          string              `json:"owner"`
@@ -75,6 +66,20 @@ type ClubInfoResponse struct {
 	IsOwner        bool      		   `json:"isOwner"`
 	JoinedAt       *int64         	   `json:"joinedAt"`
 	MemberRole	   *string  		   `json:"memberRole"`
+}
+
+type ClubMemberResponse struct {
+	Members  []Member `json:"members"`
+}
+
+type Member struct {
+	MemberDisplayName *string `json:"displayName"`
+	MemberUsername  string `json:"username"`
+	MemberID 		string `json:"id"`
+	Role    		string `json:"role"`
+	JoinedAt		int64  `json:"joinedAt"`
+	IsPending       bool   `json:"isPending"`
+	IsInvited       bool   `json:"isInvited"`
 }
 
 // ── Global search ────────────────────────────────────────────────────────────

@@ -18,6 +18,25 @@ func NewMembershipRepository(db *sql.DB) MembershipClubRepository {
 	return &membershipRepository{db: db}
 }
 
+func (r *membershipRepository) IsClubOwnerOrCoFounder(ctx context.Context,clubID int64,userID string) (bool, error) {
+	var exists bool
+
+	err := r.db.QueryRowContext(
+		ctx,
+		`
+		SELECT EXISTS (
+			SELECT 1
+			FROM public.club_member cm
+			INNER JOIN public.club_member_roles r
+				ON r.id = cm.role_id
+			WHERE cm.club_id = $1
+				AND cm.user_id = $2
+				AND r.rank IN ($3, $4)
+		)`,clubID,userID,FounderRoleId, CoFounderRoleId).Scan(&exists)
+
+	return exists, err
+}
+
 func (r *membershipRepository) GetClubList(ctx context.Context, userID *string) ([]Club, error) {
 	query := `
 		SELECT
@@ -194,24 +213,71 @@ func (r *membershipRepository) LeaveClub(ctx context.Context, userID string, clu
 func (r *membershipRepository) GetClubMemberByClubID(
 	ctx context.Context,
 	clubID int64,
+	includePending bool,
 ) ([]ClubMember, error) {
+	var query string
 
-	query := `
-		SELECT
-			u.username,
-			u.display_name,
-			u.id,
-			r.name AS role,
-			cm.joined_at
-		FROM public.club_member cm
-		INNER JOIN public.users u
-			ON u.id = cm.user_id
-		INNER JOIN public.club_member_roles r
-			ON r.id = cm.role_id
-		WHERE cm.club_id = $1
-		AND cm.status = 'Active'
-		ORDER BY cm.joined_at ASC
-	`
+	if !includePending {
+		query = `
+			SELECT
+				u.username,
+				u.display_name,
+				u.id,
+				r.name AS role,
+				cm.joined_at,
+				false AS is_pending,
+				false AS is_invited
+			FROM public.club_member cm
+			INNER JOIN public.users u
+				ON u.id = cm.user_id
+			INNER JOIN public.club_member_roles r
+				ON r.id = cm.role_id
+			WHERE cm.club_id = $1
+				AND cm.status = 'Active'
+			ORDER BY cm.joined_at ASC
+		`
+	} else {
+		query = `
+			SELECT
+				u.username,
+				u.display_name,
+				u.id,
+				r.name AS role,
+				cm.joined_at AS joined_at,
+				(cm.status = 'Pending') AS is_pending,
+				false AS is_invited
+			FROM public.club_member cm
+			INNER JOIN public.users u
+				ON u.id = cm.user_id
+			INNER JOIN public.club_member_roles r
+				ON r.id = cm.role_id
+			WHERE cm.club_id = $1
+
+			UNION ALL
+
+			SELECT
+				u.username,
+				u.display_name,
+				u.id,
+				r.name AS role,
+				cmi.created_at AS joined_at,
+				(
+					cmi.invitation_response = false
+					AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
+				) AS is_pending,
+				true AS is_invited
+			FROM public.club_member_invite cmi
+			INNER JOIN public.users u
+				ON u.id = cmi.recipient_id
+			INNER JOIN public.club_member_roles r
+				ON r.id = cmi.recipient_role_id
+			WHERE cmi.club_id = $1
+				AND cmi.invitation_response = false
+				AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
+
+			ORDER BY joined_at ASC
+		`
+	}
 
 	rows, err := r.db.QueryContext(ctx, query, clubID)
 	if err != nil {
@@ -230,6 +296,8 @@ func (r *membershipRepository) GetClubMemberByClubID(
 			&member.MemberID,
 			&member.Role,
 			&member.JoinedAt,
+			&member.IsPending,
+			&member.IsInvited,
 		); err != nil {
 			return nil, err
 		}
@@ -243,7 +311,6 @@ func (r *membershipRepository) GetClubMemberByClubID(
 
 	return members, nil
 }
-
 func (r *membershipRepository) GetClubByName(ctx context.Context, userID *string, clubSlug string) (*Club, error) {
 	query := `
 		SELECT

@@ -39,6 +39,8 @@ type ClubMember struct {
 	MemberID 		string 		`db:"id"`
 	Role     		string  	`db:"role"`
 	JoinedAt 		time.Time   `db:"joined_at"`
+	IsPending       bool        `db:"is_pending"`
+	IsInvited       bool        `db:"is_invited"`
 }
 
 // MemberSearchResult represents a user matched by a global search query.

@@ -76,7 +76,7 @@ export function GalleryEmptyState({
   isMember,
 }: GalleryEmptyStateProps) {
   return (
-    <div className="relative flex flex-col justify-center place-content-center mx-auto w-full">
+    <div className="relative flex flex-col justify-center place-content-center mx-auto w-full text-center mb-20 sm:mb-0">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pb-16">
         {Array.from({ length: TOTAL_SLOTS }).map((_, i) => (
           <div
@@ -87,14 +87,14 @@ export function GalleryEmptyState({
       </div>
       <div className="pointer-events-none absolute left-0 bottom-0 h-60 w-full z-10 bg-gradient-to-t from-black to-transparent transition-opacity duration-200" />
       {isMember ? (
-        <div className="absolute z-50 inset-0 top-20">
+        <div className="absolute z-50 inset-0 top-2 text-center mt-10">
           <div className="flex flex-col w-full items-center gap-4">
             <div className="flex -space-x-6">
               <div className="h-32 w-24 rotate-[-8deg] rounded-xl bg-sky-200" />
               <div className="h-32 w-24 rounded-xl bg-rose-300" />
               <div className="h-32 w-24 rotate-[8deg] rounded-xl bg-zinc-700" />
             </div>
-            <h2 className="text-white mt-2 text-3xl font-bold">
+            <h2 className="text-white mt-2 text-3xl font-bold text-center">
               No featured galleries
             </h2>
             <p className="max-w-sm text-white/50">

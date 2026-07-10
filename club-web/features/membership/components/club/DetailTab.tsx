@@ -45,7 +45,7 @@ export function ClubDetailsTab({
     <div className="px-6 py-6 space-y-6">
       <div>
         <p className="text-sm text-white/50 mb-2">About this club</p>
-        <p className="text-white/80 leading-relaxed whitespace-pre-line line-clamp-3 max-w-[800px] min-h-24">
+        <p className="text-white/80 leading-relaxed whitespace-pre-line line-clamp-4 max-w-[800px] sm:min-h-24">
           {club.description || "No description provided."}
         </p>
       </div>

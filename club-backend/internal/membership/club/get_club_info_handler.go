@@ -48,18 +48,6 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 		return
 	}
 
-	members, err := s.repo.GetClubMemberByClubID(c.Request.Context(), clubInfo.ID)
-	if err != nil {
-		s.logger.Error(
-			"failed : GetClubMemberByClubID",
-			zap.Error(err),
-			zap.String("path", c.Request.URL.Path),
-			zap.String("method", c.Request.Method),
-		)
-	
-		response.InternalServerError(c, "failed to load members")
-		return
-	}
 
 	description := ""
 	if clubInfo.Description != nil {
@@ -114,18 +102,9 @@ func (s *GetClubInfo) Handler(c *gin.Context) {
 			JoinedAt:	    joinedAt,
 			MemberRole:     clubInfo.MemberRole,
 		},
-		Members: make([]Member, 0, len(members)),
+	
 	}
 
-	for _, m := range members {
-		resp.Members = append(resp.Members, Member{
-			MemberDisplayName: m.MemberDisplayName,
-			MemberUsername: m.MemberUsername,
-			MemberID:       m.MemberID,
-			Role:           m.Role,
-			JoinedAt:       m.JoinedAt.Unix(),
-		})
-	}
-
+	
 	response.OK(c, resp)
 }

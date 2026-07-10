@@ -82,7 +82,7 @@ export interface ClubMember {
   id: string;
   role: string;
   joinedAt: number;
-  isPending: boolean;
+  isPending?: boolean;
   isInvited?: boolean;
 }
 // --- API Functions ---

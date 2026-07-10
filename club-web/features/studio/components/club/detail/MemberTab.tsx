@@ -33,12 +33,15 @@ export function MembersTab({
   clubId,
   members,
   isOwner,
+  currentUserId,
   onInvite,
   onMemberInvited,
 }: {
   clubId: number | string;
   members: ClubMember[];
   isOwner: boolean;
+  /** The logged-in user's member id — used to show "Leave club" only on their own row. */
+  currentUserId: string;
   onInvite?: () => void;
   onMemberInvited?: (member: SearchMember, roleId: MemberRoleId) => void;
 }) {
@@ -95,7 +98,8 @@ export function MembersTab({
             onClick={handleInviteClick}
             className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 w-full sm:w-auto justify-center"
           >
-            <UserPlus className="h-4 w-4" />+ Invite member
+            <UserPlus className="h-4 w-4" />
+            Invite member
           </Button>
         )}
       </div>
@@ -123,6 +127,8 @@ export function MembersTab({
           const joined = member.joinedAt
             ? formatUnixDate(member.joinedAt)
             : "—";
+          const isSelf = member.id === currentUserId;
+          const canRemove = isOwner && !isSelf;
 
           return (
             <li key={member.id} className="relative">
@@ -150,7 +156,7 @@ export function MembersTab({
                       </span>
                     )}
 
-                  {isOwner && (
+                  {(isOwner || isSelf) && (
                     <button
                       onClick={() => toggleMenu(member.id)}
                       className="cursor-pointer md:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
@@ -181,7 +187,7 @@ export function MembersTab({
                 </span>
 
                 <div className="hidden md:flex justify-end">
-                  {isOwner && (
+                  {(isOwner || isSelf) && (
                     <button
                       onClick={() => toggleMenu(member.id)}
                       className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
@@ -196,7 +202,7 @@ export function MembersTab({
                 <>
                   <div className="fixed inset-0 z-40" onClick={closeMenu} />
                   <div className="absolute right-0 top-15 z-50 w-56 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-xl">
-                    {joinRequest && (
+                    {joinRequest && isOwner && (
                       <>
                         <button
                           onClick={() => {
@@ -259,7 +265,7 @@ export function MembersTab({
                       </>
                     )}
 
-                    {member.isInvited && (
+                    {member.isInvited && isOwner && (
                       <button
                         onClick={() => {
                           cancelRequest.mutate(
@@ -290,45 +296,45 @@ export function MembersTab({
                       </button>
                     )}
 
-                    {!pending && (
-                      <>
-                        <button
-                          onClick={closeMenu}
-                          disabled={isOwner}
-                          className="disabled:opacity-50 flex w-full items-center gap-2 px-4 py-3 text-sm disabled:text-gray-600 text-red-400 !disabled:hover:bg-white/5 transition-colors"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Leave club
-                        </button>
-                        <button
-                          onClick={() => {
-                            removeMember.mutate(
-                              {
-                                clubId,
-                                memberId: member.id,
+                    {!pending && isSelf && (
+                      <button
+                        onClick={closeMenu}
+                        className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Leave club
+                      </button>
+                    )}
+
+                    {!pending && canRemove && (
+                      <button
+                        onClick={() => {
+                          removeMember.mutate(
+                            {
+                              clubId,
+                              memberId: member.id,
+                            },
+                            {
+                              onSuccess: () => {
+                                toast.success("Member has been removed.");
                               },
-                              {
-                                onSuccess: () => {
-                                  toast.success("Member has been removed.");
-                                },
-                                onError: (error) => {
-                                  toast.danger(
-                                    error instanceof Error
-                                      ? error.message
-                                      : "Failed to remove member.",
-                                  );
-                                },
+                              onError: (error) => {
+                                toast.danger(
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Failed to remove member.",
+                                );
                               },
-                            );
-                            closeMenu();
-                          }}
-                          disabled={isOwner || removeMember.isPending}
-                          className="disabled:opacity-50 flex w-full items-center gap-2 px-4 py-3 text-sm disabled:text-gray-600 text-white/70 !disabled:hover:bg-white/5 transition-colors"
-                        >
-                          <UserX className="h-4 w-4" />
-                          Remove member
-                        </button>
-                      </>
+                            },
+                          );
+                          closeMenu();
+                        }}
+                        disabled={removeMember.isPending}
+                        className="disabled:opacity-50 cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm disabled:text-gray-600 text-white/70 hover:bg-white/5 transition-colors"
+                      >
+                        <UserX className="h-4 w-4" />
+                        Remove member
+                      </button>
                     )}
                   </div>
                 </>

@@ -1,5 +1,6 @@
 import { getStoredToken } from "@/lib/storage";
 import {
+  getClubMemberListByName,
   getMembershipClubById,
   getMembershipClubByName,
   getMembershipClubs,
@@ -14,6 +15,7 @@ const CLUB_KEYS = {
   detail: (id: number) => ["membership-club", id] as const,
   detailByName: (name: string) =>
     [...CLUB_KEYS.all, "detail", name.toLowerCase()] as const,
+  members: (name: string) => ["members", name.toLowerCase()] as const,
 };
 
 export const useGetMembershipClubs = () => {
@@ -41,7 +43,6 @@ export const useGetMembershipClubById = (id: number) => {
   return {
     query,
     club: query.data?.clubInfo,
-    members: query.data?.members,
     isLoading: query.isLoading,
   };
 };
@@ -57,7 +58,6 @@ export const useGetMembershipClubByName = (clubName: string) => {
   return {
     query,
     club: query.data?.clubInfo,
-    members: query.data?.members,
     isLoading: query.isLoading,
   };
 };
@@ -91,4 +91,19 @@ export const useLeaveClub = () => {
       });
     },
   });
+};
+
+export const useGetClubMemberListByName = (clubName: string) => {
+  const query = useQuery({
+    queryKey: CLUB_KEYS.members(clubName),
+    queryFn: () => getClubMemberListByName(encodeURIComponent(clubName)),
+    enabled: !!clubName,
+    select: (res) => res.data,
+  });
+
+  return {
+    query,
+    members: query.data?.members,
+    isLoading: query.isLoading,
+  };
 };

@@ -263,7 +263,7 @@ curl -X DELETE http://localhost:9090/api/v1/membership/club/:id/leave \
 
 ---
 
-### GET `/membership/club/:id`
+### GET `/membership/club/:club_name`
 
 Get club info by id.
 
@@ -271,16 +271,16 @@ Get club info by id.
 
 **Path params**
 
-| Param | Type | Description |
-| ----- | ---- | ----------- |
-| `id`  | int  | Club ID     |
+| Param       | Type   | Description |
+| ----------- | ------ | ----------- |
+| `club_name` | string | Club Name   |
 
 **Request body** — none
 
 **Request**
 
 ```bash
-curl -X GET http://localhost:9090/api/v1/membership/club/:id \
+curl -X GET http://localhost:9090/api/v1/membership/club/:club_name \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <token>"
 ```
@@ -291,8 +291,8 @@ curl -X GET http://localhost:9090/api/v1/membership/club/:id \
 {
   "code": 200,
   "success": true,
-  "data": [
-    {
+  "data": {
+    "clubInfo": {
       "id": 3,
       "name": "Chess Club",
       "description": "Strategic minds only",
@@ -304,21 +304,8 @@ curl -X GET http://localhost:9090/api/v1/membership/club/:id \
       "createdAt": 1781916575,
       "isMember": false,
       "memberCount": 1
-    },
-    {
-      "id": 1,
-      "name": "Jane's Club",
-      "description": "A cozy test club",
-      "imageUrl": "",
-      "clubType": "Public",
-      "visibility": "Anyone",
-      "category": "Sports",
-      "tags": null,
-      "createdAt": 1781739788,
-      "isMember": false,
-      "memberCount": 1
     }
-  ]
+  }
 }
 ```
 

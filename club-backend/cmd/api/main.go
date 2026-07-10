@@ -139,6 +139,7 @@ func main() {
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo).Handler)
 	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo).Handler)
 	mbr.GET("/club/:club_name", membershipclub.NewGetClubInfo(memberRepo, logger).Handler)
+	mbr.GET("/club/:club_name/member", membershipclub.NewGetClubMemberList(memberRepo, logger).Handler)
 	mbr.GET("/search", membershipclub.NewSearchClubList(memberRepo, logger).Handler)
 	mbr.GET("/club/category", membershipclub.NewGetClubCategoryList(memberRepo, logger).Handler)
 

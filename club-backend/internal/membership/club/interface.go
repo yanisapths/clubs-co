@@ -28,7 +28,12 @@ type LeaveClubRepo interface {
 
 type GetClubInfoRepo interface {
 	GetClubByName(ctx context.Context, userID *string, clubName string) (*Club, error)
-	GetClubMemberByClubID(ctx context.Context, clubID int64) ([]ClubMember, error)
+}
+
+type GetClubMemberListRepo interface {
+	GetClubByName(ctx context.Context, userID *string, clubName string) (*Club, error)
+	GetClubMemberByClubID(ctx context.Context, clubID int64, includePending bool) ([]ClubMember, error)
+	IsClubOwnerOrCoFounder(ctx context.Context,clubID int64,userID string,) (bool, error)
 }
 
 type MembershipClubRepository interface {
@@ -38,4 +43,5 @@ type MembershipClubRepository interface {
 	JoinClubRepo
 	LeaveClubRepo
 	GetClubInfoRepo
+	GetClubMemberListRepo
 }

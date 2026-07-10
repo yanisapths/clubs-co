@@ -1,4 +1,9 @@
-import { ClubCategory, Space, Tag } from "@/features/studio/api/club";
+import {
+  ClubCategory,
+  ClubMember,
+  Space,
+  Tag,
+} from "@/features/studio/api/club";
 import { SocialLink } from "@/features/studio/api/common";
 import { apiFetch } from "@/lib/api-types";
 import { getStoredToken } from "@/lib/storage";
@@ -75,13 +80,6 @@ export interface Club {
 
 export interface MembershipClubDetailResponse {
   clubInfo: Club;
-  members: {
-    displayName: string;
-    username: string;
-    id: string;
-    role: string;
-    joinedAt: number;
-  }[];
 }
 
 export const getMembershipClubById = (id: number) =>
@@ -113,5 +111,17 @@ export const leaveClub = (id: number, token: string) =>
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
+    },
+  });
+
+export interface ClubMemberListResponse {
+  members: ClubMember[];
+}
+
+export const getClubMemberListByName = (encodedName: string) =>
+  apiFetch<ClubMemberListResponse>(`${baseApi}/${encodedName}/member`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${getStoredToken()}`,
     },
   });

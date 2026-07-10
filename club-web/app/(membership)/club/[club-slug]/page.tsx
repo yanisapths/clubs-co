@@ -7,24 +7,36 @@ import {
   ClubBanner,
   ClubMeta,
 } from "@/features/studio/components/club/detail/ClubMeta";
-import { useGetMembershipClubByName } from "@/features/membership/hooks/use-club";
+import {
+  useGetClubMemberListByName,
+  useGetMembershipClubByName,
+} from "@/features/membership/hooks/use-club";
 import { ClubDetailsTab } from "@/features/membership/components/club/DetailTab";
 import { JoinFooter } from "@/features/membership/components/club/JoinFooter";
-import { formatUnixDate } from "@/lib/utils";
+import { useAccountAuth } from "@/hooks/use-account-auth";
+import { useModal } from "@/hooks/use-modal";
+import { InviteMemberModal } from "@/features/shared/components/InviteMemberModal";
 
 const TABS = ["General", "Members"] as const;
 type Tab = (typeof TABS)[number];
 
 const ClubDetailPage = () => {
   const router = useRouter();
+  const { user } = useAccountAuth();
   const params = useParams<{ "club-slug": string }>();
   const clubSlug = params["club-slug"];
-  const { club, members, isLoading, query } =
-    useGetMembershipClubByName(clubSlug);
+  const { club, isLoading, query } = useGetMembershipClubByName(clubSlug);
+  const {
+    members,
+    isLoading: isMemberLoading,
+    query: memberQuery,
+  } = useGetClubMemberListByName(clubSlug);
   const [activeTab, setActiveTab] = useState<Tab>("General");
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
+  const { show: showInvite } = useModal();
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
 
-  if (isLoading) {
+  if (isLoading || isMemberLoading) {
     return (
       <div className="relative min-h-screen bg-black">
         <div className="flex h-screen items-center justify-center text-white/40 text-sm">
@@ -34,7 +46,7 @@ const ClubDetailPage = () => {
     );
   }
 
-  if (query.isError || !club) {
+  if (memberQuery.isError || query.isError || !club) {
     return (
       <div className="relative min-h-screen bg-black">
         <div className="flex h-screen flex-col items-center justify-center gap-4 text-center">
@@ -79,7 +91,14 @@ const ClubDetailPage = () => {
           setIsGalleryOpen={setIsGalleryOpen}
         />
       ) : (
-        <MembersTab members={members ?? []} isOwner={club.isOwner} />
+        <MembersTab
+          members={members ?? []}
+          isOwner={club.isOwner}
+          onInvite={showInvite}
+          clubId={club.id}
+          onMemberInvited={() => query.refetch()}
+          currentUserId={user.id}
+        />
       )}
 
       {activeTab == "General" ? (
@@ -91,6 +110,14 @@ const ClubDetailPage = () => {
           <JoinFooter club={club} />
         </div>
       ) : null}
+
+      <InviteMemberModal
+        isOpen={isInviteOpen}
+        onClose={() => setIsInviteOpen(false)}
+        clubId={club.id}
+        existingMembers={members || []}
+        onInvited={() => query.refetch()}
+      />
     </div>
   );
 };
