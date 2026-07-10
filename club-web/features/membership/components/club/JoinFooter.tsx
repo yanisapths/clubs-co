@@ -2,28 +2,47 @@
 import { Button } from "@/design-system/components/button";
 import { Tag } from "@/features/shared/components/Tag";
 import { useAccountAuth } from "@/hooks/use-account-auth";
-import { Clock3Icon, LockIcon, LogOut, MoreHorizontal } from "lucide-react";
+import {
+  Clock3Icon,
+  LockIcon,
+  LogOut,
+  Mail,
+  MoreHorizontal,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useJoinClub, useLeaveClub } from "../../hooks/use-club";
+import { useClubInviteResponse } from "../../hooks/use-invite-response";
 import { toast } from "@heroui/react";
 import { Club } from "../../api/club";
 import { formatUnixDate } from "@/lib/utils";
+import { InviteLetterCard } from "./InviteLetterCard";
 
 interface JoinFooterProps {
   club: Club;
   clubSlug: string;
+  onInviteResponded?: () => void;
 }
 
-export const JoinFooter = ({ club, clubSlug }: JoinFooterProps) => {
-  const { isLoggedIn } = useAccountAuth();
+export const JoinFooter = ({
+  club,
+  clubSlug,
+  onInviteResponded,
+}: JoinFooterProps) => {
+  const { isLoggedIn, user } = useAccountAuth();
   const [openMenu, setOpenMenu] = useState<boolean>(false);
   const router = useRouter();
   const leaveClub = useLeaveClub();
   const joinClub = useJoinClub();
+  const { respond, pendingAction, error } = useClubInviteResponse(club.id);
   const isOwner = club.isOwner;
   const isJoined = club.isMember || isOwner ? true : false;
   const isPrivate = club.clubType == "Private";
+  const hasInvite = !isJoined && !isOwner && !!club.invite?.isInvited;
+
+  // Opens automatically the moment this club has a pending invite for the
+  // current user — re-openable afterwards via the footer row if dismissed.
+  const [isLetterOpen, setIsLetterOpen] = useState<boolean>(hasInvite);
 
   const toggleMenu = () => {
     setOpenMenu((prev) => (prev === false ? true : false));
@@ -80,9 +99,44 @@ export const JoinFooter = ({ club, clubSlug }: JoinFooterProps) => {
     );
   };
 
+  const handleAcceptInvite = async () => {
+    // const result = await respond("accept");
+    // if (result.ok) {
+    //   toast.success(`Welcome to ${club.name}!`);
+    //   setIsLetterOpen(false);
+    //   onInviteResponded?.();
+    // } else {
+    //   toast.danger(result.error ?? "Failed to accept invitation.");
+    // }
+  };
+
+  const handleDeclineInvite = async () => {
+    // const result = await respond("decline");
+    // if (result.ok) {
+    //   toast.info("Invitation declined.");
+    //   setIsLetterOpen(false);
+    //   onInviteResponded?.();
+    // } else {
+    //   toast.danger(result.error ?? "Failed to decline invitation.");
+    // }
+  };
+
   return (
     <div className="border-t border-white/20 bg-black py-4 shadow-xl text-white">
-      {isOwner || isJoined ? (
+      {hasInvite ? (
+        <div className="flex sm:flex-row flex-col gap-3 items-center justify-between px-6">
+          <div className="flex items-center gap-2 text-sm text-white/80">
+            <Mail className="h-4 w-4 text-[#FFB7F9]" />
+            You have an invitation to join this club
+          </div>
+          <Button
+            onClick={() => setIsLetterOpen(true)}
+            className="bg-[#FFB7F9] text-[#560530] hover:bg-[#FFB7F9] hover:text-[#560530] hover:opacity-90"
+          >
+            View invitation
+          </Button>
+        </div>
+      ) : isOwner || isJoined ? (
         <div className="flex justify-between items-center">
           <div className="flex justify-start text-sm px-6 text-white/70">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -120,6 +174,20 @@ export const JoinFooter = ({ club, clubSlug }: JoinFooterProps) => {
           </button>
         </div>
       )}
+
+      {hasInvite && club.invite && (
+        <InviteLetterCard
+          open={isLetterOpen}
+          onClose={() => setIsLetterOpen(false)}
+          clubName={club.name}
+          recipientName={user?.displayName || user?.username || "there"}
+          invite={club.invite}
+          onAccept={handleAcceptInvite}
+          onDecline={handleDeclineInvite}
+          pendingAction={pendingAction}
+          error={error}
+        />
+      )}
     </div>
   );
 
@@ -150,7 +218,6 @@ export const JoinFooter = ({ club, clubSlug }: JoinFooterProps) => {
           isPending={joinClub.isPending}
           isDisabled={joinClub.isPending}
         >
-          {/* start content Locked  icon */}
           <div className="flex items-center gap-2">
             <LockIcon />
             Request to join

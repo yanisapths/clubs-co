@@ -16,6 +16,8 @@ import { JoinFooter } from "@/features/membership/components/club/JoinFooter";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useModal } from "@/hooks/use-modal";
 import { InviteMemberModal } from "@/features/shared/components/InviteMemberModal";
+import { InviteLetterCard } from "@/features/membership/components/club/InviteLetterCard";
+import { useClubInviteResponse } from "@/features/membership/hooks/use-invite-response";
 
 const TABS = ["General", "Members"] as const;
 type Tab = (typeof TABS)[number];
@@ -35,6 +37,7 @@ const ClubDetailPage = () => {
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
   const { show: showInvite } = useModal();
   const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const { respond, error } = useClubInviteResponse(Number(club?.id));
 
   if (isLoading || isMemberLoading) {
     return (

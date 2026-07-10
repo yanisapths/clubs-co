@@ -76,8 +76,17 @@ export interface Club {
   joinedAt: number | null;
   memberRole?: MemberRole;
   isPending?: boolean;
+  invite?: InviteInfo;
 }
 
+export interface InviteInfo {
+  inviterUsername: string;
+  inviterDisplayName: string;
+  inviterImageUrl: string;
+  invitedAt: number;
+  invitedAs: string;
+  isInvited: boolean;
+}
 export interface MembershipClubDetailResponse {
   clubInfo: Club;
 }
