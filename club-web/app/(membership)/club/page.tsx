@@ -37,7 +37,9 @@ export default function AllClubListPage() {
         )}
         <div className="flex flex-col gap-6">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-white sm:text-5xl">Clubs</h1>
+            <h1 className="text-4xl font-bold text-white sm:text-5xl">
+              Discover Clubs
+            </h1>
             <p className="mx-auto mt-3 text-xl text-white/90">
               Clubspace is the place to grow communities and share passion in
               spaces where people connect.
@@ -47,7 +49,7 @@ export default function AllClubListPage() {
           <h2 className="text-xl font-semibold text-white">
             Categories to explore
           </h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
             {categories.map((c) => (
               <CategoryCard
                 key={c.id}
@@ -58,9 +60,9 @@ export default function AllClubListPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {clubs.map((club) => (
-            <div key={club.id} className="w-[120px]">
+            <div key={club.id}>
               <ClubCard
                 club={club}
                 onClick={() => router.push(`/club/${toClubSlug(club.name)}`)}

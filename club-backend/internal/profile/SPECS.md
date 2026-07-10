@@ -156,7 +156,7 @@ curl -X GET http://localhost:9090/api/v1/profile/club \
 
 **`DELET /profile`**
 
-Delete user's related and delete user.
+Delete user's related and delete user. -- delete everything users owned e.g. all clubs owned by user will be removed
 
 ### Request
 

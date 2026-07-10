@@ -83,6 +83,7 @@ curl -X GET http://localhost:9090/api/v1/studio/club \
 **`POST /studio/club`**
 
 Creates a new club owned by the authenticated user. Tags and spaces can be reused by ID or created by name.
+Maximum 5 clubs can be created per user.
 
 ### Request Body
 

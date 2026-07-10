@@ -1,7 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { BoxesIcon, DoorOpenIcon, HomeIcon } from "lucide-react";
+import {
+  BoxesIcon,
+  DoorOpenIcon,
+  ExternalLink,
+  FileQuestionMark,
+  FolderOpen,
+  HomeIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { StudioLogo } from "../StudioLogo";
@@ -10,6 +17,11 @@ import { useAccountAuth } from "@/hooks/use-account-auth";
 const mainNavItems = (username: string) => [
   { title: "Home", url: `/${username}`, icon: HomeIcon },
   { title: "Studio", url: `/${username}/studio/club`, icon: BoxesIcon },
+  {
+    title: "Guidelines",
+    url: `/guidelines`,
+    icon: FolderOpen,
+  },
 ];
 
 const bottomNavItems = [{ title: "Find Clubs", url: "/", icon: DoorOpenIcon }];
@@ -30,9 +42,18 @@ export function AppSidebar() {
       )}
     >
       <item.icon className="h-5 w-5 shrink-0" />
-      <span className="truncate opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-        {item.title}
-      </span>
+      {item.title == "Guidelines" ? (
+        <div className="flex items-center gap-2">
+          <span className="truncate opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            {item.title}
+          </span>
+          <ExternalLink className="h-3 w-3 shrink-0" />
+        </div>
+      ) : (
+        <span className="truncate opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          {item.title}
+        </span>
+      )}
     </Link>
   );
 

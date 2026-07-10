@@ -80,7 +80,7 @@ export default function CategoryPage() {
                 />
               ))
             : clubs.map((club) => (
-                <div key={club.id} className="w-[120px]">
+                <div key={club.id}>
                   <ClubCard
                     club={club}
                     onClick={() =>

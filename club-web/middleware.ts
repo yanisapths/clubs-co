@@ -13,6 +13,7 @@ export async function middleware(req: NextRequest) {
     "club",
     "profile",
     "category",
+    "guidelines",
     "favicon.ico",
     "_next",
   ];
@@ -51,6 +52,6 @@ export const config = {
      * - favicon.ico
      * - explicit (membership) routes (login, club, profile)
      */
-    "/((?!api|_next/static|_next/image|favicon\\.ico|login|club|profile|category).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico|login|club|profile|category|guidelines).*)",
   ],
 };

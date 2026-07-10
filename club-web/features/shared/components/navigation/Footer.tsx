@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Logo } from "../Logo";
+import { useAccountAuth } from "@/hooks/use-account-auth";
 
 const FooterLink = ({
   href = "#",
@@ -54,6 +55,7 @@ const FooterColumn = ({
 );
 
 export const Footer = () => {
+  const { user } = useAccountAuth();
   return (
     <footer
       style={{
@@ -100,21 +102,20 @@ export const Footer = () => {
           <FooterColumn
             title="Explore"
             links={[
-              { label: "Discover clubs" },
-              { label: "Spaces" },
-              { label: "Communities" },
-              { label: "Events" },
-              { label: "Members" },
+              { label: "Home", href: "/" },
+              { label: "Discover clubs", href: "/club" },
+              // { label: "Communities" },
+              // { label: "Events" },
+              //
             ]}
           />
           <FooterColumn
             title="Account"
             links={[
-              { label: "Sign up" },
-              { label: "Log in" },
-              { label: "My clubs" },
-              { label: "Settings" },
-              { label: "Forgot password" },
+              { label: "Sign up", href: "/login" },
+              { label: "Account settings", href: `${user.username}` },
+              { label: "Creator studio", href: `${user.username}/studio/club` },
+              { label: "Gudelines", href: "/guidelines" },
             ]}
           />
           <FooterColumn
