@@ -5,9 +5,13 @@ import {
   cancelRequest,
   removeClubMember,
 } from "../api/member";
-import { CLUB_KEYS } from "./use-club";
 
-export const useCancelRequest = (clubId: number) => {
+const invalidateMembers = (queryClient: ReturnType<typeof useQueryClient>) =>
+  queryClient.invalidateQueries({
+    predicate: (query) => query.queryKey[0] === "members",
+  });
+
+export const useCancelRequest = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -18,13 +22,11 @@ export const useCancelRequest = (clubId: number) => {
       clubId: number | string;
       memberId: string;
     }) => cancelRequest(getStoredToken()!, clubId, memberId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubId) });
-    },
+    onSuccess: () => invalidateMembers(queryClient),
   });
 };
 
-export const useRemoveMember = (clubId: number) => {
+export const useRemoveMember = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -35,13 +37,11 @@ export const useRemoveMember = (clubId: number) => {
       clubId: number | string;
       memberId: string;
     }) => removeClubMember(getStoredToken()!, clubId, memberId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubId) });
-    },
+    onSuccess: () => invalidateMembers(queryClient),
   });
 };
 
-export const useApproveMemberRequest = (clubId: number) => {
+export const useApproveMemberRequest = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -52,8 +52,6 @@ export const useApproveMemberRequest = (clubId: number) => {
       clubId: number | string;
       memberId: string;
     }) => approveMemberRequest(getStoredToken()!, clubId, memberId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubId) });
-    },
+    onSuccess: () => invalidateMembers(queryClient),
   });
 };

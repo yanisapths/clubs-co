@@ -2,14 +2,7 @@
 import { Button } from "@/design-system/components/button";
 import { Tag } from "@/features/shared/components/Tag";
 import { useAccountAuth } from "@/hooks/use-account-auth";
-import {
-  Clock3Icon,
-  LockIcon,
-  LogOut,
-  MoreHorizontal,
-  PlaneIcon,
-  SendToBackIcon,
-} from "lucide-react";
+import { Clock3Icon, LockIcon, LogOut, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useJoinClub, useLeaveClub } from "../../hooks/use-club";
@@ -19,9 +12,10 @@ import { formatUnixDate } from "@/lib/utils";
 
 interface JoinFooterProps {
   club: Club;
+  clubSlug: string;
 }
 
-export const JoinFooter = ({ club }: JoinFooterProps) => {
+export const JoinFooter = ({ club, clubSlug }: JoinFooterProps) => {
   const { isLoggedIn } = useAccountAuth();
   const [openMenu, setOpenMenu] = useState<boolean>(false);
   const router = useRouter();
@@ -48,36 +42,42 @@ export const JoinFooter = ({ club }: JoinFooterProps) => {
       return;
     }
 
-    joinClub.mutate(club.id, {
-      onSuccess: () => {
-        toast.success("Joined club successfully!");
+    joinClub.mutate(
+      { clubId: club.id, clubName: clubSlug },
+      {
+        onSuccess: () => {
+          toast.success("Joined club successfully!");
+        },
+        onError: (error) => {
+          toast.danger(
+            error instanceof Error ? error.message : "Failed to join club.",
+          );
+        },
       },
-      onError: (error) => {
-        toast.danger(
-          error instanceof Error ? error.message : "Failed to join club.",
-        );
-      },
-    });
+    );
   };
 
   const handleLeaveClub = ({ cancelRequest }: { cancelRequest: boolean }) => {
-    leaveClub.mutate(club.id, {
-      onSuccess: () => {
-        toast.success(
-          cancelRequest ? "Request cancelled." : "Left club successfully. 😢",
-        );
-        setOpenMenu(false);
+    leaveClub.mutate(
+      { clubId: club.id, clubName: clubSlug },
+      {
+        onSuccess: () => {
+          toast.success(
+            cancelRequest ? "Request cancelled." : "Left club successfully. 😢",
+          );
+          setOpenMenu(false);
+        },
+        onError: (error) => {
+          toast.danger(
+            error instanceof Error
+              ? error.message
+              : cancelRequest
+                ? "Failed to cancel request."
+                : "Failed to leave club.",
+          );
+        },
       },
-      onError: (error) => {
-        toast.danger(
-          error instanceof Error
-            ? error.message
-            : cancelRequest
-              ? "Failed to cancel request."
-              : "Failed to leave club.",
-        );
-      },
-    });
+    );
   };
 
   return (

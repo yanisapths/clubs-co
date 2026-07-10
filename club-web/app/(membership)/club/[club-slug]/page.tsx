@@ -96,7 +96,7 @@ const ClubDetailPage = () => {
           isOwner={club.isOwner}
           onInvite={showInvite}
           clubId={club.id}
-          onMemberInvited={() => query.refetch()}
+          onMemberInvited={() => memberQuery.refetch()}
           currentUserId={user.id}
         />
       )}
@@ -107,7 +107,7 @@ const ClubDetailPage = () => {
             isGalleryOpen ? "pointer-events-none opacity-0" : "opacity-100"
           }`}
         >
-          <JoinFooter club={club} />
+          <JoinFooter club={club} clubSlug={clubSlug} />
         </div>
       ) : null}
 
@@ -116,7 +116,7 @@ const ClubDetailPage = () => {
         onClose={() => setIsInviteOpen(false)}
         clubId={club.id}
         existingMembers={members || []}
-        onInvited={() => query.refetch()}
+        onInvited={() => memberQuery.refetch()}
       />
     </div>
   );

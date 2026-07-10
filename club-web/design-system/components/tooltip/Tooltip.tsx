@@ -14,13 +14,13 @@ export const Tooltip = ({
   return (
     <HeroUITooltip
       shadow="none"
-      showArrow
+      showArrow={true}
       {...tooltipProps}
       content={isContentString ? <p>{content}</p> : content}
       classNames={{
         ...tooltipProps.classNames,
         content: cn(
-          "py-lg px-lg rounded-sm bg-white",
+          "py-lg px-lg text-xs rounded-sm bg-white/10 text-white",
           tooltipProps.classNames?.content,
         ),
         base: cn(

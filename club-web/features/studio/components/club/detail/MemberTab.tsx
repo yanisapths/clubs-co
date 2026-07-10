@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatUnixDate } from "@/lib/utils";
 import { Button, toast } from "@heroui/react";
 import {
@@ -7,6 +8,7 @@ import {
   Check,
   X,
   UserX,
+  InfoIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { ClubMember, MemberAvatar } from "./MemberAvatar";
@@ -19,6 +21,7 @@ import {
   useCancelRequest,
   useRemoveMember,
 } from "@/features/studio/hooks/use-member";
+import { Tooltip } from "@/design-system/components/tooltip";
 
 const ROW_GRID_COLS =
   "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_260px_160px_88px]";
@@ -54,9 +57,9 @@ export function MembersTab({
 
   const isPending = (m: ClubMember) => m.isPending || m.isInvited;
   const isJoinRequest = (m: ClubMember) => m.isPending && !m.isInvited;
-  const cancelRequest = useCancelRequest(clubId as number);
-  const approveRequest = useApproveMemberRequest(clubId as number);
-  const removeMember = useRemoveMember(clubId as number);
+  const cancelRequest = useCancelRequest();
+  const approveRequest = useApproveMemberRequest();
+  const removeMember = useRemoveMember();
 
   const pendingRequestsCount = members.filter(
     (m) => m.isPending && !m.isInvited,
@@ -169,7 +172,7 @@ export function MembersTab({
                   {statusLabel ? (
                     <>
                       <span
-                        className={`text-xs ${pending ? "text-white/30 italic" : "text-white/60"}`}
+                        className={`text-xs ${member.isInvited ? "text-white/30 italic" : member.isPending ? "text-yellow-200/70 italic" : "text-white/60"}`}
                       >
                         {statusLabel}
                       </span>
@@ -187,13 +190,20 @@ export function MembersTab({
                 </div>
 
                 <span
-                  className={`hidden md:block text-right text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
+                  className={`hidden md:block  ${member.isInvited ? "text-white/30 italic" : member.isPending ? "text-yellow-200/70 italic" : "text-white/60"}`}
                 >
-                  {statusLabel ? statusLabel : null}{" "}
-                  {statusLabel ? (
-                    <span className="px-2 text-white/20">•</span>
-                  ) : null}{" "}
-                  {member.role}
+                  <div className="flex items-center gap-1 text-sm justify-end text-center">
+                    {member.isPending && !member.isInvited && (
+                      <Tooltip content="Pending founder or co-founder action">
+                        <InfoIcon size={12} />
+                      </Tooltip>
+                    )}
+                    {statusLabel ? statusLabel : null}{" "}
+                    {statusLabel ? (
+                      <span className="px-2 text-white/20">•</span>
+                    ) : null}
+                    {member.role}
+                  </div>
                 </span>
 
                 <span className="hidden md:block text-right text-sm text-white/40">

@@ -66,12 +66,13 @@ export const useJoinClub = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (clubId: number) => {
-      return joinClub(clubId, getStoredToken()!);
-    },
-    onSuccess: (_, clubId) => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.detail(clubId) });
+    mutationFn: ({ clubId }: { clubId: number; clubName: string }) =>
+      joinClub(clubId, getStoredToken()!),
+    onSuccess: (_, { clubName }) => {
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubName) });
+      queryClient.invalidateQueries({
+        queryKey: CLUB_KEYS.detailByName(clubName),
+      });
     },
   });
 };
@@ -80,14 +81,12 @@ export const useLeaveClub = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (clubId: number) => leaveClub(clubId, getStoredToken()!),
-    onSuccess: (_, clubId) => {
+    mutationFn: ({ clubId }: { clubId: number; clubName: string }) =>
+      leaveClub(clubId, getStoredToken()!),
+    onSuccess: (_, { clubName }) => {
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubName) });
       queryClient.invalidateQueries({
-        queryKey: CLUB_KEYS.all,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: CLUB_KEYS.detail(clubId),
+        queryKey: CLUB_KEYS.detailByName(clubName),
       });
     },
   });
