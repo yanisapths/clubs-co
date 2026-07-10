@@ -112,7 +112,8 @@ func main() {
 		studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
 		studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
 		studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
-		
+		studio.GET("/club/:id/member", studioclub.NewGetClubMemberListById(studioClubRepo, logger).Handler)
+		// clubmember
 		studio.POST("/club/:id/member/invite", clubmember.NewInviteClubMember(studioClubMemberRepo, logger).Handler)
 		studio.DELETE("/club/:id/member/:member_id/cancel-request", clubmember.NewCancelRequest(studioClubMemberRepo, logger).Handler)
 		studio.DELETE("/club/:id/member/:member_id", clubmember.NewRemoveClubMember(studioClubMemberRepo, logger).Handler)

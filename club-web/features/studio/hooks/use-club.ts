@@ -10,6 +10,7 @@ import {
   type Club,
   patchClubById,
   PatchClubPayload,
+  getClubMemberListById,
 } from "../api/club";
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { getStoredToken } from "@/lib/storage";
@@ -17,6 +18,7 @@ import { getStoredToken } from "@/lib/storage";
 export const CLUB_KEYS = {
   all: ["clubs"] as const,
   detail: (id: number | string) => ["clubs", Number(id)] as const,
+  members: (id: number | string) => ["members", Number(id)] as const,
 };
 
 export const useGetOwnerClubs = () => {
@@ -49,6 +51,22 @@ export const useGetClubById = (id: number) => {
   return {
     query,
     club: query.data?.clubInfo,
+    isLoading: query.isLoading,
+  };
+};
+
+export const useGetClubMemberListById = (id: number) => {
+  const { isLoggedIn } = useAccountAuth();
+
+  const query = useQuery({
+    queryKey: CLUB_KEYS.members(id),
+    queryFn: () => getClubMemberListById(getStoredToken()!, id),
+    enabled: isLoggedIn && !!id,
+    select: (res) => res.data,
+  });
+
+  return {
+    query,
     members: query.data?.members,
     isLoading: query.isLoading,
   };

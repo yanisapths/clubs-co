@@ -74,17 +74,8 @@ export interface UpdateClubPayload {
 
 export interface ClubDetail {
   clubInfo: Club;
-  members: ClubMember[];
 }
-export interface ClubMember {
-  displayName: string;
-  username: string;
-  id: string;
-  role: string;
-  joinedAt: number;
-  isPending?: boolean;
-  isInvited?: boolean;
-}
+
 // --- API Functions ---
 
 export const getClubList = (token: string) =>
@@ -185,3 +176,22 @@ export async function checkClubExist(params: {
   const json = await res.json();
   return json.data.exist;
 }
+
+export interface ClubMemberResponse {
+  members: ClubMember[];
+}
+export interface ClubMember {
+  displayName: string;
+  username: string;
+  id: string;
+  role: string;
+  joinedAt: number;
+  isPending?: boolean;
+  isInvited?: boolean;
+}
+
+export const getClubMemberListById = (token: string, id: number) =>
+  apiFetch<ClubMemberResponse>(`${baseApi}/${id}/member`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });

@@ -94,6 +94,8 @@ type InviteClubMemberRequest struct {
 
 type GetClubByIDResponse struct {
 	ClubInfo ClubResponse `json:"clubInfo"`
+}
+type ClubMemberResponse struct {
 	Members  []Member `json:"members"`
 }
 

@@ -19,7 +19,7 @@ export const useCancelRequest = (clubId: number) => {
       memberId: string;
     }) => cancelRequest(getStoredToken()!, clubId, memberId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.detail(clubId) });
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubId) });
     },
   });
 };
@@ -36,7 +36,7 @@ export const useRemoveMember = (clubId: number) => {
       memberId: string;
     }) => removeClubMember(getStoredToken()!, clubId, memberId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.detail(clubId) });
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubId) });
     },
   });
 };
@@ -53,7 +53,7 @@ export const useApproveMemberRequest = (clubId: number) => {
       memberId: string;
     }) => approveMemberRequest(getStoredToken()!, clubId, memberId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.detail(clubId) });
+      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubId) });
     },
   });
 };

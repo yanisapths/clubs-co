@@ -18,7 +18,6 @@ type DeleteClubRepo interface {
 
 type GetClubByIdRepo interface {
 	GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error)
-	GetClubMemberByClubID(ctx context.Context, clubID int64) ([]ClubMember, error)
 }
 type PatchClubByIdRepo interface {
 	GetClubImageURL(ctx context.Context, clubID int64, ownerID string) (*string, error)
@@ -31,6 +30,11 @@ type GetClubExistRepo interface {
 	GetExistClub(ctx context.Context, name *string) (bool, error)
 }
 
+type GetClubMemberListByIdRepo interface {
+	GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error)
+	GetClubMemberByClubID(ctx context.Context, clubID int64) ([]ClubMember, error)
+}
+
 type ClubRepository interface {
 	CreateClubRepo
 	GetClubRepo
@@ -39,4 +43,5 @@ type ClubRepository interface {
 	GetClubByIdRepo
 	PatchClubByIdRepo
 	GetClubExistRepo
+	GetClubMemberListByIdRepo
 }

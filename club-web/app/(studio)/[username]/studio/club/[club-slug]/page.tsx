@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { StudioHeader } from "@/features/studio/components/layout/Header";
 import { useAccountAuth } from "@/hooks/use-account-auth";
-import { useGetClubById } from "@/features/studio/hooks/use-club";
+import {
+  useGetClubById,
+  useGetClubMemberListById,
+} from "@/features/studio/hooks/use-club";
 import { useModal } from "@/hooks/use-modal";
 import { MembersTab } from "@/features/studio/components/club/detail/MemberTab";
 import { SettingTab } from "@/features/studio/components/club/detail/SettingTab";
@@ -21,14 +24,19 @@ const ClubDetailPage = () => {
   const router = useRouter();
   const params = useParams<{ username: string; "club-slug": string }>();
   const clubId = params["club-slug"];
-  const { club, members, isLoading, query } = useGetClubById(Number(clubId));
+  const { club, isLoading, query } = useGetClubById(Number(clubId));
+  const {
+    members,
+    isLoading: isMemberLoading,
+    query: memberQuery,
+  } = useGetClubMemberListById(Number(clubId));
   const { show: showInvite } = useModal();
 
   const [activeTab, setActiveTab] = useState<Tab>("General");
 
   const isOwner = club?.owner === user?.username;
 
-  if (isLoading) {
+  if (isLoading || isMemberLoading) {
     return (
       <div className="relative min-h-screen bg-black">
         <StudioHeader />
@@ -39,7 +47,7 @@ const ClubDetailPage = () => {
     );
   }
 
-  if (query.isError || !club) {
+  if (query.isError || memberQuery.isError || !club) {
     return (
       <div className="relative min-h-screen bg-black">
         <StudioHeader />

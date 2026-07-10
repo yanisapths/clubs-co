@@ -48,18 +48,18 @@ func (s *GetClubById) Handler(c *gin.Context) {
 		return
 	}
 
-	members, err := s.repo.GetClubMemberByClubID(c.Request.Context(), clubID)
-	if err != nil {
-		s.logger.Error(
-			"failed : GetClubMemberByClubID",
-			zap.Error(err),
-			zap.String("path", c.Request.URL.Path),
-			zap.String("method", c.Request.Method),
-		)
+	// members, err := s.repo.GetClubMemberByClubID(c.Request.Context(), clubID)
+	// if err != nil {
+	// 	s.logger.Error(
+	// 		"failed : GetClubMemberByClubID",
+	// 		zap.Error(err),
+	// 		zap.String("path", c.Request.URL.Path),
+	// 		zap.String("method", c.Request.Method),
+	// 	)
 	
-		response.InternalServerError(c, "failed to load members")
-		return
-	}
+	// 	response.InternalServerError(c, "failed to load members")
+	// 	return
+	// }
 
 	description := ""
 	if clubInfo.Description != nil {
@@ -104,21 +104,10 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			PendingMemberCount: clubInfo.PendingMemberCount,
 			PendingInviteCount: clubInfo.PendingInviteCount,
 		},
-		Members: make([]Member, 0, len(members)),
+	
 	}
 
-	for _, m := range members {
-		displayName := m.MemberDisplayName
-		resp.Members = append(resp.Members, Member{
-			MemberDisplayName: displayName,
-			MemberUsername: m.MemberUsername,
-			MemberID:       m.MemberID,
-			Role:           m.Role,
-			JoinedAt:       m.JoinedAt.Unix(),
-			IsPending: 		m.IsPending,
-			IsInvited:      m.IsInvited,
-		})
-	}
+	
 
 	response.OK(c, resp)
 }
