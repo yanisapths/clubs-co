@@ -63,7 +63,7 @@ export function ClubImageUpload({
 
   return (
     <div className={className}>
-      <div className="mb-3 flex items-center gap-2">
+      <div className="px-4 md:px-0 mb-3 flex items-center gap-2">
         <h4 className="text-sm font-semibold text-white">Club Image</h4>
         <Info className="h-4 w-4 text-zinc-500" aria-hidden="true" />
       </div>
@@ -83,7 +83,7 @@ export function ClubImageUpload({
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={`relative flex aspect-video w-full max-w-[400px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed transition-colors ${
+        className={`relative flex aspect-video w-full scale-90 md:scale-100 md:max-w-[400px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed transition-colors ${
           isDragging
             ? "border-zinc-500 bg-zinc-900/80"
             : "border-zinc-700 bg-zinc-950/40 hover:border-zinc-600"

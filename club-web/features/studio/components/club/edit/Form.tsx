@@ -135,7 +135,7 @@ export function EditClubForm({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto lg:w-2/3">
+        <div className="-mt-8 sm:mt-0 sm:min-h-0 sm:flex-1 overflow-y-auto lg:w-2/3">
           <div className="flex flex-col gap-8 pb-10 px-4 sm:px-20 sm:pt-12">
             <section>
               <ClubBasicInfoForm

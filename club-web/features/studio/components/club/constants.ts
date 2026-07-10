@@ -20,7 +20,7 @@ export const isValidSpace = (space: ClubSpace) =>
 export function validateForm(
   data: ClubFormData,
   nameExist: boolean,
-  quotaExceeded: boolean,
+  quotaExceeded?: boolean,
 ): boolean {
   if (nameExist) return false;
   if (quotaExceeded) return false;

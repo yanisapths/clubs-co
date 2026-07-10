@@ -12,16 +12,16 @@ export function ClubFormHeader({
 }: ClubFormHeaderProps) {
   return (
     <header className="border-b border-zinc-800 py-4 px-2 sm:px-8">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center sm:gap-4 gap-2">
         <button
           type="button"
           onClick={onBack}
           aria-label="Go back"
-          className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-white/10"
+          className="cursor-pointer flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-white/10"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
-        <div className="flex sm:text-xl text-zinc-400">
+        <div className="flex text-sm sm:text-xl text-zinc-400">
           creator studio <span className="mx-2 text-zinc-600">/</span>
           {isEdit ? (
             <div onClick={onBack} className="flex">
