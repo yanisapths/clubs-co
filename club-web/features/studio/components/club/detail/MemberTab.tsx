@@ -39,6 +39,7 @@ export function MembersTab({
   currentUserId,
   onInvite,
   onMemberInvited,
+  isPermit,
 }: {
   clubId: number | string;
   members: ClubMember[];
@@ -46,6 +47,7 @@ export function MembersTab({
   currentUserId: string;
   onInvite?: () => void;
   onMemberInvited?: (member: SearchMember, roleId: MemberRoleId) => void;
+  isPermit?: boolean;
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -74,26 +76,28 @@ export function MembersTab({
   return (
     <div className="px-3 sm:px-6 py-4 sm:py-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-5">
-        <div className="flex flex-wrap items-center text-center justify-center gap-6 sm:gap-8">
-          <div>
-            <p className="text-xs uppercase tracking-wider text-white/40">
-              Total
-            </p>
-            <p className="mt-0.5 text-white">{members.length}</p>
+        {isPermit || isOwner ? (
+          <div className="flex flex-wrap items-center text-center justify-center gap-6 sm:gap-8">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-white/40">
+                Total
+              </p>
+              <p className="mt-0.5 text-white">{members.length}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-white/40">
+                Pending
+              </p>
+              <p className="mt-0.5 text-white">{pendingRequestsCount}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-white/40">
+                Invited
+              </p>
+              <p className="mt-0.5 font-semibold text-white">{invitedCount}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-wider text-white/40">
-              Pending
-            </p>
-            <p className="mt-0.5 text-white">{pendingRequestsCount}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wider text-white/40">
-              Invited
-            </p>
-            <p className="mt-0.5 font-semibold text-white">{invitedCount}</p>
-          </div>
-        </div>
+        ) : null}
 
         {isOwner && (
           <Button

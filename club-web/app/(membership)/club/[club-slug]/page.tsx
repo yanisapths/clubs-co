@@ -98,6 +98,11 @@ const ClubDetailPage = () => {
           clubId={club.id}
           onMemberInvited={() => memberQuery.refetch()}
           currentUserId={user.id}
+          isPermit={
+            club.memberRole == "Founder" || club.memberRole == "CoFounder"
+              ? true
+              : false
+          }
         />
       )}
 
