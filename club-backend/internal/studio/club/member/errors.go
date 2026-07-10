@@ -14,4 +14,6 @@ var (
 	ErrAlreadyMember       = errors.New("already a member")
 	ErrInviteAlreadyPending = errors.New("invite already pending")
 	ErrUserAlreadyRequestedToJoin = errors.New("member already requested to join, please approve the request.")
+
+	ErrInsufficientPermission = errors.New("insufficient permission")
 )

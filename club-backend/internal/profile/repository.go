@@ -121,13 +121,27 @@ func (r *profileRepository) GetUserClubs(ctx context.Context, ownerID string) ([
 			c.image_url,
 			cmr.name AS role_name,
 			cm.joined_at,
-			cc.name
+			cc.name,
+			COUNT(m.user_id) AS active_member_count
 		FROM public.club_member cm
-		JOIN public.club c              ON c.id  = cm.club_id
-		JOIN public.club_member_roles cmr ON cmr.id = cm.role_id
-		JOIN public.category cc  ON c.category_id  = cc.id
+		JOIN public.club c
+			ON c.id = cm.club_id
+		JOIN public.club_member_roles cmr
+			ON cmr.id = cm.role_id
+		JOIN public.category cc
+			ON cc.id = c.category_id
+		LEFT JOIN public.club_member m
+			ON m.club_id = c.id
+			AND m.status = 'Active'
 		WHERE cm.user_id = $1
-		  AND c.is_deleted = false
+			AND c.is_deleted = false
+		GROUP BY
+			c.id,
+			c.name,
+			c.image_url,
+			cmr.name,
+			cm.joined_at,
+			cc.name
 		ORDER BY cm.joined_at DESC`
 
 	rows, err := r.db.QueryContext(ctx, query, ownerID)
@@ -139,7 +153,15 @@ func (r *profileRepository) GetUserClubs(ctx context.Context, ownerID string) ([
 	var clubs []UserClubEntity
 	for rows.Next() {
 		var e UserClubEntity
-		if err := rows.Scan(&e.ClubID, &e.ClubName, &e.ClubImage, &e.RoleName, &e.JoinedAt, &e.Category); err != nil {
+		if err := rows.Scan(
+			&e.ClubID,
+			&e.ClubName,
+			&e.ClubImage,
+			&e.RoleName,
+			&e.JoinedAt,
+			&e.Category,
+			&e.ActiveMemberCount,
+		); err != nil {
 			return nil, err
 		}
 		clubs = append(clubs, e)

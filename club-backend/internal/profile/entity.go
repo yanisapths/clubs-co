@@ -21,6 +21,7 @@ type UserClubEntity struct {
 	RoleName  string
 	JoinedAt  time.Time
 	Category  string
+	ActiveMemberCount int64
 }
 
 type UserAssets struct {

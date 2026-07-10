@@ -27,6 +27,25 @@ func (s *CreateClub) Handler(c *gin.Context) {
 		return
 	}
 
+	clubAmount, err := s.repo.CountClubByOwnerID(
+		c.Request.Context(),
+		claims.UserID.String(),
+	)
+	if err != nil {
+		s.logger.Error("failed : CountClubByOwnerID",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		response.InternalServerError(c, response.ErrSomethingWentWrong.Error())
+		return
+	}
+	
+	if clubAmount >= 5 {
+		response.BadRequest(c, ErrClubQuotaExceeded.Error())
+		return
+	}
+
 	var req CreateClubRequest
 	if err := c.ShouldBind(&req); err != nil {
 		response.BadRequest(c, response.ErrSomethingWentWrong.Error())

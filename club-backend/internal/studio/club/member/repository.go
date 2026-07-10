@@ -8,12 +8,102 @@ import (
 	"fmt"
 )
 
+//  Founder cannot remove themselves or leave club, they can invite, approve, cancel, kick other member from club
+//  Co founder can leave club, Co founder cannot do any action to higher rank than them but they can invite, approve, cancel, kick other lower member from club
+//  member can leave club
 type memberRepository struct {
 	db *sql.DB
 }
 
 func NewMemberRepository(db *sql.DB) MemberRepository {
 	return &memberRepository{db: db}
+}
+
+func (r *memberRepository) getActiveMemberRank(
+	ctx context.Context,
+	clubID int64,
+	userID string,
+) (int, error) {
+	var rank int
+
+	err := r.db.QueryRowContext(ctx, `
+		SELECT cmr.rank
+		FROM public.club_member cm
+		JOIN public.club_member_roles cmr
+			ON cmr.id = cm.role_id
+		WHERE cm.club_id = $1
+			AND cm.user_id = $2
+			AND cm.status = 'Active'
+	`,
+		clubID,
+		userID,
+	).Scan(&rank)
+
+	if err == sql.ErrNoRows {
+		return 0, ErrNotClubOwner
+	}
+
+	return rank, err
+}
+
+func (r *memberRepository) canManageMember(
+	ctx context.Context,
+	clubID int64,
+	actorID string,
+	targetID string,
+) error {
+	var actorRank int
+
+	err := r.db.QueryRowContext(ctx, `
+		SELECT cmr.rank
+		FROM public.club_member cm
+		JOIN public.club_member_roles cmr
+			ON cmr.id = cm.role_id
+		WHERE cm.club_id = $1
+			AND cm.user_id = $2
+			AND cm.status = 'Active'
+	`,
+		clubID,
+		actorID,
+	).Scan(&actorRank)
+
+	if err == sql.ErrNoRows {
+		return ErrNotClubOwner
+	}
+	if err != nil {
+		return err
+	}
+
+	var targetRank int
+
+	err = r.db.QueryRowContext(ctx, `
+		SELECT cmr.rank
+		FROM public.club_member cm
+		JOIN public.club_member_roles cmr
+			ON cmr.id = cm.role_id
+		WHERE cm.club_id = $1
+			AND cm.user_id = $2
+	`,
+		clubID,
+		targetID,
+	).Scan(&targetRank)
+
+	if err == sql.ErrNoRows {
+		return ErrMemberNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	// Lower rank number = higher privilege
+	// Founder(1) can manage CoFounder(2) and Member(3)
+	// CoFounder(2) can manage Member(3)
+	// Member(3) cannot manage anyone
+	if actorRank >= targetRank {
+		return ErrInsufficientPermission
+	}
+
+	return nil
 }
 
 func (r *memberRepository) getClubOwnerID(ctx context.Context, clubID int64) (string, error) {
@@ -29,12 +119,13 @@ func (r *memberRepository) getClubOwnerID(ctx context.Context, clubID int64) (st
 }
 
 func (r *memberRepository) ApproveMemberRequest(ctx context.Context, ownerID string, clubID int64, memberID string) error {
-	actualOwnerID, err := r.getClubOwnerID(ctx, clubID)
+	actorRank, err := r.getActiveMemberRank(ctx, clubID, ownerID)
 	if err != nil {
 		return err
 	}
-	if actualOwnerID != ownerID {
-		return ErrNotClubOwner
+
+	if actorRank > 2 {
+		return ErrInsufficientPermission
 	}
 
 	result, err := r.db.ExecContext(ctx,
@@ -60,12 +151,13 @@ func (r *memberRepository) ApproveMemberRequest(ctx context.Context, ownerID str
 // status='Pending' in club_member) or an outstanding invitation the owner sent
 // (club_member_invite), whichever matches memberID for this club.
 func (r *memberRepository) CancelMemberRequest(ctx context.Context, ownerID string, clubID int64, memberID string) error {
-	actualOwnerID, err := r.getClubOwnerID(ctx, clubID)
+	actorRank, err := r.getActiveMemberRank(ctx, clubID, ownerID)
 	if err != nil {
 		return err
 	}
-	if actualOwnerID != ownerID {
-		return ErrNotClubOwner
+
+	if actorRank > 2 {
+		return ErrInsufficientPermission
 	}
 
 	result, err := r.db.ExecContext(ctx,
@@ -102,43 +194,60 @@ func (r *memberRepository) CancelMemberRequest(ctx context.Context, ownerID stri
 	return nil
 }
 
-func (r *memberRepository) RemoveClubMember(ctx context.Context, ownerID string, clubID int64, memberID string) error {
-	actualOwnerID, err := r.getClubOwnerID(ctx, clubID)
+func (r *memberRepository) RemoveClubMember(
+	ctx context.Context,
+	actorID string,
+	clubID int64,
+	memberID string,
+) error {
+
+	actorRank, err := r.getActiveMemberRank(ctx, clubID, actorID)
 	if err != nil {
 		return err
-	}
-	if actualOwnerID != ownerID {
-		return ErrNotClubOwner
-	}
-	if memberID == ownerID {
-		return ErrCannotRemoveFounder
 	}
 
-	var rank int
-	err = r.db.QueryRowContext(ctx,
-		`SELECT cmr.rank
-		 FROM public.club_member cm
-		 JOIN public.club_member_roles cmr ON cmr.id = cm.role_id
-		 WHERE cm.club_id = $1 AND cm.user_id = $2`,
-		clubID, memberID,
-	).Scan(&rank)
-	if err == sql.ErrNoRows {
-		return ErrMemberNotFound
+	// User leaving the club
+	if actorID == memberID {
+		if actorRank == 1 {
+			return ErrCannotRemoveFounder
+		}
+
+		result, err := r.db.ExecContext(ctx,
+			`DELETE FROM public.club_member
+			 WHERE club_id = $1 AND user_id = $2`,
+			clubID,
+			memberID,
+		)
+		if err != nil {
+			return err
+		}
+
+		rows, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if rows == 0 {
+			return ErrMemberNotFound
+		}
+
+		return nil
 	}
-	if err != nil {
+
+	// Kicking another member
+	if err := r.canManageMember(ctx, clubID, actorID, memberID); err != nil {
 		return err
-	}
-	if rank == 1 {
-		return ErrCannotRemoveFounder
 	}
 
 	result, err := r.db.ExecContext(ctx,
-		`DELETE FROM public.club_member WHERE club_id = $1 AND user_id = $2`,
-		clubID, memberID,
+		`DELETE FROM public.club_member
+		 WHERE club_id = $1 AND user_id = $2`,
+		clubID,
+		memberID,
 	)
 	if err != nil {
 		return fmt.Errorf("remove club member: %w", err)
 	}
+
 	rows, err := result.RowsAffected()
 	if err != nil {
 		return err
@@ -146,36 +255,36 @@ func (r *memberRepository) RemoveClubMember(ctx context.Context, ownerID string,
 	if rows == 0 {
 		return ErrMemberNotFound
 	}
+
 	return nil
 }
 
-
 func (r *memberRepository) InviteClubMember(ctx context.Context, inviterID string, clubID int64, req InviteClubMemberRequest) error {
-	var ownerID string
-	err := r.db.QueryRowContext(ctx,
-		`SELECT owner_id FROM public.club WHERE id = $1 AND is_deleted = false`,
-		clubID,
-	).Scan(&ownerID)
-	if err == sql.ErrNoRows {
-		return ErrClubNotFound
-	}
+	actorRank, err := r.getActiveMemberRank(ctx, clubID, inviterID)
 	if err != nil {
 		return err
 	}
-	if ownerID != inviterID {
-		return ErrNotClubOwner
+	
+	if actorRank > 2 {
+		return ErrInsufficientPermission
 	}
 
-	var rank int
-	err = r.db.QueryRowContext(ctx,
-		`SELECT rank FROM public.club_member_roles WHERE id = $1`,
-		req.RoleID,
-	).Scan(&rank)
-	if err == sql.ErrNoRows || rank == 1 {
+	var targetRoleRank int
+	err = r.db.QueryRowContext(ctx, `
+		SELECT rank
+		FROM public.club_member_roles
+		WHERE id = $1
+	`, req.RoleID).Scan(&targetRoleRank)
+
+	if err == sql.ErrNoRows {
 		return ErrInvalidInviteRole
 	}
 	if err != nil {
 		return err
+	}
+
+	if actorRank >= targetRoleRank {
+		return ErrInsufficientPermission
 	}
 
 	var exists bool

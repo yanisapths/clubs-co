@@ -17,7 +17,7 @@ export interface Profile {
 
 export interface ProfileClubStats {
   clubFounded: number;
-  clubMembership: number;
+  clubMembership?: number;
   clubJoined: number;
 }
 

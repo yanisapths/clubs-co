@@ -163,3 +163,16 @@ export const platformApiKeyMap: Record<SocialPlatform, string> = {
   Meta: "meta",
   Instagram: "instagram",
 };
+
+export const getMemberRoleLabel = (role: string) => {
+  switch (role) {
+    case "Founder":
+      return "Founder";
+    case "CoFounder":
+      return "Co-Founder";
+    case "Member":
+      return "Member";
+    default:
+      return role;
+  }
+};

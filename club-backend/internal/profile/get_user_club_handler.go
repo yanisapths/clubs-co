@@ -37,7 +37,6 @@ func (h *GetUserClubs) Handler(c *gin.Context) {
 		return
 	}
 
-
 	stats := ClubStatsResponse{}
 	items := make([]UserClubItem, 0, len(clubs))
 
@@ -48,22 +47,20 @@ func (h *GetUserClubs) Handler(c *gin.Context) {
 		}
 
 		items = append(items, UserClubItem{
-			ID:          club.ClubID,
-			ImageURL:    imageURL,
-			Name:        club.ClubName,
-			Role:        club.RoleName,
-			MemberSince: club.JoinedAt.Unix(),
-			Category:    club.Category,
+			ID:                club.ClubID,
+			ImageURL:          imageURL,
+			Name:              club.ClubName,
+			Role:              club.RoleName,
+			MemberSince:       club.JoinedAt.Unix(),
+			Category:          club.Category,
+			ActiveMemberCount: club.ActiveMemberCount,
 		})
 
-		switch club.RoleName {
-		case "Founder":
+		if club.RoleName == "Founder" {
 			stats.ClubFounded++
-		case "Co-Founder":
-			stats.ClubMembership++
-		default:
-			stats.ClubJoined++
 		}
+
+		stats.ClubJoined++
 	}
 	
 	response.OK(c, UserClubsResponse{

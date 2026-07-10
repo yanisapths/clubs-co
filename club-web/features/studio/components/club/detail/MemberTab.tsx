@@ -124,7 +124,7 @@ export function MembersTab({
           </div>
         ) : null}
 
-        {isOwner && (
+        {isPermit && (
           <Button
             onClick={handleInviteClick}
             className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 w-full sm:w-auto justify-center"
@@ -159,7 +159,7 @@ export function MembersTab({
             ? formatUnixDate(member.joinedAt)
             : "—";
           const isSelf = member.id === currentUserId;
-          const canRemove = isOwner && !isSelf;
+          const canRemove = isPermit && !isSelf;
 
           return (
             <li key={member.id} className="relative">
@@ -187,7 +187,7 @@ export function MembersTab({
                       </span>
                     )}
 
-                  {(isOwner || isSelf) && (
+                  {(isPermit || isSelf) && (
                     <button
                       onClick={() => toggleMenu(member.id)}
                       className="cursor-pointer md:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
@@ -240,7 +240,7 @@ export function MembersTab({
                 </span>
 
                 <div className="hidden md:flex justify-end">
-                  {(isOwner || isSelf) && (
+                  {(isPermit || isSelf) && (
                     <button
                       onClick={() => toggleMenu(member.id)}
                       className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
@@ -255,7 +255,7 @@ export function MembersTab({
                 <>
                   <div className="fixed inset-0 z-40" onClick={closeMenu} />
                   <div className="absolute right-0 top-15 z-50 w-56 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-xl">
-                    {joinRequest && isOwner && (
+                    {joinRequest && isPermit && (
                       <>
                         <button
                           onClick={() => {
@@ -318,7 +318,7 @@ export function MembersTab({
                       </>
                     )}
 
-                    {member.isInvited && isOwner && (
+                    {member.isInvited && isPermit && (
                       <button
                         onClick={() => {
                           cancelRequest.mutate(
@@ -382,7 +382,9 @@ export function MembersTab({
                           );
                           closeMenu();
                         }}
-                        disabled={removeMember.isPending}
+                        disabled={
+                          removeMember.isPending || member.role == "Founder"
+                        }
                         className="disabled:opacity-50 cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm disabled:text-gray-600 text-white/70 hover:bg-white/5 transition-colors"
                       >
                         <UserX className="h-4 w-4" />

@@ -102,6 +102,7 @@ const ClubDetailPage = () => {
               ? true
               : false
           }
+          isPublicClub={club.clubType == "Public"}
           clubSlug={clubSlug}
         />
       )}

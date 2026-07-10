@@ -10,7 +10,7 @@ import { useState } from "react";
 type ProfileInfoProps = {
   profile?: Profile | undefined;
   clubsFounded: number;
-  clubMembership: number;
+  clubMembership?: number;
   clubsJoined: number;
   hasSetUpProfile?: boolean;
   onEditProfile: () => void;
@@ -49,7 +49,7 @@ export function ProfileInfo({
         </Card>
       ) : null}
 
-      <div className="flex w-full max-w-3xl flex-col gap-6 text-left">
+      <div className="flex w-full md:min-w-[550px] max-w-3xl flex-col gap-6 text-left">
         {profile?.bio && profile?.bio?.length > 0 ? (
           <Card className="px-5 py-5 bg-zinc-900">
             <p className="whitespace-pre-line text-md leading-relaxed text-white/90">
@@ -67,7 +67,7 @@ export function ProfileInfo({
             transition={{ duration: 0.2 }}
             className="cursor-pointer"
           >
-            <Card className="bg-zinc-900 min-h-24 border border-white/10  px-5 py-5 transition-colors">
+            <Card className="bg-zinc-900 sm:min-h-24 border border-white/10 px-5 py-5 transition-colors min-h-36">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-md font-medium text-white/90">
@@ -100,7 +100,7 @@ export function ProfileInfo({
                       transition={{
                         duration: 0.2,
                       }}
-                      className="flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-xs text-blue-300 whitespace-nowrap"
+                      className="hidden md:flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-xs text-blue-300 whitespace-nowrap"
                     >
                       <Edit3Icon className="h-3.5 w-3.5" />
                       Edit profile →
@@ -108,20 +108,46 @@ export function ProfileInfo({
                   )}
                 </AnimatePresence>
               </div>
+              {isHovering && (
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    x: 8,
+                    scale: 0.95,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                    scale: 1,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: 8,
+                    scale: 0.95,
+                  }}
+                  transition={{
+                    duration: 0.2,
+                  }}
+                  className="flex md:hidden items-center w-fit mt-2 gap-2 rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-xs text-blue-300 whitespace-nowrap"
+                >
+                  <Edit3Icon className="h-3.5 w-3.5" />
+                  Edit profile →
+                </motion.div>
+              )}
             </Card>
           </motion.div>
         )}
 
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-2 gap-4 text-center">
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">
             <p className="text-sm text-white/60">Club Founded</p>
             <p className="text-3xl font-bold text-white">{clubsFounded}</p>
           </Card>
-
+          {/* 
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">
             <p className="text-sm text-white/60">Club Membership</p>
             <p className="text-3xl font-bold text-white">{clubMembership}</p>
-          </Card>
+          </Card> */}
 
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">
             <p className="text-sm text-white/60">Club Joined</p>

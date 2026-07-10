@@ -973,3 +973,19 @@ func (r *clubRepository) GetClubBannerURL(ctx context.Context, clubID int64, own
 	}
 	return bannerURL, nil
 }
+
+
+func (r *clubRepository) CountClubByOwnerID(ctx context.Context, ownerID string) (int, error) {
+	query := `
+		SELECT COUNT(*)
+		FROM public.club
+		WHERE owner_id = $1
+	`
+	var count int
+	err := r.db.QueryRowContext(ctx, query, ownerID).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

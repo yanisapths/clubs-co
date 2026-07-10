@@ -19,6 +19,7 @@ import { formatUnixDate } from "@/lib/utils";
 import { InviteLetterCard } from "./InviteLetterCard";
 import { ConfirmationModal } from "@/features/shared/components/modal/ConfirmationModal";
 import { useModal } from "@/hooks/use-modal";
+import { getMemberRoleLabel } from "@/features/shared/constants";
 
 interface JoinFooterProps {
   club: Club;
@@ -146,7 +147,9 @@ export const JoinFooter = ({
         <div className="flex justify-between items-center">
           <div className="flex justify-start text-sm px-6 text-white/70">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              You&apos;re a member of this club
+              You&apos;re a{" "}
+              {getMemberRoleLabel(club?.memberRole ?? "Member").toLowerCase()}{" "}
+              of this club
               <Tag>
                 Joined {club.joinedAt ? formatUnixDate(club.joinedAt) : "-"}
               </Tag>

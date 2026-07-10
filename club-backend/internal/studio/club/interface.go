@@ -4,6 +4,7 @@ package club
 import "context"
 type CreateClubRepo interface {
 	CreateClub(ctx context.Context, ownerID string, req CreateClubRequest) (*Club, error)
+	CountClubByOwnerID(ctx context.Context, ownerID string) (int, error)
 }
 type GetClubRepo interface {
 	GetListClubByOwnerID(ctx context.Context, ownerID string) ([]Club, error)

@@ -27,7 +27,6 @@ type UserInfoResponse struct {
 
 type ClubStatsResponse struct {
 	ClubFounded    int `json:"clubFounded"`
-	ClubMembership int `json:"clubMembership"`
 	ClubJoined     int `json:"clubJoined"`
 }
 
@@ -38,6 +37,7 @@ type UserClubItem struct {
 	Role        string `json:"role"`
 	MemberSince int64  `json:"memberSince"`
 	Category    string `json:"category"`
+	ActiveMemberCount int64  `json:"activeMemberCount"`
 }
 
 type UserClubsResponse struct {
