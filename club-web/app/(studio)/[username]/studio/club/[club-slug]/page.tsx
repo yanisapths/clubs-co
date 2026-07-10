@@ -107,7 +107,7 @@ const ClubDetailPage = () => {
             isOwner={isOwner}
             onInvite={showInvite}
             clubId={clubId}
-            onMemberInvited={() => query.refetch()}
+            onMemberInvited={() => memberQuery.refetch()}
             currentUserId={user.id}
           />
         ) : (

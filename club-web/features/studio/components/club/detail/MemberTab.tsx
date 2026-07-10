@@ -21,11 +21,11 @@ import {
 } from "@/features/studio/hooks/use-member";
 
 const ROW_GRID_COLS =
-  "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_220px_160px_88px]";
+  "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_260px_160px_88px]";
 
 function getStatusLabel(member: ClubMember) {
-  if (member.isInvited) return "Pending Invitation Response";
-  if (member.isPending) return "Pending Acceptance Response";
+  if (member.isInvited) return "Pending Invitation";
+  if (member.isPending) return "Pending Acceptance";
   return null;
 }
 
@@ -40,7 +40,6 @@ export function MembersTab({
   clubId: number | string;
   members: ClubMember[];
   isOwner: boolean;
-  /** The logged-in user's member id — used to show "Leave club" only on their own row. */
   currentUserId: string;
   onInvite?: () => void;
   onMemberInvited?: (member: SearchMember, roleId: MemberRoleId) => void;
@@ -166,11 +165,22 @@ export function MembersTab({
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 md:hidden">
+                <div className="flex items-center gap-2 md:hidden">
+                  {statusLabel ? (
+                    <>
+                      <span
+                        className={`text-xs ${pending ? "text-white/30 italic" : "text-white/60"}`}
+                      >
+                        {statusLabel}
+                      </span>
+                      <span className="text-white/20">•</span>
+                    </>
+                  ) : null}
+
                   <span
                     className={`text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
                   >
-                    {statusLabel ?? member.role}
+                    {member.role}
                   </span>
                   <span className="text-white/20">•</span>
                   <span className="text-sm text-white/40">{joined}</span>
@@ -179,7 +189,11 @@ export function MembersTab({
                 <span
                   className={`hidden md:block text-right text-sm ${pending ? "text-white/30 italic" : "text-white/60"}`}
                 >
-                  {statusLabel ?? member.role}
+                  {statusLabel ? statusLabel : null}{" "}
+                  {statusLabel ? (
+                    <span className="px-2 text-white/20">•</span>
+                  ) : null}{" "}
+                  {member.role}
                 </span>
 
                 <span className="hidden md:block text-right text-sm text-white/40">

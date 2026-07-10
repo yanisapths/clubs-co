@@ -307,7 +307,7 @@ export function InviteMemberModal({
 
                   {status === "invited" ? (
                     <span className="text-sm font-semibold text-emerald-400 shrink-0">
-                      Member Invited!
+                      {roleId == 2 ? "Co-Founder" : "Member"} Invited!
                     </span>
                   ) : (
                     <div className="flex items-center gap-2 shrink-0">
