@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 
 import { useAccountAuth } from "@/hooks/use-account-auth";
 import { categories } from "@/features/shared/constants";
-import { useCreateClub } from "@/features/studio/hooks/use-club";
+import {
+  useCreateClub,
+  useGetOwnerClubs,
+} from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import {
   buildClubThumbnailFilename,
@@ -27,12 +30,15 @@ import { ClubImageUpload } from "@/features/studio/components/club/create/ClubIm
 import { ClubPreviewCard } from "@/features/studio/components/club/create/ClubPreviewCard";
 import { ClubPublishForm } from "@/features/studio/components/club/create/ClubPublishForm";
 import { ClubSettingsForm } from "@/features/studio/components/club/create/ClubSettingsForm";
+import { HeartCrackIcon, PlugZap } from "lucide-react";
 
 export default function CreateClubPage() {
   const router = useRouter();
   const { user } = useAccountAuth();
   const [formData, setFormData] = useState<ClubFormData>(initialClubFormData);
   const [isNameExist, setIsNameExist] = useState<boolean>(false);
+  const { clubs } = useGetOwnerClubs();
+  const quotaExceeded = clubs?.length >= 5;
 
   const { mutate: createClub, isPending: isCreating } = useCreateClub();
 
@@ -97,7 +103,23 @@ export default function CreateClubPage() {
     formData.tags.length > 0 ||
     formData.spaces.length > 0;
 
-  const isValid = validateForm(formData, isNameExist);
+  const isValid = validateForm(formData, isNameExist, quotaExceeded);
+
+  if (quotaExceeded) {
+    return (
+      <div className="flex h-screen flex-col overflow-hidden bg-[#0c0c0c] text-white">
+        <ClubFormHeader onBack={() => router.back()} />
+
+        <div className="flex flex-col items-center justify-center m-auto text-center">
+          <PlugZap size={200} className="opacity-30 rotate-10" />
+          <div className="text-white/60">
+            Quata exceeded club creation limit. <br />
+            Only 5 clubs can be created.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#0c0c0c] text-white">

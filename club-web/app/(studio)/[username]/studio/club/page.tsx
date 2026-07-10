@@ -63,7 +63,7 @@ function ClubStudioPage() {
         </div>
 
         {clubs?.length > 0 ? (
-          <div className="relative pb-20">
+          <div className="relative pb-30 sm:pb-20">
             <div className="px-6 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {clubs.map((club) => (
                 <ClubCard
@@ -76,7 +76,10 @@ function ClubStudioPage() {
               ))}
             </div>
 
-            <StickyFooter pathToCreateClub={pathToCreateClub} />
+            <StickyFooter
+              pathToCreateClub={pathToCreateClub}
+              ownedClubs={clubs ? clubs?.length : 0}
+            />
           </div>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 mt-28 text-center">

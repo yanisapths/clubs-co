@@ -99,13 +99,6 @@ func (r *membershipUserRepository) GetPublicProfileByUsername(
 	return &profile, nil
 }
 
-// GetPublicUserClubStats returns founded/joined/total-membership counts for
-// a user by username. Returns sql.ErrNoRows if no such user exists — the
-// LATERAL join keeps that distinguishable from "user exists but has no
-// clubs" (which comes back as all-zero counts instead of no rows).
-//
-// club_member_roles.rank = 1 is treated as "founder"; anything else counts
-// toward "joined". Adjust if your rank convention differs.
 func (r *membershipUserRepository) GetPublicUserClubStats(
 	ctx context.Context,
 	username string,
@@ -113,14 +106,12 @@ func (r *membershipUserRepository) GetPublicUserClubStats(
 	query := `
 		SELECT
 			COALESCE(agg.club_founded, 0),
-			COALESCE(agg.club_joined, 0),
-			COALESCE(agg.club_membership, 0)
+			COALESCE(agg.club_joined, 0)
 		FROM public.users u
 		LEFT JOIN LATERAL (
 			SELECT
 				COUNT(*) FILTER (WHERE cmr.rank = 1) AS club_founded,
-				COUNT(*) FILTER (WHERE cmr.rank != 1) AS club_joined,
-				COUNT(*) AS club_membership
+				COUNT(*) AS club_joined
 			FROM public.club_member cm
 			JOIN public.club_member_roles cmr ON cmr.id = cm.role_id
 			JOIN public.club c ON c.id = cm.club_id
@@ -135,7 +126,6 @@ func (r *membershipUserRepository) GetPublicUserClubStats(
 	err := r.db.QueryRowContext(ctx, query, username).Scan(
 		&stats.ClubFounded,
 		&stats.ClubJoined,
-		&stats.ClubMembership,
 	)
 	if err != nil {
 		return nil, err

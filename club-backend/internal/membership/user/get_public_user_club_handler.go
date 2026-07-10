@@ -78,7 +78,6 @@ func (h *getPublicUserClubHandler) Handler(c *gin.Context) {
 		Stats: UserClubStatsResponse{
 			ClubFounded:    stats.ClubFounded,
 			ClubJoined:     stats.ClubJoined,
-			ClubMembership: stats.ClubMembership,
 		},
 		Clubs: respClubs,
 	}

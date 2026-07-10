@@ -1,5 +1,4 @@
 import { Profile, ProfileClub } from "@/features/studio/api/profile";
-import { useAccountAuth } from "@/hooks/use-account-auth";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicUserClub, getPublicUserProfile } from "../../api/profile";
 

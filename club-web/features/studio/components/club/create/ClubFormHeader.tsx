@@ -11,7 +11,7 @@ export function ClubFormHeader({
   clubName,
 }: ClubFormHeaderProps) {
   return (
-    <header className="border-b border-zinc-800 py-4 px-4 sm:px-8">
+    <header className="border-b border-zinc-800 py-4 px-2 sm:px-8">
       <div className="flex items-center gap-4">
         <button
           type="button"

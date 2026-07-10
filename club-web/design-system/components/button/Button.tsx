@@ -10,7 +10,8 @@ const buttonVariants = tv({
   base: "",
   variants: {
     color: {
-      default: "bg-white/4 hover:bg-white/16 focus:shadow-focus-ring-primary",
+      default:
+        "bg-white/4 hover:bg-white/16 focus:shadow-focus-ring-primary disabled:opacity-60",
       primary:
         "bg-[#29FF9F] text-[#16422F] hover:opacity-90 focus:shadow-focus-ring-primary",
       secondary: "bg-white/4 focus:shadow-focus-ring-primary",

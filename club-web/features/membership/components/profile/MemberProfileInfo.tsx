@@ -20,29 +20,29 @@ export function MemberProfileInfo({
     <div className="flex flex-col gap-5">
       <div className="flex w-full max-w-3xl flex-col gap-6 text-left">
         {profile?.bio && profile?.bio?.length > 0 ? (
-          <Card className="px-5 py-5 bg-zinc-900">
+          <Card className="px-5 py-5 bg-zinc-900 min-w-[550px]">
             <p className="whitespace-pre-line text-md leading-relaxed text-white/90">
               {profile?.bio}
             </p>
           </Card>
         ) : (
-          <Card className="bg-zinc-900 min-h-24 border border-white/10 px-5 py-5 flex items-center justify-center">
+          <Card className="bg-zinc-900 min-h-24 min-w-[550px] border border-white/10 px-5 py-5 flex items-center justify-center">
             <p className="text-sm text-white/40">
               This member hasn&apos;t added a bio yet.
             </p>
           </Card>
         )}
 
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-2 gap-4 text-center">
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">
             <p className="text-sm text-white/60">Club Founded</p>
             <p className="text-3xl font-bold text-white">{clubsFounded}</p>
           </Card>
-
+          {/* 
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">
             <p className="text-sm text-white/60">Club Membership</p>
             <p className="text-3xl font-bold text-white">{clubMembership}</p>
-          </Card>
+          </Card> */}
 
           <Card className="bg-zinc-900 flex flex-col items-center justify-center gap-1 px-4 py-6">
             <p className="text-sm text-white/60">Club Joined</p>
