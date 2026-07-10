@@ -61,7 +61,7 @@ export function InviteLetterCard({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 280, damping: 26 }}
-            className="relative w-full max-w-[460px] rounded-2xl overflow-hidden"
+            className="relative w-full max-w-[560px] rounded-2xl overflow-hidden"
             style={{
               background: "#1a1a1a",
               border: "1px solid rgba(255,255,255,0.1)",
@@ -71,7 +71,7 @@ export function InviteLetterCard({
             <div className="border-b border-zinc-800 px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <h2 className="text-lg font-semibold text-white">
+                  <h2 className="text-lg font-semibold text-white max-w-96 line-clamp-2 text-ellipsis">
                     Welcome to {clubName}
                   </h2>
                   <p className="mt-0.5 text-sm text-zinc-500">
