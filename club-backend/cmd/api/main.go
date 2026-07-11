@@ -1,4 +1,4 @@
-// cmd/api/main.go
+// club-backend/cmd/api/main.go
 package main
 
 import (
