@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"log"
 	"net/http"
 	"os"
@@ -33,12 +34,34 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+
+func initGCPCredentials() error {
+    encoded := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    if encoded == "" {
+        return nil 
+    }
+
+    decoded, err := base64.StdEncoding.DecodeString(encoded)
+    if err != nil {
+        return err
+    }
+
+    path := "/tmp/gcp-credentials.json"
+    if err := os.WriteFile(path, decoded, 0600); err != nil {
+        return err
+    }
+
+    os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", path)
+    return nil
+}
+
+
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
-
+	initGCPCredentials()
 	db, err := gorm.Open(postgres.Open(cfg.Database.DSN()), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})

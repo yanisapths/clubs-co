@@ -14,3 +14,4 @@ club-backend/dist/
 # OS
 .DS_Store
 .ddl.sql
+club-backend-nonprd-key.json
