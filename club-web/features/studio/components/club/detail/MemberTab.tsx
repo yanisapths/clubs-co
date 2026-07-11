@@ -271,6 +271,7 @@ export function MembersTab({
                               {
                                 clubId: club.id,
                                 memberId: member.id,
+                                clubName: toClubSlug(club.name),
                               },
                               {
                                 onSuccess: () => {
@@ -301,6 +302,7 @@ export function MembersTab({
                               {
                                 clubId: club.id,
                                 memberId: member.id,
+                                clubName: toClubSlug(club.name),
                               },
                               {
                                 onSuccess: () => {
@@ -333,6 +335,7 @@ export function MembersTab({
                             {
                               clubId: club.id,
                               memberId: member.id,
+                              clubName: toClubSlug(club.name),
                             },
                             {
                               onSuccess: () => {
@@ -375,6 +378,7 @@ export function MembersTab({
                             {
                               clubId: club.id,
                               memberId: member.id,
+                              clubName: toClubSlug(club.name),
                             },
                             {
                               onSuccess: () => {

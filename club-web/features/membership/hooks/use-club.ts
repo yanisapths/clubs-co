@@ -2,7 +2,6 @@
 import { getStoredToken } from "@/lib/storage";
 import {
   getClubListByCategorySlug,
-  getClubListPaginated,
   getClubMemberListByName,
   getMembershipClubById,
   getMembershipClubByName,
@@ -14,17 +13,17 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClubCategory } from "@/features/studio/api/club";
 
-export const CLUB_KEYS = {
+export const MEMBERSHIP_CLUB_KEYS = {
   all: ["membership-clubs"] as const,
   detail: (id: number) => ["membership-club", id] as const,
   detailByName: (name: string) =>
-    [...CLUB_KEYS.all, "detail", name.toLowerCase()] as const,
+    [...MEMBERSHIP_CLUB_KEYS.all, "detail", name.toLowerCase()] as const,
   members: (name: string) => ["members", name.toLowerCase()] as const,
 };
 
 export const useGetMembershipClubs = () => {
   const query = useQuery({
-    queryKey: CLUB_KEYS.all,
+    queryKey: MEMBERSHIP_CLUB_KEYS.all,
     queryFn: getMembershipClubs,
     select: (res) => res.data,
   });
@@ -38,7 +37,7 @@ export const useGetMembershipClubs = () => {
 
 export const useGetMembershipClubById = (id: number) => {
   const query = useQuery({
-    queryKey: CLUB_KEYS.detail(id),
+    queryKey: MEMBERSHIP_CLUB_KEYS.detail(id),
     queryFn: () => getMembershipClubById(id),
     enabled: !!id,
     select: (res) => res.data,
@@ -53,7 +52,7 @@ export const useGetMembershipClubById = (id: number) => {
 
 export const useGetMembershipClubByName = (clubName: string) => {
   const query = useQuery({
-    queryKey: CLUB_KEYS.detailByName(clubName),
+    queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
     queryFn: () => getMembershipClubByName(encodeURIComponent(clubName)),
     enabled: !!clubName,
     select: (res) => res.data,
@@ -73,9 +72,11 @@ export const useJoinClub = () => {
     mutationFn: ({ clubId }: { clubId: number; clubName: string }) =>
       joinClub(clubId, getStoredToken()!),
     onSuccess: (_, { clubName }) => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubName) });
       queryClient.invalidateQueries({
-        queryKey: CLUB_KEYS.detailByName(clubName),
+        queryKey: MEMBERSHIP_CLUB_KEYS.members(clubName),
+      });
+      queryClient.invalidateQueries({
+        queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
       });
     },
   });
@@ -88,9 +89,11 @@ export const useLeaveClub = () => {
     mutationFn: ({ clubId }: { clubId: number; clubName: string }) =>
       leaveClub(clubId, getStoredToken()!),
     onSuccess: (_, { clubName }) => {
-      queryClient.invalidateQueries({ queryKey: CLUB_KEYS.members(clubName) });
       queryClient.invalidateQueries({
-        queryKey: CLUB_KEYS.detailByName(clubName),
+        queryKey: MEMBERSHIP_CLUB_KEYS.members(clubName),
+      });
+      queryClient.invalidateQueries({
+        queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
       });
     },
   });
@@ -98,7 +101,7 @@ export const useLeaveClub = () => {
 
 export const useGetClubMemberListByName = (clubName: string) => {
   const query = useQuery({
-    queryKey: CLUB_KEYS.members(clubName),
+    queryKey: MEMBERSHIP_CLUB_KEYS.members(clubName),
     queryFn: () => getClubMemberListByName(encodeURIComponent(clubName)),
     enabled: !!clubName,
     select: (res) => res.data,

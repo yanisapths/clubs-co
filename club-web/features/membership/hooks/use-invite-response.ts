@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { respondToClubInvite } from "@/features/membership/api/invite";
 import { useQueryClient } from "@tanstack/react-query";
-import { CLUB_KEYS } from "./use-club";
+import { MEMBERSHIP_CLUB_KEYS } from "./use-club";
 
 type Action = "accept" | "decline" | null;
 
@@ -41,10 +41,10 @@ export function useClubInviteResponse(
       } finally {
         setPendingAction(null);
         queryClient.invalidateQueries({
-          queryKey: CLUB_KEYS.members(clubName),
+          queryKey: MEMBERSHIP_CLUB_KEYS.members(clubName),
         });
         queryClient.invalidateQueries({
-          queryKey: CLUB_KEYS.detailByName(clubName),
+          queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
         });
       }
     },

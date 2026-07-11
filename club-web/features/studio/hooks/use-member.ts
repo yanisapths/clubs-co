@@ -5,6 +5,7 @@ import {
   cancelRequest,
   removeClubMember,
 } from "../api/member";
+import { MEMBERSHIP_CLUB_KEYS } from "@/features/membership/hooks/use-club";
 
 const invalidateMembers = (queryClient: ReturnType<typeof useQueryClient>) =>
   queryClient.invalidateQueries({
@@ -21,8 +22,14 @@ export const useCancelRequest = () => {
     }: {
       clubId: number | string;
       memberId: string;
+      clubName: string;
     }) => cancelRequest(getStoredToken()!, clubId, memberId),
-    onSuccess: () => invalidateMembers(queryClient),
+    onSuccess: (_, { clubName }) => {
+      invalidateMembers(queryClient);
+      queryClient.invalidateQueries({
+        queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
+      });
+    },
   });
 };
 
@@ -36,8 +43,14 @@ export const useRemoveMember = () => {
     }: {
       clubId: number | string;
       memberId: string;
+      clubName: string;
     }) => removeClubMember(getStoredToken()!, clubId, memberId),
-    onSuccess: () => invalidateMembers(queryClient),
+    onSuccess: (_, { clubName }) => {
+      invalidateMembers(queryClient);
+      queryClient.invalidateQueries({
+        queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
+      });
+    },
   });
 };
 
@@ -51,7 +64,13 @@ export const useApproveMemberRequest = () => {
     }: {
       clubId: number | string;
       memberId: string;
+      clubName: string;
     }) => approveMemberRequest(getStoredToken()!, clubId, memberId),
-    onSuccess: () => invalidateMembers(queryClient),
+    onSuccess: (_, { clubName }) => {
+      invalidateMembers(queryClient);
+      queryClient.invalidateQueries({
+        queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
+      });
+    },
   });
 };
