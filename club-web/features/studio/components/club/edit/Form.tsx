@@ -148,7 +148,7 @@ export function EditClubForm({
             </section>
             <section>
               <ClubSettingsForm
-                data={formData}
+                formdata={formData}
                 onUpdate={updateFormData}
                 clubInfo={club}
               />

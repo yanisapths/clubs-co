@@ -98,16 +98,6 @@ function onRowHoverLeave(e: ReactMouseEvent<HoverableElement>): void {
   e.currentTarget.style.background = "transparent";
 }
 
-function onCellHoverEnter(e: ReactMouseEvent<HoverableElement>): void {
-  e.currentTarget.style.background = "rgba(255,255,255,0.08)";
-}
-
-function onCellHoverLeave(e: ReactMouseEvent<HoverableElement>): void {
-  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
 interface TypeBadgeProps {
   clubType: string;
 }

@@ -147,7 +147,7 @@ export default function CreateClubPage() {
               />
             </section>
             <section>
-              <ClubSettingsForm data={formData} onUpdate={updateFormData} />
+              <ClubSettingsForm formdata={formData} onUpdate={updateFormData} />
             </section>
             <section>
               <ClubPublishForm data={formData} onUpdate={updateFormData} />

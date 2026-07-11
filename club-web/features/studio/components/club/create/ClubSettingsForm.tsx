@@ -1,21 +1,22 @@
 "use client";
 
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { ClubFormData, ClubType, ClubVisibility } from "./types";
 import { SpacesSection } from "./SpacesSection";
 import { MAX_SEATS, MIN_SEATS } from "../constants";
 import { Club } from "@/features/studio/api/club";
 import { InfoIcon } from "lucide-react";
 import { Tooltip } from "@/design-system/components/tooltip";
+import { useMembershipSearch } from "@/hooks/use-membership-search";
 
 interface ClubSettingsFormProps {
-  data: ClubFormData;
+  formdata: ClubFormData;
   onUpdate: (updates: Partial<ClubFormData>) => void;
   clubInfo?: Club;
 }
 
 export function ClubSettingsForm({
-  data,
+  formdata,
   onUpdate,
   clubInfo,
 }: ClubSettingsFormProps) {
@@ -24,6 +25,14 @@ export function ClubSettingsForm({
     const value = raw === "" ? 0 : Math.min(MAX_SEATS, Number(raw));
     onUpdate({ maxSeats: value });
   };
+  const [query, setQuery] = useState("");
+  const { data, isLoading } = useMembershipSearch(query);
+  const { spaces } = data;
+
+  const searchResults = (spaces ?? []).filter(
+    (space: { id: number }) =>
+      !formdata.spaces.some((s) => s.id === String(space.id)),
+  );
 
   return (
     <div>
@@ -38,7 +47,7 @@ export function ClubSettingsForm({
         </p>
         <div className="relative mt-3">
           <select
-            value={data.clubType}
+            value={formdata.clubType}
             onChange={(event) =>
               onUpdate({ clubType: event.target.value as ClubType })
             }
@@ -72,7 +81,7 @@ export function ClubSettingsForm({
         <div className="relative mt-3">
           <select
             disabled
-            value={data.visibility}
+            value={formdata.visibility}
             onChange={(event) =>
               onUpdate({ visibility: event.target.value as ClubVisibility })
             }
@@ -97,11 +106,11 @@ export function ClubSettingsForm({
         <input
           type="text"
           inputMode="numeric"
-          value={data.maxSeats}
+          value={formdata.maxSeats}
           onChange={handleMaxSeatsChange}
           className="mt-3 w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-5 py-4 text-base text-white outline-none focus:border-zinc-500"
         />
-        {clubInfo?.memberCount && data.maxSeats < clubInfo?.memberCount && (
+        {clubInfo?.memberCount && formdata.maxSeats < clubInfo?.memberCount && (
           <p className="text-red-500 mt-2 text-sm">
             Max seats cannot be less than number of members in the club.
           </p>
@@ -110,8 +119,12 @@ export function ClubSettingsForm({
 
       <div className="mt-8">
         <SpacesSection
-          spaces={data.spaces}
+          spaces={formdata.spaces}
           onChange={(spaces) => onUpdate({ spaces })}
+          query={query}
+          onQueryChange={setQuery}
+          searchResults={searchResults}
+          isLoading={isLoading}
         />
       </div>
     </div>
