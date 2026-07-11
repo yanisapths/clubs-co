@@ -215,6 +215,20 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		return nil, fmt.Errorf("marshal social_links: %w", err)
 	}
 
+	countQuery := `
+		SELECT COUNT(*)
+		FROM public.club
+		WHERE owner_id = $1
+	`
+	var count int
+	err = r.db.QueryRowContext(ctx, countQuery, ownerID).Scan(&count)
+	if err != nil {
+		return nil, fmt.Errorf("count owner's club amount: %w", err)
+	}
+	if count >= 5 {
+		return nil, ErrClubQuotaExceeded
+	}
+
 	query := `
     INSERT INTO public.club (
         owner_id, name, description, club_type, visibility,
@@ -370,6 +384,21 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 		if exists {
 			return ErrClubNameTaken
 		}
+	}
+
+	var memberCount int
+	 err = tx.QueryRowContext(ctx, `
+		COUNT(*) AS member_count
+		FROM public.club c
+		LEFT JOIN public.club_member cm ON cm.club_id = c.id
+		WHERE c.id = $1
+		` ,clubID,
+	).Scan(&memberCount)
+	if err != nil {
+		return  fmt.Errorf("get member count: %w", err)
+	}
+	if *req.MaxSeats < memberCount {
+		return ErrMaxSeatLessthanCurrentMember
 	}
 
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
@@ -822,6 +851,21 @@ func (r *clubRepository) PatchClub(
 			}
 		}
 		// else: Value is nil -> clearing the banner, bannerURLValue stays nil
+	}
+
+	var memberCount int
+	 err = tx.QueryRowContext(ctx, `
+		COUNT(*) AS member_count
+		FROM public.club c
+		LEFT JOIN public.club_member cm ON cm.club_id = c.id
+		WHERE c.id = $1
+		` ,clubID,
+	).Scan(&memberCount)
+	if err != nil {
+		return  nil, fmt.Errorf("get member count: %w", err)
+	}
+	if *req.MaxSeats < memberCount {
+		return nil, ErrMaxSeatLessthanCurrentMember
 	}
 
 	query := `

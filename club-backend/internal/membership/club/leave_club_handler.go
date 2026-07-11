@@ -7,14 +7,16 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type leaveClubHandler struct {
 	repo LeaveClubRepo
+	logger *zap.Logger
 }
 
-func NewLeaveClub(repo LeaveClubRepo) *leaveClubHandler {
-	return &leaveClubHandler{repo: repo}
+func NewLeaveClub(repo LeaveClubRepo,logger *zap.Logger) *leaveClubHandler {
+	return &leaveClubHandler{repo: repo, logger:logger}
 }
 
 func (h *leaveClubHandler) Handler(c *gin.Context) {
@@ -35,6 +37,11 @@ func (h *leaveClubHandler) Handler(c *gin.Context) {
 
 	err = h.repo.LeaveClub(c.Request.Context(), userID, clubID)
 	if err != nil {
+		h.logger.Error("failed: LeaveClub",
+		zap.Error(err),
+		zap.String("path", c.Request.URL.Path),
+		zap.String("method", c.Request.Method),
+	)	
 		switch {
 		case errors.Is(err, ErrNotMember):
 			response.NotFound(c, err.Error())

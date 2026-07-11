@@ -9,14 +9,16 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type joinClubHandler struct {
 	repo JoinClubRepo
+	logger *zap.Logger
 }
 
-func NewJoinClub(repo JoinClubRepo) *joinClubHandler {
-	return &joinClubHandler{repo: repo}
+func NewJoinClub(repo JoinClubRepo,	logger *zap.Logger) *joinClubHandler {
+	return &joinClubHandler{repo: repo, logger:logger}
 }
 
 func (h *joinClubHandler) Handler(c *gin.Context) {
@@ -34,7 +36,13 @@ func (h *joinClubHandler) Handler(c *gin.Context) {
 	}
 
 	status, err := h.repo.JoinClub(c.Request.Context(), userID, clubID)
+	
 	if err != nil {
+		h.logger.Error("failed: JoinClub",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)	
 		switch {
 		case errors.Is(err, ErrClubNotFound):
 			c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
@@ -53,6 +61,7 @@ func (h *joinClubHandler) Handler(c *gin.Context) {
 	}
 
 	if status == "Pending" {
+		
 		response.Created(c, gin.H{"message": "join request sent, pending approval"})
 		return
 	}

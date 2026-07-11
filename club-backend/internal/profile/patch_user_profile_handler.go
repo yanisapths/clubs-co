@@ -28,7 +28,13 @@ func (h *UpdateUserProfile) Handler(c *gin.Context) {
 
 	var req PatchUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		h.logger.Warn("invalid edit user profile request body",
+			zap.Error(err),
+			zap.String("userId", claims.UserID.String()),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		response.BadRequest(c, "invalid request body")
 		return
 	}
 

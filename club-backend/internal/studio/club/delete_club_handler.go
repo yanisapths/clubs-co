@@ -7,14 +7,16 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type DeleteClub struct {
 	repo DeleteClubRepo
+	logger *zap.Logger
 }
 
-func NewDeleteClub(repo DeleteClubRepo) *DeleteClub {
-	return &DeleteClub{repo: repo}
+func NewDeleteClub(repo DeleteClubRepo,logger *zap.Logger) *DeleteClub {
+	return &DeleteClub{repo: repo,logger:logger}
 }
 
 func (s *DeleteClub) Handler(c *gin.Context) {
@@ -32,6 +34,11 @@ func (s *DeleteClub) Handler(c *gin.Context) {
 
 	err = s.repo.DeleteClub(c.Request.Context(), claims.UserID.String(), clubID)
 	if err != nil {
+		s.logger.Error("failed: DeleteClub",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
 		response.NotFound(c, "club not found")
 		return
 	}

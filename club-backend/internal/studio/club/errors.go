@@ -13,4 +13,5 @@ var (
 	ErrUserAlreadyRequestedToJoin = errors.New("member already requested to join, please approve the request.")
 	ErrClubQuotaExceeded	= errors.New("quata exceeded. cannot create more than 5 clubs.")
 	ErrCategoryNotFound     = errors.New("category not found")
+	ErrMaxSeatLessthanCurrentMember     = errors.New("max seats canot be less than current member amount in the club")
 )

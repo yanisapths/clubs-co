@@ -128,6 +128,33 @@ func (r *memberRepository) ApproveMemberRequest(ctx context.Context, ownerID str
 		return ErrInsufficientPermission
 	}
 
+	var (
+		memberCount int
+		maxSeats    int
+	)
+	
+	err = r.db.QueryRowContext(ctx, `
+		SELECT
+			COUNT(cm.id) AS member_count,
+			c.max_seats
+		FROM public.club c
+		LEFT JOIN public.club_member cm
+			ON cm.club_id = c.id
+		WHERE c.id = $1
+		GROUP BY c.max_seats
+	`, clubID).Scan(&memberCount, &maxSeats)
+	
+	if err == sql.ErrNoRows {
+		return ErrClubNotFound
+	}
+	if err != nil {
+		return err
+	}
+	
+	if maxSeats > 0 && memberCount >= maxSeats {
+		return ErrClubFull
+	}
+	
 	result, err := r.db.ExecContext(ctx,
 		`UPDATE public.club_member
 		 SET status = 'Active'

@@ -7,14 +7,16 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type invitationResponseHandler struct {
 	repo InvitationResponseRepo
+	logger *zap.Logger
 }
 
-func NewInvitationResponse(repo InvitationResponseRepo) *invitationResponseHandler {
-	return &invitationResponseHandler{repo: repo}
+func NewInvitationResponse(repo InvitationResponseRepo,logger *zap.Logger) *invitationResponseHandler {
+	return &invitationResponseHandler{repo: repo,logger:logger}
 }
 
 func (h *invitationResponseHandler) Handler(c *gin.Context) {
@@ -37,6 +39,13 @@ func (h *invitationResponseHandler) Handler(c *gin.Context) {
 
 	var req InvitationResponse
 	if err := c.ShouldBindJSON(&req); err != nil {
+		h.logger.Warn("invalid invite response request body",
+			zap.Error(err),
+			zap.Int64("clubId", clubID),
+			zap.String("userId", userID),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
 		response.BadRequest(c, "invalid request body")
 		return
 	}

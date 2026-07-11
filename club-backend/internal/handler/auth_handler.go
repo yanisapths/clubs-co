@@ -9,14 +9,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type AuthHandler struct {
 	authSvc service.AuthService
+	logger *zap.Logger
+
 }
 
-func NewAuthHandler(authSvc service.AuthService) *AuthHandler {
-	return &AuthHandler{authSvc: authSvc}
+func NewAuthHandler(authSvc service.AuthService, logger *zap.Logger) *AuthHandler {
+	return &AuthHandler{authSvc: authSvc,logger:logger}
 }
 
 // RegisterRoutes wires auth endpoints under the provided router group.
@@ -42,9 +45,11 @@ func (h *AuthHandler) RegisterRoutes(rg *gin.RouterGroup) {
 func (h *AuthHandler) SignUp(c *gin.Context) {
 	var req service.SignUpRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
-		return
-	}
+		h.logger.Warn("invalid signup request body",
+		zap.Error(err),
+		zap.String("path", c.Request.URL.Path),
+		zap.String("method", c.Request.Method),
+	)}
 
 	res, err := h.authSvc.SignUp(c.Request.Context(), &req)
 	if err != nil {
@@ -74,7 +79,12 @@ func (h *AuthHandler) SignUp(c *gin.Context) {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req service.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		h.logger.Warn("invalid login request body",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		response.BadRequest(c, "invalid request body")
 		return
 	}
 

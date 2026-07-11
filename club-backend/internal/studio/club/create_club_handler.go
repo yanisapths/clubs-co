@@ -47,8 +47,14 @@ func (s *CreateClub) Handler(c *gin.Context) {
 	}
 
 	var req CreateClubRequest
-	if err := c.ShouldBind(&req); err != nil {
-		response.BadRequest(c, response.ErrSomethingWentWrong.Error())
+	if err := c.ShouldBindJSON(&req); err != nil {
+		s.logger.Warn("invalid create club request body",
+			zap.Error(err),
+			zap.String("userId", claims.UserID.String()),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		response.BadRequest(c, "invalid request body")
 		return
 	}
 

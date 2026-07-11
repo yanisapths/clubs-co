@@ -62,9 +62,16 @@ func main() {
 	}
 	defer gcsClient.Close()
 	
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logger.Sync()
+
+
 	userRepo := repository.NewUserRepository(db)
 	authSvc := service.NewAuthService(userRepo, cfg.JWT)
-	authHandler := handler.NewAuthHandler(authSvc)
+	authHandler := handler.NewAuthHandler(authSvc, logger)
 
 	if cfg.App.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -81,12 +88,6 @@ func main() {
 	protected := api.Group("/")
 	protected.Use(middleware.Auth(cfg.JWT.Secret))
 	protected.GET("/me", authHandler.Me)
-
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer logger.Sync()
 
 	uploadSvc := file.NewUploadService(gcsClient, cfg.GCP.ProjectID)
 
@@ -108,7 +109,7 @@ func main() {
 		studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
 		studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo, logger).Handler)
 		studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo, uploadSvc, logger).Handler)
-		studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo).Handler)
+		studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo, logger).Handler)
 		studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
 		studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
 		studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
@@ -141,9 +142,9 @@ func main() {
 		"/club/list",
 		membershipclub.NewGetClubListPaginated(memberRepo, logger).Handler,
 	)
-	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo).Handler)
-	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo).Handler)
-	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).PATCH("/club/:id/invite/response",   membershipclub.NewInvitationResponse(memberRepo).Handler)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo,logger).Handler)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo,logger).Handler)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).PATCH("/club/:id/invite/response",   membershipclub.NewInvitationResponse(memberRepo,logger).Handler)
 	mbr.GET("/club/:club_name", membershipclub.NewGetClubInfo(memberRepo, logger).Handler)
 	mbr.GET("/club/:club_name/member", membershipclub.NewGetClubMemberList(memberRepo, logger).Handler)
 	mbr.GET("/search", membershipclub.NewSearchClubList(memberRepo, logger).Handler)
