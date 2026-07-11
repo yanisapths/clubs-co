@@ -5,6 +5,8 @@ import { ClubFormData, ClubType, ClubVisibility } from "./types";
 import { SpacesSection } from "./SpacesSection";
 import { MAX_SEATS, MIN_SEATS } from "../constants";
 import { Club } from "@/features/studio/api/club";
+import { InfoIcon } from "lucide-react";
+import { Tooltip } from "@/design-system/components/tooltip";
 
 interface ClubSettingsFormProps {
   data: ClubFormData;
@@ -55,8 +57,13 @@ export function ClubSettingsForm({
         </p>
       </div>
 
-      <div className="mt-8">
-        <h3 className="text-base font-semibold text-white">Visibility</h3>
+      <div className="mt-8 opacity-40">
+        <div className="flex items-center gap-2">
+          <h3 className="text-base font-semibold text-white/50">Visibility</h3>
+          <Tooltip content="This feature is unavailable">
+            <InfoIcon size={14} className="text-white/50" />
+          </Tooltip>
+        </div>
         <p className="mt-1 text-sm text-zinc-500">
           Anyone : Anyone can see contents in the club.
           <br />
@@ -64,6 +71,7 @@ export function ClubSettingsForm({
         </p>
         <div className="relative mt-3">
           <select
+            disabled
             value={data.visibility}
             onChange={(event) =>
               onUpdate({ visibility: event.target.value as ClubVisibility })

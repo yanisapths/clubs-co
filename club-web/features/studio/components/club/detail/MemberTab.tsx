@@ -98,7 +98,7 @@ export function MembersTab({
   };
 
   return (
-    <div className="px-3 sm:px-6 py-4 sm:py-6">
+    <div className="px-3 sm:px-6 py-4 sm:py-6 mb-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-5">
         {isPermit || isOwner ? (
           <div className="flex flex-wrap items-center text-center justify-center gap-6 sm:gap-8">

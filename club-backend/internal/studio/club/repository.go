@@ -231,7 +231,7 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 
 	query := `
     INSERT INTO public.club (
-        owner_id, name, description, club_type, visibility,
+        owner_id, name, description, club_type,
         max_seats, category_id, tag_ids, space_ids,
         image_url,
         activate, is_deleted, created_at, updated_at,
@@ -245,7 +245,6 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		req.Name,
 		req.Description,
 		req.ClubType,
-		req.Visibility,
 		req.MaxSeats,
 		req.CategoryID,
 		int64SliceToArray(tagIDs),
@@ -419,7 +418,6 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 			name           = COALESCE($1, name),
 			description    = COALESCE($2, description),
 			club_type      = COALESCE($3, club_type),
-			visibility     = COALESCE($4, visibility),
 			max_seats      = COALESCE($5, max_seats),
 			category_id    = COALESCE($6, category_id),
 			display_status = COALESCE($7, display_status),
@@ -443,7 +441,6 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 		req.Name,       
 		req.Description,   
 		req.ClubType,    
-		req.Visibility, 
 		req.MaxSeats,   
 		req.CategoryID,   
 		req.DisplayStatus,
@@ -884,7 +881,6 @@ func (r *clubRepository) PatchClub(
 			name           = COALESCE($1, name),
 			description    = COALESCE($2, description),
 			club_type      = COALESCE($3, club_type),
-			visibility     = COALESCE($4, visibility),
 			max_seats      = COALESCE($5, max_seats),
 			category_id    = COALESCE($6, category_id),
 			display_status = COALESCE($7, display_status),
@@ -908,7 +904,7 @@ func (r *clubRepository) PatchClub(
 
 	result, err := tx.ExecContext(
 		ctx, query,
-		req.Name, req.Description, req.ClubType, req.Visibility,
+		req.Name, req.Description, req.ClubType,
 		req.MaxSeats, req.CategoryID, req.DisplayStatus,
 		thumbnailChanged, thumbnailValue,
 		pq.Array(tagIDs), pq.Array(spaceIDs), pq.Array(nextGallery),

@@ -4,6 +4,8 @@ import { ClubFormData } from "./types";
 import { ToggleSwitch } from "./ToggleSwitch";
 import { SocialLinksModal } from "./SocialLinkModal";
 import { useModal } from "@/hooks/use-modal";
+import { InfoIcon } from "lucide-react";
+import { Tooltip } from "@/design-system/components/tooltip";
 
 interface ClubPublishFormProps {
   data: ClubFormData;
@@ -28,9 +30,14 @@ export function ClubPublishForm({ data, onUpdate }: ClubPublishFormProps) {
         </button>
       </div>
 
-      <div className="mt-8 flex items-start justify-between gap-6">
+      <div className="mt-8 flex items-start justify-between gap-6 opacity-40">
         <div>
-          <h3 className="text-base font-semibold text-white">Followers</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-semibold text-white">Followers</h3>
+            <Tooltip content="This feature is unavailable">
+              <InfoIcon size={14} className="text-white/50" />
+            </Tooltip>
+          </div>
           <p className="mt-1 text-sm text-zinc-500">
             When a club member is full. Allow other to follow a club.
             <br />
@@ -39,6 +46,7 @@ export function ClubPublishForm({ data, onUpdate }: ClubPublishFormProps) {
           </p>
         </div>
         <ToggleSwitch
+          disabled
           checked={data.allowFollowers}
           onChange={(checked) => onUpdate({ allowFollowers: checked })}
           label="Allow followers"
