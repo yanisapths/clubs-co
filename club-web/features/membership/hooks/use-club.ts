@@ -25,6 +25,7 @@ export const useGetMembershipClubs = () => {
   const query = useQuery({
     queryKey: MEMBERSHIP_CLUB_KEYS.all,
     queryFn: getMembershipClubs,
+    retry: false,
     select: (res) => res.data,
   });
 
@@ -40,6 +41,7 @@ export const useGetMembershipClubById = (id: number) => {
     queryKey: MEMBERSHIP_CLUB_KEYS.detail(id),
     queryFn: () => getMembershipClubById(id),
     enabled: !!id,
+    retry: false,
     select: (res) => res.data,
   });
 
@@ -55,6 +57,7 @@ export const useGetMembershipClubByName = (clubName: string) => {
     queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
     queryFn: () => getMembershipClubByName(encodeURIComponent(clubName)),
     enabled: !!clubName,
+    retry: false,
     select: (res) => res.data,
   });
 
@@ -104,6 +107,7 @@ export const useGetClubMemberListByName = (clubName: string) => {
     queryKey: MEMBERSHIP_CLUB_KEYS.members(clubName),
     queryFn: () => getClubMemberListByName(encodeURIComponent(clubName)),
     enabled: !!clubName,
+    retry: false,
     select: (res) => res.data,
   });
 
@@ -143,6 +147,7 @@ export const useGetClubsByCategory = (categorySlug: string, limit = 12) => {
       return response.data;
     },
     enabled: !!categorySlug,
+    retry: false,
   });
 
   return {

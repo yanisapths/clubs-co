@@ -6,6 +6,7 @@ import {
   removeClubMember,
 } from "../api/member";
 import { MEMBERSHIP_CLUB_KEYS } from "@/features/membership/hooks/use-club";
+import { CLUB_KEYS } from "./use-club";
 
 const invalidateMembers = (queryClient: ReturnType<typeof useQueryClient>) =>
   queryClient.invalidateQueries({
@@ -24,10 +25,16 @@ export const useCancelRequest = () => {
       memberId: string;
       clubName: string;
     }) => cancelRequest(getStoredToken()!, clubId, memberId),
-    onSuccess: (_, { clubName }) => {
+    onSuccess: (_, { clubId, clubName }) => {
       invalidateMembers(queryClient);
       queryClient.invalidateQueries({
         queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CLUB_KEYS.detail(clubId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CLUB_KEYS.members(clubId),
       });
     },
   });
@@ -45,10 +52,16 @@ export const useRemoveMember = () => {
       memberId: string;
       clubName: string;
     }) => removeClubMember(getStoredToken()!, clubId, memberId),
-    onSuccess: (_, { clubName }) => {
+    onSuccess: (_, { clubId, clubName }) => {
       invalidateMembers(queryClient);
       queryClient.invalidateQueries({
         queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CLUB_KEYS.detail(clubId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CLUB_KEYS.members(clubId),
       });
     },
   });
@@ -66,10 +79,16 @@ export const useApproveMemberRequest = () => {
       memberId: string;
       clubName: string;
     }) => approveMemberRequest(getStoredToken()!, clubId, memberId),
-    onSuccess: (_, { clubName }) => {
+    onSuccess: (_, { clubId, clubName }) => {
       invalidateMembers(queryClient);
       queryClient.invalidateQueries({
         queryKey: MEMBERSHIP_CLUB_KEYS.detailByName(clubName),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CLUB_KEYS.detail(clubId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CLUB_KEYS.members(clubId),
       });
     },
   });

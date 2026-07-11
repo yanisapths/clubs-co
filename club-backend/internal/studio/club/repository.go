@@ -386,18 +386,18 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 	}
 
 	var memberCount int
-	 err = tx.QueryRowContext(ctx, `
+	err = tx.QueryRowContext(ctx, `
 		SELECT COUNT(*) AS member_count
 			FROM public.club c
 			LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.id = $1
-		` ,clubID,
+		`, clubID,
 	).Scan(&memberCount)
 	if err != nil {
-		return  fmt.Errorf("get member count: %w", err)
+		return fmt.Errorf("get member count: %w", err)
 	}
-	if *req.MaxSeats < memberCount {
-		return ErrMaxSeatLessthanCurrentMember
+	if req.MaxSeats != nil && *req.MaxSeats < memberCount {
+		return  ErrMaxSeatLessthanCurrentMember
 	}
 
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
@@ -705,12 +705,7 @@ func (r *clubRepository) GetClubImageURL(ctx context.Context, clubID int64, owne
 	return imageURL, nil
 }
 
-func (r *clubRepository) PatchClub(
-	ctx context.Context,
-	ownerID string,
-	clubID int64,
-	req PatchClubRequest,
-) (*PatchClubResult, error) {
+func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int64,req PatchClubRequest) (*PatchClubResult, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("begin tx: %w", err)
@@ -872,7 +867,7 @@ func (r *clubRepository) PatchClub(
 	if err != nil {
 		return  nil, fmt.Errorf("get member count: %w", err)
 	}
-	if *req.MaxSeats < memberCount {
+	if req.MaxSeats != nil && *req.MaxSeats < memberCount {
 		return nil, ErrMaxSeatLessthanCurrentMember
 	}
 
@@ -908,12 +903,12 @@ func (r *clubRepository) PatchClub(
 		req.MaxSeats, req.CategoryID, req.DisplayStatus,
 		thumbnailChanged, thumbnailValue,
 		pq.Array(tagIDs), pq.Array(spaceIDs), pq.Array(nextGallery),
-		socialLinksJSON,   // $13
-		clubID,            // $14
-		ownerID,           // $15
-		req.Activate,      // $16
-		bannerURLChanged,  // $17
-		bannerURLValue,    // $18
+		socialLinksJSON,   
+		clubID,            
+		ownerID,           
+		req.Activate,      
+		bannerURLChanged,  
+		bannerURLValue,   
 	)
 
 	if err != nil {
