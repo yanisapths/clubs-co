@@ -62,6 +62,7 @@ type ClubResponse struct {
 type ClubCategory struct {
 	ID   int 	 	`json:"id"`
 	Name string     `json:"name"`
+	Slug string     `json:"slug"`
 }
 
 type Space struct {

@@ -47,6 +47,7 @@ export const JoinFooter = ({
   const isJoined = club.isMember || isOwner ? true : false;
   const isPrivate = club.clubType == "Private";
   const hasInvite = !isJoined && !isOwner && !!club.invite?.isInvited;
+  const isSeatFull = club.maxSeats == club.memberCount;
 
   const [isLetterOpen, setIsLetterOpen] = useState<boolean>(hasInvite);
 
@@ -167,7 +168,13 @@ export const JoinFooter = ({
         </div>
       ) : (
         <div className="flex items-center justify-center">
-          {renderJoinButton()}
+          {isSeatFull ? (
+            <Button isDisabled={true} className="bg-[#22222] text-white/60">
+              <div className="flex items-center gap-2">Club is full</div>
+            </Button>
+          ) : (
+            renderJoinButton()
+          )}
         </div>
       )}
 
@@ -237,6 +244,7 @@ export const JoinFooter = ({
           </div>
         );
       }
+
       return (
         <Button
           onClick={handleJoinClub}
@@ -251,6 +259,7 @@ export const JoinFooter = ({
         </Button>
       );
     }
+
     return (
       <Button
         onClick={handleJoinClub}

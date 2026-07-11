@@ -100,13 +100,17 @@ export const Footer = () => {
           "
         >
           <FooterColumn
+            title="Clubspace"
+            links={[
+              { label: "Guidelines", href: "/guidelines" },
+              { label: "Release notes", href: "/release-notes" },
+            ]}
+          />
+          <FooterColumn
             title="Explore"
             links={[
               { label: "Home", href: "/" },
               { label: "Discover clubs", href: "/club" },
-              // { label: "Communities" },
-              // { label: "Events" },
-              //
             ]}
           />
           <FooterColumn
@@ -115,7 +119,6 @@ export const Footer = () => {
               { label: "Sign up", href: "/login" },
               { label: "Account settings", href: `${user.username}` },
               { label: "Creator studio", href: `${user.username}/studio/club` },
-              { label: "Gudelines", href: "/guidelines" },
             ]}
           />
           <FooterColumn

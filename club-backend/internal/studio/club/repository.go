@@ -348,25 +348,28 @@ func int64SliceToArray(ids []int64) string {
 	return result + "}"
 }
 
-func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest) error {
+func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest, clubInfo Club) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin tx: %w", err)
 	}
+	
 	defer tx.Rollback()
-	var exists bool
-	err = tx.QueryRowContext(ctx, `
-		SELECT EXISTS (
-			SELECT 1 FROM public.club
-			WHERE name = $1
-		)`,
-		req.Name,
-	).Scan(&exists)
-	if err != nil {
-		return  fmt.Errorf("check club name exists: %w", err)
-	}
-	if exists {
-		return ErrClubNameTaken
+	if  clubInfo.Name != *req.Name {
+		var exists bool
+		err = tx.QueryRowContext(ctx, `
+			SELECT EXISTS (
+				SELECT 1 FROM public.club
+				WHERE name = $1
+			)`,
+			req.Name,
+		).Scan(&exists)
+		if err != nil {
+			return  fmt.Errorf("check club name exists: %w", err)
+		}
+		if exists {
+			return ErrClubNameTaken
+		}
 	}
 
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
@@ -437,7 +440,6 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 
 	return tx.Commit()
 }
-
 
 func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error) {
 	query := `
@@ -988,4 +990,27 @@ func (r *clubRepository) CountClubByOwnerID(ctx context.Context, ownerID string)
 	}
 
 	return count, nil
+}
+
+func (r *clubRepository) GetCategoryById(ctx context.Context, categoryID int64) (*ClubCategory, error) {
+	var category ClubCategory
+
+	err := r.db.QueryRowContext(ctx, `
+		SELECT id, name, slug
+		FROM public.category
+		WHERE id = $1
+	`, categoryID).Scan(
+		&category.ID,
+		&category.Name,
+		&category.Slug,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, ErrCategoryNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &category, nil
 }

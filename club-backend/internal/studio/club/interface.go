@@ -11,7 +11,9 @@ type GetClubRepo interface {
 }
 type UpdateClubRepo interface {
 	GetClubImageURL(ctx context.Context, clubID int64, ownerID string) (*string, error)
-	UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest) error
+	UpdateClub(ctx context.Context, ownerID string, clubID int64, req UpdateClubRequest, clubInfo Club) error
+	GetClubByIDByOwnerId(ctx context.Context, clubID int64, ownerID string) (*Club, error)
+	GetCategoryById(ctx context.Context, categoryID int64) (*ClubCategory, error)
 }
 type DeleteClubRepo interface {
 	DeleteClub(ctx context.Context, ownerID string, clubID int64) error 

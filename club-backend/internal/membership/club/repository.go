@@ -186,6 +186,7 @@ func (r *membershipRepository) JoinClub(ctx context.Context, userID string, club
 	}
 	return status, nil
 }
+
 func (r *membershipRepository) LeaveClub(ctx context.Context, userID string, clubID int64) error {
 	var rank int
 	err := r.db.QueryRowContext(ctx, `

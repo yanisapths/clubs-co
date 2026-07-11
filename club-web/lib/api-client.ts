@@ -16,18 +16,15 @@ class ApiError extends Error {
 
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
-  /** Pass a token explicitly when calling from the client side */
   token?: string;
 };
 
 async function resolveToken(override?: string): Promise<string | undefined> {
   if (override) return override;
   if (typeof window === "undefined") {
-    // Server-side: use next-auth session
     const session = await getSession();
     return session?.accessToken;
   }
-  // Client-side: read from localStorage
   return localStorage.getItem("accessToken") ?? undefined;
 }
 

@@ -25,12 +25,16 @@ export async function apiFetch<T>(
   const res = await fetch(url, options);
   const json: ApiResponse<T> = await res.json();
 
-  if (res.status === 401) {
+  if (json.code === 401) {
     const token = getStoredToken();
 
-    clearStoredToken();
+    if (token) {
+      clearStoredToken();
 
-    if (token && typeof window !== "undefined") {
+      if (token && typeof window !== "undefined") {
+        window.location.replace("/login");
+      }
+    } else {
       window.location.replace("/login");
     }
 

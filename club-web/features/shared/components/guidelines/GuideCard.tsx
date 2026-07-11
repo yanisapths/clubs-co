@@ -1,25 +1,46 @@
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { ArrowUpRight, BookOpen } from "lucide-react";
 
 interface GuideCardProps {
   title: string;
   description: string;
   href: string;
+  icon?: React.JSX.Element;
+  isExternal?: boolean;
 }
 
-export function GuideCard({ title, description, href }: GuideCardProps) {
+export function GuideCard({
+  title,
+  description,
+  href,
+  icon,
+  isExternal = false,
+}: GuideCardProps) {
   return (
     <Link
       href={href}
+      target={isExternal ? "_blank" : undefined}
       className="group flex min-h-[180px] flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-950/40 p-6 transition-colors hover:border-neutral-700 hover:bg-neutral-900/60"
     >
-      <BookOpen
-        className="h-5 w-5 text-neutral-400 transition-colors group-hover:text-neutral-200"
-        strokeWidth={1.5}
-      />
+      {icon ? (
+        icon
+      ) : (
+        <BookOpen
+          className="h-5 w-5 text-neutral-400 transition-colors group-hover:text-neutral-200"
+          strokeWidth={1.5}
+        />
+      )}
 
       <div className="mt-8 space-y-1.5">
-        <h3 className="text-lg font-medium text-neutral-100">{title}</h3>
+        <div className="flex gap-2 items-center">
+          <h3 className="text-lg font-medium text-neutral-100">{title}</h3>
+          {isExternal ? (
+            <ArrowUpRight
+              size={18}
+              className="text-neutral-400 transition-colors group-hover:text-neutral-200"
+            />
+          ) : null}
+        </div>
         <p className="text-sm leading-relaxed text-neutral-500">
           {description}
         </p>

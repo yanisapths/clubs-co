@@ -317,6 +317,33 @@ func (r *memberRepository) InviteClubMember(ctx context.Context, inviterID strin
 		return ErrUserAlreadyRequestedToJoin
 	}
 
+	var (
+		memberCount int
+		maxSeats    int
+	)
+	
+	err = r.db.QueryRowContext(ctx, `
+		SELECT
+			COUNT(cm.id) AS member_count,
+			c.max_seats
+		FROM public.club c
+		LEFT JOIN public.club_member cm
+			ON cm.club_id = c.id
+		WHERE c.id = $1
+		GROUP BY c.max_seats
+	`, clubID).Scan(&memberCount, &maxSeats)
+	
+	if err == sql.ErrNoRows {
+		return ErrClubNotFound
+	}
+	if err != nil {
+		return err
+	}
+	
+	if maxSeats > 0 && memberCount >= maxSeats {
+		return ErrClubFull
+	}
+
 	_, err = r.db.ExecContext(ctx, `
 		INSERT INTO public.club_member_invite
 			(inviter_id, recipient_id, club_id, recipient_role_id, created_at)

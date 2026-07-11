@@ -16,4 +16,5 @@ var (
 	ErrUserAlreadyRequestedToJoin = errors.New("member already requested to join, please approve the request.")
 
 	ErrInsufficientPermission = errors.New("insufficient permission")
+	ErrClubFull      = errors.New("club is full")
 )

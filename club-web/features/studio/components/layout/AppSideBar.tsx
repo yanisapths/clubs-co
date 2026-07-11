@@ -19,11 +19,11 @@ const mainNavItems = (username: string) => [
   { title: "Studio", url: `/${username}/studio/club`, icon: BoxesIcon },
   {
     title: "Guidelines",
-    url: `/guidelines`,
+    url: "/guidelines",
     icon: FolderOpen,
+    isExternal: true,
   },
 ];
-
 const bottomNavItems = [{ title: "Find Clubs", url: "/", icon: DoorOpenIcon }];
 
 type NavItemType = ReturnType<typeof mainNavItems>[number];
@@ -32,28 +32,29 @@ export function AppSidebar() {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
   const { user } = useAccountAuth();
+
   const NavItem = ({ item }: { item: NavItemType }) => (
     <Link
       href={item.url}
+      target={item.isExternal ? "_blank" : undefined}
+      rel={item.isExternal ? "noopener noreferrer" : undefined}
       className={cn(
         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
         "text-white/60 hover:bg-white/10 hover:text-white",
-        isActive(item.url) && "text-white",
+        isActive(item.url) && !item.isExternal && "text-white",
       )}
     >
       <item.icon className="h-5 w-5 shrink-0" />
-      {item.title == "Guidelines" ? (
-        <div className="flex items-center gap-2">
-          <span className="truncate opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            {item.title}
-          </span>
-          <ExternalLink className="h-3 w-3 shrink-0" />
-        </div>
-      ) : (
+
+      <div className="flex items-center gap-2">
         <span className="truncate opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {item.title}
         </span>
-      )}
+
+        {item.isExternal && (
+          <ExternalLink className="h-3 w-3 shrink-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+        )}
+      </div>
     </Link>
   );
 

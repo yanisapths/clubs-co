@@ -28,4 +28,10 @@ export const GUIDES: Guide[] = [
     description:
       "How to reach the Clubspace team when something isn't working as expected.",
   },
+  {
+    slug: "pricing-faq",
+    title: "Pricing FAQ",
+    description:
+      "How Clubspace's platform fees work for paid memberships and one-time purchases.",
+  },
 ];

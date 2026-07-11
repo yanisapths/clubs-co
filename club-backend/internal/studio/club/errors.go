@@ -12,4 +12,5 @@ var (
 	ErrClubNameTaken 		= errors.New("club name already exists")
 	ErrUserAlreadyRequestedToJoin = errors.New("member already requested to join, please approve the request.")
 	ErrClubQuotaExceeded	= errors.New("quata exceeded. cannot create more than 5 clubs.")
+	ErrCategoryNotFound     = errors.New("category not found")
 )
