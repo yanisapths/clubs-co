@@ -135,7 +135,7 @@ func (r *memberRepository) ApproveMemberRequest(ctx context.Context, ownerID str
 	
 	err = r.db.QueryRowContext(ctx, `
 		SELECT
-			COUNT(cm.id) AS member_count,
+			COUNT(*) FILTER (WHERE cm.status = 'Active') AS member_count,
 			c.max_seats
 		FROM public.club c
 		LEFT JOIN public.club_member cm
@@ -351,7 +351,7 @@ func (r *memberRepository) InviteClubMember(ctx context.Context, inviterID strin
 	
 	err = r.db.QueryRowContext(ctx, `
 		SELECT
-			COUNT(cm.id) AS member_count,
+			COUNT(*) AS member_count,
 			c.max_seats
 		FROM public.club c
 		LEFT JOIN public.club_member cm

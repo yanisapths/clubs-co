@@ -92,8 +92,10 @@ function ClubManagementGuidePage() {
                   Founder.
                 </li>
                 <li>
+                  At current of <InlineCode>July 2026</InlineCode> Co-Founder
                   Cannot manage club settings — a co-founder&apos;s permissions
-                  are limited to managing members, not the club itself.
+                  are limited to managing members, not the club itself. However,
+                  there might be an adjustment in the future.
                 </li>
               </ul>
             </div>

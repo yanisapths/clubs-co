@@ -388,9 +388,9 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 
 	var memberCount int
 	 err = tx.QueryRowContext(ctx, `
-		COUNT(*) AS member_count
-		FROM public.club c
-		LEFT JOIN public.club_member cm ON cm.club_id = c.id
+		SELECT COUNT(*) AS member_count
+			FROM public.club c
+			LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.id = $1
 		` ,clubID,
 	).Scan(&memberCount)
@@ -512,7 +512,16 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 				WHERE cmi.club_id = c.id
 				AND cmi.invitation_response = false
 				AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
-			) AS pending_invite_count
+			) AS pending_invite_count,
+			(
+				SELECT r.name
+				FROM public.club_member me
+				JOIN public.club_member_roles r
+					ON r.id = me.role_id
+				WHERE me.club_id = c.id
+				AND me.user_id = $2
+				LIMIT 1
+			) AS member_role
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
@@ -541,7 +550,8 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 			cg.name,
 			cg.id,
 			u.username,
-			u.display_name
+			u.display_name,
+			member_role
 	`
 
 	var club Club
@@ -582,6 +592,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 		&club.MemberCount,
 		&club.PendingMemberCount,
 		&club.PendingInviteCount,
+		&club.MemberRole,
 	)
 	if err != nil {
 		return nil, err
@@ -855,9 +866,9 @@ func (r *clubRepository) PatchClub(
 
 	var memberCount int
 	 err = tx.QueryRowContext(ctx, `
-		COUNT(*) AS member_count
-		FROM public.club c
-		LEFT JOIN public.club_member cm ON cm.club_id = c.id
+		SELECT COUNT(*) AS member_count
+			FROM public.club c
+			LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.id = $1
 		` ,clubID,
 	).Scan(&memberCount)

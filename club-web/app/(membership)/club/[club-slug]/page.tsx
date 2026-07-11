@@ -94,7 +94,6 @@ const ClubDetailPage = () => {
           members={members ?? []}
           isOwner={club.isOwner}
           onInvite={showInvite}
-          clubId={club.id}
           onMemberInvited={() => memberQuery.refetch()}
           currentUserId={user.id}
           isPermit={
@@ -103,7 +102,7 @@ const ClubDetailPage = () => {
               : false
           }
           isPublicClub={club.clubType == "Public"}
-          clubSlug={clubSlug}
+          club={club}
         />
       )}
 

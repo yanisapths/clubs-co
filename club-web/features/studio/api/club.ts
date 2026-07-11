@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/api-types";
 import { SocialLink } from "./common";
+import { MemberRole } from "@/features/membership/api/club";
 const baseApi = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/studio/club`;
 
 export interface Tag {
@@ -44,6 +45,7 @@ export interface Club {
   memberCount: number;
   pendingMemberCount?: number;
   pendingInviteCount?: number;
+  memberRole?: MemberRole;
 }
 
 export interface CreateClubPayload {

@@ -90,6 +90,7 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			MemberCount: 		clubInfo.MemberCount,	
 			PendingMemberCount: clubInfo.PendingMemberCount,
 			PendingInviteCount: clubInfo.PendingInviteCount,
+			MemberRole:     clubInfo.MemberRole,
 		},
 	
 	}

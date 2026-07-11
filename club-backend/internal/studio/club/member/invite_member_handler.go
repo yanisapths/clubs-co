@@ -65,6 +65,9 @@ func (h *inviteClubMemberHandler) Handler(c *gin.Context) {
 		case errors.Is(err, ErrUserAlreadyRequestedToJoin):
 			response.Conflict(c, "member already requested to join")
 
+		case errors.Is(err, ErrClubFull):
+			response.Conflict(c, "club is already full")
+			
 		default:
 			response.InternalServerError(c, "internal server error")
 		}

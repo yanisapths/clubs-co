@@ -52,7 +52,7 @@ export const getMembershipClubs = () =>
       : undefined,
   });
 
-type MemberRole = "Founder" | "CoFounder" | "Member";
+export type MemberRole = "Founder" | "CoFounder" | "Member";
 export interface Club {
   id: number;
   name: string;

@@ -107,10 +107,14 @@ const ClubDetailPage = () => {
             members={members ?? []}
             isOwner={isOwner}
             onInvite={showInvite}
-            clubId={clubId}
             onMemberInvited={() => memberQuery.refetch()}
             currentUserId={user.id}
-            clubSlug={toClubSlug(club.name)}
+            club={club}
+            isPermit={
+              club.memberRole == "Founder" || club.memberRole == "CoFounder"
+                ? true
+                : false
+            }
           />
         ) : (
           <SettingTab club={club} username={user.username} />

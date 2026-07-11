@@ -33,6 +33,7 @@ type Club struct {
 	MemberCount 	int              `db:"member_count"`
 	PendingMemberCount	int          `db:"pending_member_count"`
 	PendingInviteCount  int          `db:"pending_invite_count"`
+	MemberRole 	    string           `db:"member_role"`
 }
 
 type ClubMember struct {

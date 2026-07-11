@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { formatUnixDate } from "@/lib/utils";
+import { formatUnixDate, toClubSlug } from "@/lib/utils";
 import { Button, toast } from "@heroui/react";
 import {
   UserPlus,
@@ -21,10 +21,11 @@ import {
   useCancelRequest,
   useRemoveMember,
 } from "@/features/studio/hooks/use-member";
-import { Tooltip } from "@/design-system/components/tooltip";
 import { ConfirmationModal } from "@/features/shared/components/modal/ConfirmationModal";
 import { useModal } from "@/hooks/use-modal";
 import { useLeaveClub } from "@/features/membership/hooks/use-club";
+import { Club } from "@/features/studio/api/club";
+import { Tooltip } from "@/design-system/components/tooltip";
 
 const ROW_GRID_COLS =
   "md:grid-cols-[1fr_100px_120px_40px] lg:grid-cols-[1fr_260px_160px_88px]";
@@ -36,7 +37,6 @@ function getStatusLabel(member: ClubMember) {
 }
 
 export function MembersTab({
-  clubId,
   members,
   isOwner,
   currentUserId,
@@ -44,9 +44,8 @@ export function MembersTab({
   onMemberInvited,
   isPermit,
   isPublicClub,
-  clubSlug,
+  club,
 }: {
-  clubId: number | string;
   members: ClubMember[];
   isOwner: boolean;
   currentUserId: string;
@@ -54,7 +53,7 @@ export function MembersTab({
   onMemberInvited?: (member: SearchMember, roleId: MemberRoleId) => void;
   isPermit?: boolean;
   isPublicClub?: boolean;
-  clubSlug: string;
+  club: Club;
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -69,7 +68,7 @@ export function MembersTab({
   const cancelRequest = useCancelRequest();
   const approveRequest = useApproveMemberRequest();
   const removeMember = useRemoveMember();
-
+  const clubFull = club.maxSeats == club.memberCount;
   const pendingRequestsCount = members.filter(
     (m) => m.isPending && !m.isInvited,
   ).length;
@@ -84,7 +83,7 @@ export function MembersTab({
 
   const handleLeaveClub = () => {
     leaveClub.mutate(
-      { clubId: clubId as number, clubName: clubSlug },
+      { clubId: club.id as number, clubName: toClubSlug(club.name) },
       {
         onSuccess: () => {
           toast.success("Left club successfully. 😢");
@@ -125,13 +124,22 @@ export function MembersTab({
         ) : null}
 
         {isPermit && (
-          <Button
-            onClick={handleInviteClick}
-            className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 w-full sm:w-auto justify-center"
-          >
-            <UserPlus className="h-4 w-4" />
-            Invite member
-          </Button>
+          <div className="flex items-center gap-2">
+            {clubFull && (
+              <Tooltip content="The club is full. Cannot invite more members">
+                <InfoIcon size={20} className="text-white/50" />
+              </Tooltip>
+            )}
+
+            <Button
+              isDisabled={clubFull}
+              onClick={handleInviteClick}
+              className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 w-full sm:w-auto justify-center"
+            >
+              <UserPlus className="h-4 w-4" />
+              Invite member
+            </Button>
+          </div>
         )}
       </div>
 
@@ -187,7 +195,7 @@ export function MembersTab({
                       </span>
                     )}
 
-                  {(isPermit || isSelf) && (
+                  {isPermit && (
                     <button
                       onClick={() => toggleMenu(member.id)}
                       className="cursor-pointer md:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
@@ -240,7 +248,7 @@ export function MembersTab({
                 </span>
 
                 <div className="hidden md:flex justify-end">
-                  {(isPermit || isSelf) && (
+                  {isPermit && (
                     <button
                       onClick={() => toggleMenu(member.id)}
                       className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:bg-white/10 hover:text-white transition-colors"
@@ -261,7 +269,7 @@ export function MembersTab({
                           onClick={() => {
                             approveRequest.mutate(
                               {
-                                clubId,
+                                clubId: club.id,
                                 memberId: member.id,
                               },
                               {
@@ -281,8 +289,8 @@ export function MembersTab({
                             );
                             closeMenu();
                           }}
-                          disabled={approveRequest.isPending}
-                          className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-emerald-400 hover:bg-white/5 transition-colors"
+                          disabled={approveRequest.isPending || clubFull}
+                          className="disabled:opacity-50 disabled:text-gray-600 cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-emerald-400 hover:bg-white/5 transition-colors"
                         >
                           <Check className="h-4 w-4" />
                           Accept request
@@ -291,7 +299,7 @@ export function MembersTab({
                           onClick={() => {
                             cancelRequest.mutate(
                               {
-                                clubId,
+                                clubId: club.id,
                                 memberId: member.id,
                               },
                               {
@@ -323,7 +331,7 @@ export function MembersTab({
                         onClick={() => {
                           cancelRequest.mutate(
                             {
-                              clubId,
+                              clubId: club.id,
                               memberId: member.id,
                             },
                             {
@@ -351,8 +359,9 @@ export function MembersTab({
 
                     {!pending && isSelf && (
                       <button
+                        disabled={member.role == "Founder"}
                         onClick={show}
-                        className="cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                        className="disabled:opacity-50 disabled:text-gray-600 cursor-pointer flex w-full items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
                       >
                         <LogOut className="h-4 w-4" />
                         Leave club
@@ -364,7 +373,7 @@ export function MembersTab({
                         onClick={() => {
                           removeMember.mutate(
                             {
-                              clubId,
+                              clubId: club.id,
                               memberId: member.id,
                             },
                             {
@@ -417,7 +426,7 @@ export function MembersTab({
       <InviteMemberModal
         isOpen={isInviteOpen}
         onClose={() => setIsInviteOpen(false)}
-        clubId={clubId}
+        clubId={club.id}
         existingMembers={members}
         onInvited={onMemberInvited}
       />

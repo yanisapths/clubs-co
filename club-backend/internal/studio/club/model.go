@@ -57,6 +57,7 @@ type ClubResponse struct {
 	MemberCount    int                 `json:"memberCount"`
 	PendingMemberCount	int            `json:"pendingMemberCount"`
 	PendingInviteCount 	int 		   `json:"pendingInviteCount"`
+	MemberRole	   string              `json:"memberRole"`
 }
 
 type ClubCategory struct {

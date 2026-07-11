@@ -169,8 +169,8 @@ export const JoinFooter = ({
       ) : (
         <div className="flex items-center justify-center">
           {isSeatFull ? (
-            <Button isDisabled={true} className="bg-[#22222] text-white/60">
-              <div className="flex items-center gap-2">Club is full</div>
+            <Button isDisabled={true} className="bg-[#222222] text-white">
+              <div className="flex items-center gap-2">The club is full</div>
             </Button>
           ) : (
             renderJoinButton()
