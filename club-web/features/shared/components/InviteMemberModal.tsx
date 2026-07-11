@@ -11,12 +11,10 @@ import {
   MEMBER_ROLE,
   type MemberRoleId,
 } from "@/features/studio/api/member";
-import {
-  MemberAvatar,
-  type ClubMember,
-} from "@/features/studio/components/club/detail/MemberAvatar";
+import { MemberAvatar } from "@/features/studio/components/club/detail/MemberAvatar";
 import { FormSelect } from "./input/FormInput";
 import { getStoredToken } from "@/lib/storage";
+import { ClubMember } from "@/features/studio/api/club";
 
 type InviteStatus = "idle" | "loading" | "invited" | "error";
 

@@ -1,7 +1,3 @@
-import { ClubDetail } from "@/features/studio/api/club";
-
-export type ClubMember = ClubDetail["members"][number];
-
 export function MemberAvatar({
   displayName,
   size = "md",

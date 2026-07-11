@@ -11,7 +11,7 @@ import {
   InfoIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { ClubMember, MemberAvatar } from "./MemberAvatar";
+import { MemberAvatar } from "./MemberAvatar";
 import { NOW_SECONDS, SEVEN_DAYS } from "../constants";
 import { InviteMemberModal } from "@/features/shared/components/InviteMemberModal";
 import { SearchMember } from "@/features/shared/api/api";
@@ -24,7 +24,7 @@ import {
 import { ConfirmationModal } from "@/features/shared/components/modal/ConfirmationModal";
 import { useModal } from "@/hooks/use-modal";
 import { useLeaveClub } from "@/features/membership/hooks/use-club";
-import { Club } from "@/features/studio/api/club";
+import { type Club, type ClubMember } from "@/features/studio/api/club";
 import { Tooltip } from "@/design-system/components/tooltip";
 
 const ROW_GRID_COLS =
