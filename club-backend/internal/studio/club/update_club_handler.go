@@ -48,7 +48,6 @@ func (s *UpdateClub) Handler(c *gin.Context) {
 		return
 	}
 
-
 	if len(req.Tags) > 5 {
 		response.BadRequest(c, "cannot add more than 5 tags")
 		return

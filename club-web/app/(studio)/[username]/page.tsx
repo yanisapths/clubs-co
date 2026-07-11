@@ -155,7 +155,7 @@ function CreatorHomePage() {
 
             <Button
               onClick={show}
-              className="absolute bottom-5 right-6 rounded-full bg-white text-black px-4 py-1.5 text-sm font-medium hover:bg-white/85 transition-colors"
+              className="md:absolute md:bottom-5 md:right-6 rounded-full bg-white text-black px-4 py-1.5 text-sm font-medium hover:bg-white/85 transition-colors"
             >
               <Edit3Icon /> Edit profile
             </Button>

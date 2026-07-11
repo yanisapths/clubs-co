@@ -4,6 +4,7 @@ import { ClubFormData, ClubSpace, ClubVisibility } from "./create/types";
 export const MAX_TAGS = 5; // validate max 50 characters per tag, English only, allow space, not allow any special characters.
 export const MAX_SPACES = 3; // validate max 100 characters per space, English only.
 export const MAX_SEATS = 200;
+export const MIN_SEATS = 3;
 
 export const NAME_MAX_LENGTH = 100;
 export const DESCRIPTION_MAX_LENGTH = 250;
@@ -37,7 +38,7 @@ export function validateForm(
   if (data.spaces.some((space) => !isValidSpace(space))) return false;
   if (
     !Number.isInteger(data.maxSeats) ||
-    data.maxSeats < 1 ||
+    data.maxSeats < 3 ||
     data.maxSeats > MAX_SEATS
   )
     return false;

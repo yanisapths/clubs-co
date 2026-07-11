@@ -37,13 +37,67 @@ func (s *PatchClub) Handler(c *gin.Context) {
 
 	var req PatchClubRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		s.logger.Warn("invalid patch club request body",
+			zap.Error(err),
+			zap.Int64("clubId", clubID),
+			zap.String("userId", claims.UserID.String()),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		response.BadRequest(c, "invalid request body")
 		return
 	}
 
 	if len(req.Tags) > 5 {
 		response.BadRequest(c, "cannot add more than 5 tags")
 		return
+	}
+	
+	clubInfo, err := s.repo.GetClubByIDByOwnerId(
+		c.Request.Context(),
+		clubID,
+		claims.UserID.String(),
+	)
+	if err != nil {
+		s.logger.Error("failed: GetClubByID",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		response.NotFound(c, "club not found")
+		return
+	}
+	
+	if clubInfo == nil {
+		response.NotFound(c, "club not found")
+		return
+	}
+
+	const maxCap = 200
+	if req.MaxSeats != nil && *req.MaxSeats > maxCap {
+		response.BadRequest(c, "seats limit exceeded")
+		return
+	}
+
+	if req.CategoryID != nil {
+		category, err := s.repo.GetCategoryById(
+			c.Request.Context(),
+			*req.CategoryID,
+		)
+		if err != nil {
+			s.logger.Error("failed: GetCategoryById",
+				zap.Error(err),
+				zap.String("path", c.Request.URL.Path),
+				zap.String("method", c.Request.Method),
+			)
+			response.NotFound(c, "category not found")
+			return
+		}
+
+		if category == nil {
+			response.NotFound(c, "category not found")
+			return
+		}
 	}
 
 	var oldImageURL *string

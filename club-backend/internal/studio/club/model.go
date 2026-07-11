@@ -10,7 +10,7 @@ type CreateClubRequest struct {
 	Name        string       `json:"name"        binding:"required,min=2,max=100"`
 	ThumbnailImage *string    `json:"thumbnailImage"   binding:"omitempty"`
 	Description string       `json:"description" binding:"max=250"`
-	MaxSeats    int          `json:"maxSeats"    binding:"required,min=1,max=200"`
+	MaxSeats    int          `json:"maxSeats"    binding:"required,min=3,max=200"`
 	ClubType    string       `json:"clubType"    binding:"required,oneof=Public Private Exclusive"`
 	Visibility  string       `json:"visibility"  binding:"required,oneof=Anyone MemberOnly"`
 	CategoryID  int64        `json:"categoryId"  binding:"required"`
@@ -77,7 +77,7 @@ type Tag struct {
 type UpdateClubRequest struct {
 	Name          *string      `json:"name"          binding:"omitempty,min=2,max=100"`
 	Description   *string      `json:"description"   binding:"omitempty,max=250"`
-	MaxSeats      *int         `json:"maxSeats"      binding:"omitempty,min=1,max=200"`
+	MaxSeats      *int         `json:"maxSeats"      binding:"omitempty,min=3,max=200"`
 	ClubType      *string      `json:"clubType"      binding:"omitempty,oneof=Public Private Exclusive"`
 	Visibility    *string      `json:"visibility"    binding:"omitempty,oneof=Anyone MemberOnly"`
 	CategoryID    *int64       `json:"categoryId"`
@@ -115,7 +115,7 @@ const MaxGalleryImages = 20
 type PatchClubRequest struct {
 	Name          *string      `json:"name"          binding:"omitempty,min=2,max=100"`
 	Description   *string      `json:"description"   binding:"omitempty,max=250"`
-	MaxSeats      *int         `json:"maxSeats"      binding:"omitempty,min=1,max=200"`
+	MaxSeats      *int         `json:"maxSeats"      binding:"omitempty,min=3,max=200"`
 	ClubType      *string      `json:"clubType"      binding:"omitempty,oneof=Public Private Exclusive"`
 	Visibility    *string      `json:"visibility"    binding:"omitempty,oneof=Anyone MemberOnly"`
 	CategoryID    *int64       `json:"categoryId"`

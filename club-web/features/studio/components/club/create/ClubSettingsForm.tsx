@@ -3,7 +3,7 @@
 import { ChangeEvent } from "react";
 import { ClubFormData, ClubType, ClubVisibility } from "./types";
 import { SpacesSection } from "./SpacesSection";
-import { MAX_SEATS } from "../constants";
+import { MAX_SEATS, MIN_SEATS } from "../constants";
 
 interface ClubSettingsFormProps {
   data: ClubFormData;
@@ -77,7 +77,8 @@ export function ClubSettingsForm({ data, onUpdate }: ClubSettingsFormProps) {
       <div className="mt-8">
         <h3 className="text-base font-semibold text-white">Max seats</h3>
         <p className="mt-1 text-sm text-zinc-500">
-          You can set at most maximum {MAX_SEATS} members to join a club.
+          You can set at most maximum {MAX_SEATS} and minimum {MIN_SEATS}{" "}
+          members to join a club.
         </p>
         <input
           type="text"
