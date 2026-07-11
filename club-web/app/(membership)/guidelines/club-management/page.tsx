@@ -47,6 +47,11 @@ function ClubManagementGuidePage() {
             can discover the club — <InlineCode>Anyone</InlineCode> or{" "}
             <InlineCode>MemberOnly</InlineCode> — separately from who is allowed
             to join it.
+            <br />
+            This feature is currently unavailable. If you wish to make the club
+            undiscoverable, you can <InlineCode>deactivate</InlineCode> it
+            instead. However, this will affect all users, including members who
+            have already joined the club.
           </p>
           <p>
             The account that creates a club is automatically assigned the{" "}
