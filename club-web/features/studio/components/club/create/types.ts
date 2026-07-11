@@ -7,6 +7,7 @@ export type ClubVisibility = "Anyone" | "Club member only";
 export interface ClubSpace {
   id: string;
   name: string;
+  isNew?: boolean;
 }
 
 export type SocialPlatform = "Website" | "X" | "Meta" | "Instagram";

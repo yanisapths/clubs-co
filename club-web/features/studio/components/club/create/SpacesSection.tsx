@@ -61,10 +61,12 @@ export function SpacesSection({
     onChange(spaces.filter((space) => space.id !== id));
   };
 
-  const addSpace = (space: { id: string; name: string }) => {
+  const addSpace = (space: { id: string; name: string; isNew?: boolean }) => {
     if (spaces.length >= MAX_SPACES) return;
-
-    onChange([...spaces, { id: space.id, name: space.name }]);
+    onChange([
+      ...spaces,
+      { id: space.id, name: space.name, isNew: space.isNew },
+    ]);
     onQueryChange("");
     setIsSearching(false);
   };
@@ -73,7 +75,7 @@ export function SpacesSection({
     if (option.kind === "existing") {
       addSpace({ id: String(option.space.id), name: option.space.name });
     } else {
-      addSpace({ id: newLocalId(), name: option.name });
+      addSpace({ id: newLocalId(), name: option.name, isNew: true });
     }
   };
 

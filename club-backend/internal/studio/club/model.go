@@ -7,7 +7,7 @@ import (
 )
 
 type CreateClubRequest struct {
-	Name        string       `json:"name"        binding:"required,min=2,max=100"`
+	Name        string       `json:"name"        binding:"required,max=100"`
 	ThumbnailImage *string    `json:"thumbnailImage"   binding:"omitempty"`
 	Description string       `json:"description" binding:"max=250"`
 	MaxSeats    int          `json:"maxSeats"    binding:"required,min=3,max=200"`
@@ -76,7 +76,7 @@ type Tag struct {
 	Name string `json:"name"`
 }
 type UpdateClubRequest struct {
-	Name          *string      `json:"name"          binding:"omitempty,min=2,max=100"`
+	Name          *string      `json:"name"          binding:"omitempty,min=1,max=100"`
 	Description   *string      `json:"description"   binding:"omitempty,max=250"`
 	MaxSeats      *int         `json:"maxSeats"      binding:"omitempty,min=3,max=200"`
 	ClubType      *string      `json:"clubType"      binding:"omitempty,oneof=Public Private Exclusive"`

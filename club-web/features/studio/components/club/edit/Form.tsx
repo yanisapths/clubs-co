@@ -83,10 +83,9 @@ export function EditClubForm({
         visibility: visibilityMap[formData.visibility],
         maxSeats: formData.maxSeats,
         tags: formData.tags.map((name) => ({ name })),
-        spaces: formData.spaces.map((s) => ({
-          id: Number(s.id),
-          name: s.name,
-        })),
+        spaces: formData.spaces.map((s) =>
+          s.isNew ? { name: s.name } : { id: Number(s.id) },
+        ),
         ...(thumbnailImage !== undefined && { thumbnailImage }),
         socialLinks: formData.socialLinks,
       },

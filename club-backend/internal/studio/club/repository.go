@@ -237,7 +237,7 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
         activate, is_deleted, created_at, updated_at,
         display_status, social_links
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true,false,NOW(),NOW(),$11,$12)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,false,NOW(),NOW(),$10,$11)
     RETURNING id`
 	var club Club
 	err = tx.QueryRowContext(ctx, query,
@@ -418,19 +418,19 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 			name           = COALESCE($1, name),
 			description    = COALESCE($2, description),
 			club_type      = COALESCE($3, club_type),
-			max_seats      = COALESCE($5, max_seats),
-			category_id    = COALESCE($6, category_id),
-			display_status = COALESCE($7, display_status),
+			max_seats      = COALESCE($4, max_seats),
+			category_id    = COALESCE($5, category_id),
+			display_status = COALESCE($6, display_status),
 			image_url      = CASE
-								WHEN $8::boolean THEN $9
+								WHEN $7::boolean THEN $8
 								ELSE image_url
 							END,
-			tag_ids        = $10,
-			space_ids      = $11,
-			social_links   = COALESCE($12, social_links),
+			tag_ids        = $9,
+			space_ids      = $10,
+			social_links   = COALESCE($11, social_links),
 			updated_at     = NOW()
-		WHERE id         = $13
-		AND owner_id   = $14::uuid
+		WHERE id         = $12
+		AND owner_id   = $13::uuid
 		AND is_deleted = false`
 
 
@@ -881,25 +881,25 @@ func (r *clubRepository) PatchClub(
 			name           = COALESCE($1, name),
 			description    = COALESCE($2, description),
 			club_type      = COALESCE($3, club_type),
-			max_seats      = COALESCE($5, max_seats),
-			category_id    = COALESCE($6, category_id),
-			display_status = COALESCE($7, display_status),
+			max_seats      = COALESCE($4, max_seats),
+			category_id    = COALESCE($5, category_id),
+			display_status = COALESCE($6, display_status),
 			image_url      = CASE
-								WHEN $8::boolean THEN $9
+								WHEN $7::boolean THEN $8
 								ELSE image_url
 							END,
 			banner_url     = CASE
-								WHEN $17::boolean THEN $18
+								WHEN $16::boolean THEN $17
 								ELSE banner_url
 							END,
-			tag_ids        = $10,
-			space_ids      = $11,
-			gallery_urls   = $12,
-			social_links   = COALESCE($13, social_links),
-			activate	   = COALESCE($16, activate),
+			tag_ids        = $9,
+			space_ids      = $10,
+			gallery_urls   = $11,
+			social_links   = COALESCE($12, social_links),
+			activate	   = COALESCE($15, activate),
 			updated_at     = NOW()
-		WHERE id = $14
-		AND owner_id = $15::uuid
+		WHERE id = $13
+		AND owner_id = $14::uuid
 		AND is_deleted = false`
 
 	result, err := tx.ExecContext(
