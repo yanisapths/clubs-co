@@ -33,7 +33,7 @@ export function ClubPublishForm({ data, onUpdate }: ClubPublishFormProps) {
       <div className="mt-8 flex items-start justify-between gap-6 opacity-40">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-white">Followers</h3>
+            <h3 className="text-base font-semibold text-white/50">Followers</h3>
             <Tooltip content="This feature is unavailable">
               <InfoIcon size={14} className="text-white/50" />
             </Tooltip>
