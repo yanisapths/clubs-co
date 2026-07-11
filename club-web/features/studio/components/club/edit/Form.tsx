@@ -112,7 +112,7 @@ export function EditClubForm({
     formData.tags.length > 0 ||
     formData.spaces.length > 0;
 
-  const isValid = validateForm(formData, isNameExist);
+  const isValid = validateForm(formData, isNameExist, false, club?.memberCount);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#0c0c0c] text-white">
@@ -147,7 +147,11 @@ export function EditClubForm({
               />
             </section>
             <section>
-              <ClubSettingsForm data={formData} onUpdate={updateFormData} />
+              <ClubSettingsForm
+                data={formData}
+                onUpdate={updateFormData}
+                clubInfo={club}
+              />
             </section>
             <section>
               <ClubPublishForm data={formData} onUpdate={updateFormData} />

@@ -4,13 +4,19 @@ import { ChangeEvent } from "react";
 import { ClubFormData, ClubType, ClubVisibility } from "./types";
 import { SpacesSection } from "./SpacesSection";
 import { MAX_SEATS, MIN_SEATS } from "../constants";
+import { Club } from "@/features/studio/api/club";
 
 interface ClubSettingsFormProps {
   data: ClubFormData;
   onUpdate: (updates: Partial<ClubFormData>) => void;
+  clubInfo?: Club;
 }
 
-export function ClubSettingsForm({ data, onUpdate }: ClubSettingsFormProps) {
+export function ClubSettingsForm({
+  data,
+  onUpdate,
+  clubInfo,
+}: ClubSettingsFormProps) {
   const handleMaxSeatsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const raw = event.target.value.replace(/[^0-9]/g, "");
     const value = raw === "" ? 0 : Math.min(MAX_SEATS, Number(raw));
@@ -87,6 +93,11 @@ export function ClubSettingsForm({ data, onUpdate }: ClubSettingsFormProps) {
           onChange={handleMaxSeatsChange}
           className="mt-3 w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-5 py-4 text-base text-white outline-none focus:border-zinc-500"
         />
+        {clubInfo?.memberCount && data.maxSeats < clubInfo?.memberCount && (
+          <p className="text-red-500 mt-2 text-sm">
+            Max seats cannot be less than number of members in the club.
+          </p>
+        )}
       </div>
 
       <div className="mt-8">

@@ -13,7 +13,7 @@ import { TagInput } from "./TagInput";
 import { categories } from "@/features/shared/constants";
 
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { checkClubExist } from "@/features/studio/api/club";
+import { checkClubExist, Club } from "@/features/studio/api/club";
 import { getStoredToken } from "@/lib/storage";
 
 interface ClubBasicInfoFormProps {

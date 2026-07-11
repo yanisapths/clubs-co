@@ -22,6 +22,7 @@ export function validateForm(
   data: ClubFormData,
   nameExist: boolean,
   quotaExceeded?: boolean,
+  memberCount?: number,
 ): boolean {
   if (nameExist) return false;
   if (quotaExceeded) return false;
@@ -42,6 +43,10 @@ export function validateForm(
     data.maxSeats > MAX_SEATS
   )
     return false;
+
+  if (memberCount && data.maxSeats < memberCount) {
+    return false;
+  }
   if (data.socialLinks.some((link) => !Object.values(link)[0]?.trim()))
     return false;
 
