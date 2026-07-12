@@ -1,0 +1,113 @@
+name: Deploy backend — nonprd
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "club-backend/**"
+      - ".github/workflows/deploy-nonprd.yml"
+      - "infra/scripts/deploy-nonprd.sh"
+
+  # Also allow triggering manually from GitHub UI
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (e.g. v1.2.0)"
+        required: true
+        default: "v0.0.0"
+
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPO: club-backend-nonprd
+  ECS_CLUSTER: default
+  ECS_SERVICE: club-backend-nonprd-299f
+  ECS_TASK_FAMILY: club-backend-nonprd
+  CONTAINER_NAME: club-backend
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required for OIDC
+      contents: read
+
+    steps:
+      # ── 1. Checkout code ────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Determine version tag ────────────────────────────
+      # On manual trigger: use the input version
+      # On push: use short git SHA (e.g. sha-a3f9c2)
+      - name: Set version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+            echo "tag=sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Print version
+        run: echo "Deploying version ${{ steps.version.outputs.tag }}"
+
+      # ── 3. Configure AWS credentials ────────────────────────
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ── 4. Log in to ECR ────────────────────────────────────
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ── 5. Build and push Docker image ──────────────────────
+      - name: Build and push image
+        id: build
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ steps.version.outputs.tag }}
+        working-directory: club-backend
+        run: |
+          IMAGE_URI="${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
+          echo "image_uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
+
+          docker build --platform linux/amd64 -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+          echo "Pushed: $IMAGE_URI"
+
+      # ── 6. Update ECS task definition ───────────────────────
+      - name: Update ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition-family: ${{ env.ECS_TASK_FAMILY }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build.outputs.image_uri }}
+
+      # ── 7. Deploy to ECS service ─────────────────────────────
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      # ── 8. Summary ───────────────────────────────────────────
+      - name: Print deploy summary
+        run: |
+          echo "## Deploy complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | \`${{ steps.version.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | \`${{ steps.build.outputs.image_uri }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cluster | \`${{ env.ECS_CLUSTER }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | \`${{ env.ECS_SERVICE }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
