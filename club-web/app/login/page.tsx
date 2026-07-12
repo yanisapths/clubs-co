@@ -52,11 +52,14 @@ type SignupValues = z.infer<typeof signupSchema>;
 // ─── API calls ───────────────────────────────────────────────────────────────
 
 async function apiSignup(data: Omit<SignupValues, "confirm_password">) {
-  const res = await fetch("http://localhost:9090/api/v1/auth/signup", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/signup`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    },
+  );
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.message ?? "Signup failed");

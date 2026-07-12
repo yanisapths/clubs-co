@@ -3,7 +3,7 @@
 # Usage: make <target> [version=vX.Y.Z]
 # ─────────────────────────────────────────────────────────────────
 
-SCRIPTS_DIR := scripts       
+SCRIPTS_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/scripts
 BACKEND_DIR := ../club-backend  
 WEB_DIR     := ../club-web
 
@@ -51,7 +51,7 @@ deploy:
 		echo ""; \
 		exit 1; \
 	fi
-	@bash $(SCRIPTS_DIR)/deploy-nonprd.sh $(VERSION)
+	@bash ./scripts/deploy-nonprd.sh $(VERSION)
 
 # ─────────────────────────────────────────────────────────────────
 # Backend
@@ -106,4 +106,4 @@ db-migrate:
 ecr-login:
 	aws ecr get-login-password --region us-east-1 \
 		| docker login --username AWS --password-stdin \
-		$$(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-southeast-1.amazonaws.com
+		$$(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-east-1.amazonaws.com
