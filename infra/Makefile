@@ -104,6 +104,6 @@ db-migrate:
 
 .PHONY: ecr-login
 ecr-login:
-	aws ecr get-login-password --region ap-southeast-1 \
+	aws ecr get-login-password --region us-east-1 \
 		| docker login --username AWS --password-stdin \
 		$$(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-southeast-1.amazonaws.com
