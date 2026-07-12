@@ -80,7 +80,6 @@ func Load() (*Config, error) {
 			return nil, fmt.Errorf("error reading config: %w", err)
 		}
 	}
-
 	accessTTL, err := time.ParseDuration(v.GetString("jwt.access_token_ttl"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid jwt.access_token_ttl: %w", err)
