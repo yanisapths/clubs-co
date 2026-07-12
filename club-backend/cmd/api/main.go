@@ -79,6 +79,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to get underlying *sql.DB: %v", err)
 	}
+	sqlDB.SetMaxOpenConns(20) 
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
 	gcsClient, err := storage.NewClient(context.Background())
 	if err != nil {
