@@ -9,3 +9,4 @@
 
 cd club-backend && cp .env.example .env && npm install && npm run dev
 cd club-web && cp .env.example .env.local && npm install && npm run dev
+# rebuild trigger 1783835369
