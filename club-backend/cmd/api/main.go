@@ -69,10 +69,11 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	if err := repository.AutoMigrate(db); err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
+	if cfg.App.Env != "production" {
+		if err := repository.AutoMigrate(db); err != nil {
+			log.Fatalf("failed to migrate database: %v", err)
+		}
 	}
-
 	// Extract *sql.DB from gorm for repositories that use database/sql directly.
 	sqlDB, err := db.DB()
 	if err != nil {
