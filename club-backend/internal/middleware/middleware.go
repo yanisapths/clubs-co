@@ -37,7 +37,7 @@ func allowedOrigins() map[string]bool {
 
 	origins := make(map[string]bool)
 	for _, o := range strings.Split(raw, ",") {
-		if o = strings.TrimSpace(o); o != "" {
+		if o = strings.TrimSpace(strings.TrimSuffix(o, "/")); o != "" {
 			origins[o] = true
 		}
 	}
@@ -46,6 +46,7 @@ func allowedOrigins() map[string]bool {
 
 func CORS() gin.HandlerFunc {
 	allowed := allowedOrigins()
+	log.Printf("CORS allowed origins: %v", allowed) 
 
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
