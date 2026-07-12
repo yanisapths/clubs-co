@@ -37,7 +37,7 @@ export const useAccountAuth = () => {
     await signOut({
       callbackUrl: "/",
     });
-    localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
   };
 
   return {
