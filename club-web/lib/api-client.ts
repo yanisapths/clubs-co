@@ -25,7 +25,7 @@ async function resolveToken(override?: string): Promise<string | undefined> {
     const session = await getSession();
     return session?.accessToken;
   }
-  return localStorage.getItem("accessToken") ?? undefined;
+  return sessionStorage.getItem("accessToken") ?? undefined;
 }
 
 async function request<T>(
