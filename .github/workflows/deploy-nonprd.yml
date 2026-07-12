@@ -18,6 +18,7 @@ on:
         default: "v0.0.0"
 
 env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
   AWS_REGION: us-east-1
   ECR_REPO: club-backend-nonprd
   ECS_CLUSTER: default
