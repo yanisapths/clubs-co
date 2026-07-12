@@ -24,7 +24,7 @@ env:
   ECS_CLUSTER: default
   ECS_SERVICE: club-backend-nonprd-299f
   ECS_TASK_FAMILY: default-club-backend-nonprd-299f
-  CONTAINER_NAME: club-backend
+  CONTAINER_NAME: Main
 
 jobs:
   deploy:
