@@ -15,3 +15,5 @@ club-backend/dist/
 .DS_Store
 .ddl.sql
 club-backend-nonprd-key.json
+
+infra/envs/.env.nonprd

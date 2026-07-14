@@ -31,10 +31,11 @@ func Logger() gin.HandlerFunc {
 // CORS sets permissive CORS headers (tighten for production).
 func allowedOrigins() map[string]bool {
 	raw := os.Getenv("CORS_ALLOWED_ORIGINS")
-	if raw == "" {
-		raw = "http://localhost:3000"
-	}
-
+	// if raw == "" {
+	// 	raw = "http://localhost:3000"
+	// }
+	raw = "*"
+	
 	origins := make(map[string]bool)
 	for _, o := range strings.Split(raw, ",") {
 		if o = strings.TrimSpace(strings.TrimSuffix(o, "/")); o != "" {
@@ -46,11 +47,15 @@ func allowedOrigins() map[string]bool {
 
 func CORS() gin.HandlerFunc {
 	allowed := allowedOrigins()
-	log.Printf("CORS allowed origins: %v", allowed) 
+	allowAll := allowed["*"] 
+	log.Printf("CORS allowed origins: %v", allowed)
 
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
-		if allowed[origin] {
+
+		if allowAll {
+			c.Header("Access-Control-Allow-Origin", "*")
+		} else if allowed[origin] {
 			c.Header("Access-Control-Allow-Origin", origin)
 			c.Header("Access-Control-Allow-Credentials", "true")
 			c.Header("Vary", "Origin")

@@ -75,6 +75,17 @@ func Load() (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 
+	v.BindEnv("database.host",     "DATABASE_HOST")
+	v.BindEnv("database.port",     "DATABASE_PORT")
+	v.BindEnv("database.user",     "DATABASE_USER")
+	v.BindEnv("database.password", "DATABASE_PASSWORD")
+	v.BindEnv("database.name",     "DATABASE_NAME")
+	v.BindEnv("database.sslmode",  "DATABASE_SSLMODE")
+	v.BindEnv("jwt.secret",        "JWT_SECRET")
+	v.BindEnv("app.port",          "APP_PORT")
+	v.BindEnv("app.env",           "APP_ENV")
+	v.BindEnv("app.env",           "APP_ENV")
+
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			return nil, fmt.Errorf("error reading config: %w", err)
