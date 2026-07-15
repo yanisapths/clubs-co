@@ -153,7 +153,7 @@ func main() {
 	profileApi.Use(middleware.Auth(cfg.JWT.Secret))
 	{
 		//view self profile
-		profileApi.GET("",      profile.NewGetUserProfile(profileRepo).Handler)
+		profileApi.GET("",      profile.NewGetUserProfile(profileRepo, logger).Handler)
 		profileApi.PATCH("",    profile.NewUpdateUserProfile(profileRepo, uploadSvc,logger).Handler)
 		profileApi.GET("/club", profile.NewGetUserClubs(profileRepo, logger).Handler)
 		profileApi.DELETE("", profile.NewDeleteUser(profileRepo, uploadSvc, logger).Handler)
