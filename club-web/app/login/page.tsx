@@ -143,7 +143,7 @@ function LoginForm({ onSwitch }: { onSwitch: () => void }) {
       identifier: values.identifier,
       password: values.password,
       redirect: false,
-      callbackUrl,
+      redirectTo: callbackUrl,
     });
     if (result?.error) {
       setServerError("Invalid email or password");
