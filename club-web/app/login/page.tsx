@@ -253,8 +253,6 @@ function SignupForm({ onSwitch }: { onSwitch: () => void }) {
         redirect: false,
       });
 
-      console.log("SIGNIN RESULT", result);
-
       if (result?.error) {
         onSwitch();
         return;

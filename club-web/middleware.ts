@@ -42,11 +42,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL("/404", req.url));
   }
 
-  console.log("middleware", {
-    pathname,
-    hasToken: !!token,
-    username: token?.username,
-  });
   return NextResponse.next();
 }
 
