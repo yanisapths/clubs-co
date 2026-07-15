@@ -11,7 +11,8 @@ type Props = {
 // NOTE: swap this for however your app already reaches the API from the
 // server (e.g. a shared `serverFetch` helper). Kept plain here so the
 // assumption is obvious and easy to replace.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9090";
+const NEXT_PUBLIC_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9090";
 
 type PublicProfile = {
   displayName?: string;
@@ -23,7 +24,7 @@ type PublicProfile = {
 async function fetchPublicProfile(
   username: string,
 ): Promise<PublicProfile | null> {
-  const url = `${API_BASE_URL}/api/v1/membership/user/${encodeURIComponent(username)}`;
+  const url = `${NEXT_PUBLIC_API_BASE_URL}/api/v1/membership/user/${encodeURIComponent(username)}`;
 
   try {
     // Metadata is generated at request time; tune this to `force-cache`

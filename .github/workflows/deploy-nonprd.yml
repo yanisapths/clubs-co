@@ -22,8 +22,8 @@ env:
   AWS_REGION: us-east-1
   ECR_REPO: club-backend-nonprd
   ECS_CLUSTER: default
-  ECS_SERVICE: club-backend-nonprd-299f
-  ECS_TASK_FAMILY: default-club-backend-nonprd-299f
+  ECS_SERVICE: club-backend-nonprd
+  ECS_TASK_FAMILY: default-club-backend-nonprd
   CONTAINER_NAME: Main
 
 jobs:

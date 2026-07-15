@@ -6,8 +6,9 @@ type Props = {
   children: React.ReactNode;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9090";
-const MEMBERSHIP_CLUB_BASE = `${API_BASE_URL}/api/v1/membership/club/category`;
+const NEXT_PUBLIC_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9090";
+const MEMBERSHIP_CLUB_BASE = `${NEXT_PUBLIC_API_BASE_URL}/api/v1/membership/club/category`;
 
 interface CategoryMetadataResponse {
   category?: {

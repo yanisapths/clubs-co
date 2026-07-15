@@ -5,8 +5,9 @@ type Props = {
   params: Promise<{ "club-slug": string }> | { "club-slug": string };
   children: React.ReactNode;
 };
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9090";
-const MEMBERSHIP_CLUB_BASE = `${API_BASE_URL}/api/v1/membership/club`;
+const NEXT_PUBLIC_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:9090";
+const MEMBERSHIP_CLUB_BASE = `${NEXT_PUBLIC_API_BASE_URL}/api/v1/membership/club`;
 
 type Club = {
   id: number;

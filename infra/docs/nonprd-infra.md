@@ -65,7 +65,7 @@ Target group health check: GET /health
 (set proxy OFF — orange cloud OFF for ALB)
 
 [ ] 9. Vercel — connect GitHub repo, set env vars:
-API_BASE_URL=https://api-nonprd.yourdomain.com
+NEXT_PUBLIC_API_BASE_URL=https://api-nonprd.yourdomain.com
 NEXT_PUBLIC_API_BASE_URL=https://api-nonprd.yourdomain.com
 NEXT_PUBLIC_ASSET_BASE_URL=https://assets-nonprd.yourdomain.com
 NEXTAUTH_SECRET=...
