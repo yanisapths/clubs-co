@@ -6,7 +6,7 @@ interface RootLayoutProps {
 
 export const metadata = {
   title: "Clubs | Creator Studio",
-  description: "Create and customize your club on Clubspace.",
+  description: "Create and customize your club on Meeteon.",
 };
 
 const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {

@@ -64,19 +64,19 @@ export async function generateMetadata(
 
   if (!data?.clubInfo) {
     return {
-      title: "Club not found — Clubspace",
+      title: "Club not found — Meeteon",
       description: "This club doesn't exist or is unavailable.",
     };
   }
 
   const { clubInfo: club } = data;
 
-  const title = `${club.name} - Clubspace`;
+  const title = `${club.name} - Meeteon`;
   const description = club.description
     ? club.description.slice(0, 160)
     : club.memberCount
-      ? `Join ${club.name} and ${club.memberCount} other members on Clubspace.`
-      : `Join ${club.name} on Clubspace.`;
+      ? `Join ${club.name} and ${club.memberCount} other members on Meeteon.`
+      : `Join ${club.name} on Meeteon.`;
 
   const image = club.bannerUrl ?? club.imageUrl;
 

@@ -13,7 +13,7 @@ function HelpSupportGuidePage() {
     <div className="relative min-h-screen bg-black">
       <GuidelineDetailLayout
         title="Help & Support"
-        description="How to reach the Clubspace team when something isn't working as expected."
+        description="How to reach the Meeteon team when something isn't working as expected."
         sections={SECTIONS}
       >
         <GuideSectionBlock id="overview" title="Overview">

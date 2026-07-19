@@ -15,6 +15,7 @@ type Config struct {
 	Database DatabaseConfig
 	JWT      JWTConfig
 	GCP      GCPConfig
+	Google   GoogleConfig
 }
 
 type AppConfig struct {
@@ -53,6 +54,10 @@ type GCPConfig struct {
     ProjectID string `env:"GCP_PROJECT_ID,required"`
 }
 
+type GoogleConfig struct {
+	ClientID string `env:"GOOGLE_CLIENT_ID,required"`
+}
+
 func Load() (*Config, error) {
 	v := viper.New()
 
@@ -64,7 +69,6 @@ func Load() (*Config, error) {
 	v.SetDefault("database.sslmode", "disable")
 	v.SetDefault("jwt.access_token_ttl", "5h")
 	v.SetDefault("jwt.refresh_token_ttl", "168h")
-
 
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")

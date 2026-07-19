@@ -18,12 +18,10 @@ function ReleaseNotesPage() {
     <div className="relative min-h-screen bg-black">
       <main className="relative mx-auto max-w-7xl px-6 pb-24 pt-10">
         <p className="text-sm text-neutral-500">Release notes</p>
-        <h1 className="mt-2 text-4xl font-medium text-neutral-100">
-          Clubspace
-        </h1>
+        <h1 className="mt-2 text-4xl font-medium text-neutral-100">Meeteon</h1>
         <p className="mt-3 max-w-2xl text-neutral-500">
-          Updates to Clubspace, including the Studio dashboard, club features,
-          and the Clubs API.
+          Updates to Meeteon, including the Studio dashboard, club features, and
+          the Clubs API.
         </p>
 
         <div className="mt-8">
@@ -61,7 +59,7 @@ function ReleaseNotesPage() {
 
             <ReleaseNoteEntry id="2026-07-01" date="July 1, 2026">
               <li>
-                Clubspace Clubs is now in{" "}
+                Meeteon Clubs is now in{" "}
                 <span className="text-neutral-100">beta</span> (
                 <span className="text-neutral-100">Beta 1.0.0</span>) and free
                 to use for every member — there are no platform fees during this

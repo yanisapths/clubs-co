@@ -54,8 +54,8 @@ export default function Home() {
               <div>
                 <p className="text-3xl">Explore clubs</p>
                 <p className="text-base text-white/60 mt-1">
-                  Clubspace is the place to grow communities and share passion
-                  in spaces where people connect.
+                  Meeteon is the place to grow communities and share passion in
+                  spaces where people connect.
                 </p>
               </div>
 

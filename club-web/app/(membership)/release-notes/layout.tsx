@@ -6,7 +6,7 @@ interface RootLayoutProps {
 }
 
 export const metadata: Metadata = {
-  title: "Release notes | Clubspace",
+  title: "Release notes | Meeteon",
   description: "Latest features and updates",
 };
 

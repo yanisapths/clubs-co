@@ -10,6 +10,12 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
+export const metadata = {
+  title: "Explore | Meeteon",
+  description:
+    "The place to grow communities and share passion in spaces where people connect.",
+};
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,

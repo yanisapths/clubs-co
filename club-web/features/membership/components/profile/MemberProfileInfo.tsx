@@ -20,13 +20,13 @@ export function MemberProfileInfo({
     <div className="flex flex-col gap-5">
       <div className="flex w-full max-w-3xl flex-col gap-6 text-left">
         {profile?.bio && profile?.bio?.length > 0 ? (
-          <Card className="px-5 py-5 bg-zinc-900 min-w-[550px]">
+          <Card className="px-5 py-5 bg-zinc-900 md:min-w-[550px]">
             <p className="whitespace-pre-line text-md leading-relaxed text-white/90">
               {profile?.bio}
             </p>
           </Card>
         ) : (
-          <Card className="bg-zinc-900 min-h-24 min-w-[550px] border border-white/10 px-5 py-5 flex items-center justify-center">
+          <Card className="bg-zinc-900 min-h-24 md:min-w-[550px] border border-white/10 px-5 py-5 flex items-center justify-center">
             <p className="text-sm text-white/40">
               This member hasn&apos;t added a bio yet.
             </p>

@@ -23,13 +23,13 @@ function PricingFaqGuidePage() {
     <div className="relative min-h-screen bg-black">
       <GuidelineDetailLayout
         title="Pricing FAQ"
-        description="Clubspace Clubs is currently in beta and free for everyone. This FAQ covers today's limits and what's coming next for organization and creator pricing."
+        description="Meeteon Clubs is currently in beta and free for everyone. This FAQ covers today's limits and what's coming next for organization and creator pricing."
         metaLabel="Beta 1.0.0 — published July 2026"
         sections={SECTIONS}
       >
         <GuideSectionBlock id="how-it-works" title="How it works">
           <p>
-            Clubspace Clubs is in beta (
+            Meeteon Clubs is in beta (
             <span className="text-neutral-200">Beta 1.0.0</span>, published July
             2026) and free to use for every member — there are no platform fees
             right now.
@@ -56,12 +56,12 @@ function PricingFaqGuidePage() {
           <FaqAccordion
             items={[
               {
-                question: "Is Clubspace free during the beta?",
+                question: "Is Meeteon free during the beta?",
                 answer: (
                   <p>
                     Yes. Every feature available today — creating clubs,
                     inviting and managing members, and joining clubs — is free
-                    for all members while Clubspace Clubs is in beta.
+                    for all members while Meeteon Clubs is in beta.
                   </p>
                 ),
               },
@@ -77,7 +77,7 @@ function PricingFaqGuidePage() {
                 ),
               },
               {
-                question: "Will Clubspace introduce paid plans later?",
+                question: "Will Meeteon introduce paid plans later?",
                 answer: (
                   <p>
                     Yes. A future release will detail pricing for organizations

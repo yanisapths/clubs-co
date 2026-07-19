@@ -8,7 +8,7 @@ interface Props {
 
 export const metadata = {
   title: "Home | Creator Studio",
-  description: "Welcome to your home on Clubspace.",
+  description: "Welcome to your home on Meeteon.",
 };
 
 export default async function UsernameLayout({ params, children }: Props) {

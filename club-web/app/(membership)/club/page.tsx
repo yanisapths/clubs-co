@@ -41,7 +41,7 @@ export default function AllClubListPage() {
               Discover Clubs
             </h1>
             <p className="mx-auto mt-3 text-xl text-white/90">
-              Clubspace is the place to grow communities and share passion in
+              Meeteon is the place to grow communities and share passion in
               spaces where people connect.
             </p>
           </div>

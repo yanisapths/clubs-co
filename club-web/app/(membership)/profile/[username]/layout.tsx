@@ -58,16 +58,16 @@ export async function generateMetadata(
 
   if (!profile) {
     return {
-      title: "Member not found — Clubspace",
+      title: "Member not found — Meeteon",
       description: "This member profile doesn't exist or is unavailable.",
     };
   }
 
   const name = profile.displayName || `@${profile.username}`;
-  const title = `${name} (@${profile.username}) - Clubspace`;
+  const title = `${name} (@${profile.username}) - Meeteon`;
   const description = profile.bio
     ? profile.bio.slice(0, 160)
-    : `View ${name}'s clubs and profile on Clubspace.`;
+    : `View ${name}'s clubs and profile on Meeteon.`;
 
   return {
     title,

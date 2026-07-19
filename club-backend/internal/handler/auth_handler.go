@@ -28,6 +28,7 @@ func (h *AuthHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	{
 		auth.POST("/signup", h.SignUp)
 		auth.POST("/login", h.Login)
+		auth.POST("/google", h.GoogleSignIn)
 	}
 }
 
@@ -97,6 +98,49 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			response.Unauthorized(c, "account is inactive")
 		default:
 			response.InternalServerError(c, "login failed")
+		}
+		return
+	}
+
+	response.OK(c, res)
+}
+
+// GoogleSignIn godoc
+//
+//	@Summary     Sign in or sign up with Google
+//	@Tags        auth
+//	@Accept      json
+//	@Produce     json
+//	@Param       body body service.GoogleSignInRequest true "Google ID token"
+//	@Success     200 {object} service.AuthResponse
+//	@Failure     400 {object} response.ErrorBody
+//	@Failure     401 {object} response.ErrorBody
+//	@Failure     403 {object} response.ErrorBody
+//	@Router      /auth/google [post]
+func (h *AuthHandler) GoogleSignIn(c *gin.Context) {
+	var req service.GoogleSignInRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.logger.Warn("invalid google sign-in request body",
+			zap.Error(err),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("method", c.Request.Method),
+		)
+		response.BadRequest(c, "invalid request body")
+		return
+	}
+
+	res, err := h.authSvc.GoogleSignIn(c.Request.Context(), &req)
+	if err != nil {
+		switch {
+		case errors.Is(err, auth.ErrInvalidGoogleToken):
+			response.Unauthorized(c, "invalid or expired google token")
+		case errors.Is(err, service.ErrGoogleEmailNotVerified):
+			response.Forbidden(c, "google account email is not verified")
+		case errors.Is(err, service.ErrAccountInactive):
+			response.Unauthorized(c, "account is inactive")
+		default:
+			h.logger.Error("failed: GoogleSignIn", zap.Error(err))
+			response.InternalServerError(c, "google sign-in failed")
 		}
 		return
 	}

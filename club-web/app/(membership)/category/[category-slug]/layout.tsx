@@ -57,19 +57,19 @@ export async function generateMetadata(
 
   if (!data?.category) {
     return {
-      title: "Category not found — Clubspace",
+      title: "Category not found — Meeteon",
       description: "This category doesn't exist or is unavailable.",
     };
   }
 
   const { category } = data;
 
-  const title = `${category.name} - Clubspace`;
+  const title = `${category.name} - Meeteon`;
   const description = category.description
     ? category.description.slice(0, 160)
     : data.pagination?.totalRecords
-      ? `Discover ${data.pagination.totalRecords} ${category.name} clubs on Clubspace.`
-      : `Discover ${category.name} clubs on Clubspace.`;
+      ? `Discover ${data.pagination.totalRecords} ${category.name} clubs on Meeteon.`
+      : `Discover ${category.name} clubs on Meeteon.`;
 
   const image = category.imageUrl;
 

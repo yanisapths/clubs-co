@@ -103,7 +103,7 @@ func main() {
 
 
 	userRepo := repository.NewUserRepository(db)
-	authSvc := service.NewAuthService(userRepo, cfg.JWT)
+    authSvc := service.NewAuthService(userRepo, cfg.JWT, cfg.Google.ClientID)
 	authHandler := handler.NewAuthHandler(authSvc, logger)
 
 	if cfg.App.Env == "production" {

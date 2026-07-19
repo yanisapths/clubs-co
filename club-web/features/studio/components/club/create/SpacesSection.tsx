@@ -3,13 +3,13 @@
 
 import { useEffect, useState } from "react";
 import { Plus, X, Search } from "lucide-react";
-import { ClubSpace } from "./types";
+import { Meeteon } from "./types";
 import { MAX_SPACES } from "../constants";
 import { SearchSpace } from "@/features/shared/api/api";
 
 interface SpacesSectionProps {
-  spaces: ClubSpace[];
-  onChange: (spaces: ClubSpace[]) => void;
+  spaces: Meeteon[];
+  onChange: (spaces: Meeteon[]) => void;
   query: string;
   onQueryChange: (value: string) => void;
   searchResults: SearchSpace[];

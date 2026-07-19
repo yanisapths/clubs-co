@@ -86,7 +86,7 @@ export const Footer = () => {
         <div className="flex flex-col justify-start gap-3 order-1">
           <Logo />
           <p style={{ fontSize: "13px", color: "#555" }}>
-            © {new Date().getFullYear()} Clubspace. All rights reserved.
+            © {new Date().getFullYear()} Meeteon. All rights reserved.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export const Footer = () => {
           "
         >
           <FooterColumn
-            title="Clubspace"
+            title="Meeteon"
             links={[
               { label: "Guidelines", href: "/guidelines" },
               { label: "Release notes", href: "/release-notes" },
@@ -150,7 +150,7 @@ export const Footer = () => {
               fontFamily: "'DM Sans', system-ui, sans-serif",
             }}
           >
-            Clubspace
+            Meeteon
           </p>
         </div>
       </div>

@@ -1,11 +1,12 @@
-// app/login/page.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@heroui/react";
 import Link from "next/link";
@@ -436,7 +437,7 @@ function Logo() {
         </svg>
       </div>
       <span className="text-lg font-bold tracking-tight text-white">
-        clubspace
+        Meeteon
       </span>
     </div>
   );
@@ -448,16 +449,18 @@ function OAuthButton({
   provider,
   label,
   icon,
+  callbackUrl,
 }: {
   provider: string;
   label: string;
   icon: React.ReactNode;
+  callbackUrl?: string;
 }) {
   return (
     <button
       type="button"
-      onClick={() => signIn(provider)}
-      className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-white/10 hover:border-white/20 active:scale-[0.99]"
+      onClick={() => signIn(provider, { callbackUrl })}
+      className="cursor-pointer flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-white/10 hover:border-white/20 active:scale-[0.99]"
     >
       {icon}
       {label}
@@ -469,6 +472,33 @@ function OAuthButton({
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const session = await getSession();
+      if (cancelled || !session) return;
+
+      if ((session as any).error || !session.accessToken) {
+        toast.danger("Google sign-in failed. Please try again.");
+
+        await signOut({ redirect: false });
+        return;
+      }
+
+      setStoredToken(session.accessToken);
+      toast.success(`Welcome ${session.username || session.displayName} 👋`);
+      router.replace(searchParams.get("callbackUrl") ?? "/");
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center px-4">
@@ -494,10 +524,11 @@ export default function AuthPage() {
         {/* OAuth options — show only on login */}
         {mode === "login" && (
           <>
-            <div className="space-y-2.5 mb-5">
+            <div className="space-y-2.5 mb-5 cursor-pointer">
               <OAuthButton
                 provider="google"
                 label="Continue with Google"
+                callbackUrl={searchParams.get("callbackUrl") ?? "/"}
                 icon={
                   <svg viewBox="0 0 24 24" className="h-4 w-4">
                     <path

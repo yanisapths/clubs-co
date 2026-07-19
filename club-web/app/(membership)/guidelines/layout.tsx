@@ -6,8 +6,8 @@ interface RootLayoutProps {
 }
 
 export const metadata: Metadata = {
-  title: "Guidelines | Clubspace",
-  description: "Practical guides for using Clubspace effectively",
+  title: "Guidelines | Meeteon",
+  description: "Practical guides for using Meeteon effectively",
 };
 
 const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {

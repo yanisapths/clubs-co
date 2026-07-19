@@ -58,7 +58,7 @@ export function SettingTab({ username, club }: SettingTabProps) {
             </h3>
             <p className="mt-1 text-sm text-white/60 max-w-full sm:max-w-[450px]">
               Deactivating is temporary, and it means your club will be hidden
-              from public view on Clubspace until you reactivate it.
+              from public view on Meeteon until you reactivate it.
             </p>
           </div>
           <div className="shrink-0">

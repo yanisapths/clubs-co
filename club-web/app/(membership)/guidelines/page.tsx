@@ -13,11 +13,11 @@ function StudioGuidelinesPage() {
     <div className="relative min-h-screen bg-black">
       <main className="relative mx-auto max-w-7xl px-6 pb-24 pt-10">
         <section>
-          <p className="text-sm text-neutral-500">Clubspace Platform</p>
+          <p className="text-sm text-neutral-500">Meeteon Platform</p>
           <h1 className="mt-3 text-4xl font-medium leading-tight text-neutral-100 md:text-5xl">
             Start building communities
             <br />
-            on Clubspace
+            on Meeteon
           </h1>
 
           <Link
@@ -37,10 +37,10 @@ function StudioGuidelinesPage() {
         <div className="flex flex-col gap-10">
           <section>
             <h2 className="text-3xl font-medium text-neutral-100">
-              Clubspace Guidebook
+              Meeteon Guidebook
             </h2>
             <p className="mt-2 text-neutral-500">
-              Practical guides for using Clubspace effectively
+              Practical guides for using Meeteon effectively
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -66,8 +66,8 @@ function StudioGuidelinesPage() {
               Release notes
             </h2>
             <p className="mt-2 text-neutral-500">
-              Updates to Clubspace, including the Studio dashboard, club
-              features, and the Clubs API.
+              Updates to Meeteon, including the Studio dashboard, club features,
+              and the Clubs API.
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

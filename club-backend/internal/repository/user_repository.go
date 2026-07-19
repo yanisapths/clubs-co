@@ -27,6 +27,9 @@ type UserRepository interface {
 	FindByUsername(ctx context.Context, username string) (*model.User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 	ExistsByUsername(ctx context.Context, username string) (bool, error)
+
+	FindByGoogleID(ctx context.Context, googleID string) (*model.User, error)
+	LinkGoogleID(ctx context.Context, userID uuid.UUID, googleID string) error
 }
 
 type userRepository struct {
@@ -106,4 +109,25 @@ func AutoMigrate(db *gorm.DB) error {
 // isDuplicateKeyError is a naive check for Postgres unique violations by constraint name.
 func isDuplicateKeyError(err error, constraint string) bool {
 	return err != nil && errors.Is(err, gorm.ErrDuplicatedKey)
+}
+
+func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*model.User, error) {
+	var user model.User
+	err := r.db.WithContext(ctx).
+		Where("google_id = ?", googleID).
+		First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) LinkGoogleID(ctx context.Context, userID uuid.UUID, googleID string) error {
+	return r.db.WithContext(ctx).
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("google_id", googleID).Error
 }
