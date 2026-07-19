@@ -124,10 +124,10 @@ export const Footer = () => {
           <FooterColumn
             title="Legal"
             links={[
-              { label: "Privacy policy" },
-              { label: "Terms of service" },
-              { label: "Cookie policy" },
-              { label: "Community rules" },
+              { label: "Privacy policy", href: "/privacy-policy" },
+              { label: "Terms of service", href: "/terms-of-service" },
+              // { label: "Cookie policy" },
+              // { label: "Community rules" },
             ]}
           />
           <FooterColumn
