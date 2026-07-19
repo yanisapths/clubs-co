@@ -26,7 +26,6 @@ export const UserDropdown = () => {
   if (!isLoggedIn || !user) return null;
 
   const username = (user as any).username ?? user.email ?? "";
-  const usernameInitials = (user.username ?? "?").slice(0, 2).toUpperCase();
 
   return (
     <div ref={ref} className="relative">
@@ -35,9 +34,8 @@ export const UserDropdown = () => {
         className="backdrop-blur-md  cursor-pointer flex items-center gap-2 rounded-full border border-white/10 bg-white/10 py-2 pl-3 pr-3 text-sm text-white/80 transition-colors hover:bg-white/15"
       >
         <Avatar
-          userId={user.id}
+          displayName={(profile?.displayName || profile?.username) ?? ""}
           imageUrl={profile?.imageUrl}
-          initials={usernameInitials}
         />
         <span className="text-[13px]">{username}</span>
       </button>
@@ -46,9 +44,8 @@ export const UserDropdown = () => {
         <div className="absolute right-0 top-16 z-50 w-64 rounded-2xl border border-white/10 bg-[#1c1c1c] p-5 shadow-xl">
           <div className="mb-5 flex items-start gap-2">
             <Avatar
-              userId={user.id}
               imageUrl={profile?.imageUrl}
-              initials={usernameInitials}
+              displayName={(profile?.displayName || profile?.username) ?? ""}
               size={48}
             />
             <div className="flex-1 min-w-0">

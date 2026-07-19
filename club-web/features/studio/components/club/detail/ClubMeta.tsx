@@ -1,4 +1,3 @@
-import { getGradient } from "@/features/shared/components/Avatar";
 import { Tag } from "@/features/shared/components/Tag";
 import { categories } from "@/features/shared/constants";
 import { Club, ClubMember } from "@/features/studio/api/club";
@@ -11,6 +10,7 @@ import { useModal } from "@/hooks/use-modal";
 import { usePatchClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import { EditBannerModal, EditBannerModalResult } from "./EditBannerModal";
+import { getGradient } from "@/features/studio/utils/utils";
 
 export function ClubBanner({
   club,

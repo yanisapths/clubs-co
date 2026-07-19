@@ -42,8 +42,6 @@ function MemberProfilePage() {
     Boolean(url),
   );
 
-  const usernameInitials = (username ?? "?").slice(0, 2).toUpperCase();
-
   if (isLoading) {
     return (
       <div className="relative min-h-screen bg-black">
@@ -77,9 +75,8 @@ function MemberProfilePage() {
         <div className="px-6 pb-5 flex flex-col gap-3">
           <div className="flex items-center gap-4">
             <Avatar
-              userId={profile?.id}
               imageUrl={profile?.imageUrl}
-              initials={usernameInitials}
+              displayName={(profile?.displayName || profile?.username) ?? ""}
               size={72}
             />
             <div className="flex flex-col gap-0.5 mb-0.5">

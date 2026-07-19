@@ -28,6 +28,8 @@ import type {
 } from "@/features/shared/api/api";
 import { IconLayoutGrid } from "@tabler/icons-react";
 import { CATEGORY_META } from "@/features/shared/constants";
+import { ClubThumbnail } from "@/features/shared/components/ClubThumbnail";
+import { MemberAvatar } from "@/features/studio/components/club/detail/MemberAvatar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,9 +65,9 @@ function clubTypeBadgeConfig(clubType: string): TypeBadgeConfig {
       return {
         icon: <Lock size={11} />,
         label: "Private",
-        bg: "#f59e0b22",
-        color: "#f59e0b",
-        border: "#f59e0b44",
+        bg: "#28026422",
+        color: "#8133FF",
+        border: "#6408F977",
       };
     case "exclusive":
       return {
@@ -136,16 +138,7 @@ function ClubRow({ club, onSelect }: ClubRowProps): JSX.Element {
       onMouseEnter={onRowHoverEnter}
       onMouseLeave={onRowHoverLeave}
     >
-      <div
-        className="w-11 h-11 rounded-xl shrink-0 flex items-center justify-center text-[11px] font-black text-white/70 uppercase tracking-widest"
-        style={{
-          background: club.imageUrl
-            ? `url(${club.imageUrl}) center/cover`
-            : "linear-gradient(135deg,#1a1a3e,#7c3aed 60%,#c2410c)",
-        }}
-      >
-        {!club.imageUrl && initialsOf(club.name)}
-      </div>
+      <ClubThumbnail id={club.id} name={club.name} imageUrl={club.imageUrl} />
       <div className="flex flex-col min-w-0 flex-1 gap-0.5">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[15px] font-bold text-white leading-tight truncate">
@@ -193,7 +186,6 @@ function ClubRow({ club, onSelect }: ClubRowProps): JSX.Element {
     </button>
   );
 }
-
 interface MemberRowProps {
   member: SearchMember;
   onSelect: (member: SearchMember) => void;
@@ -212,16 +204,7 @@ function MemberRow({ member, onSelect }: MemberRowProps): JSX.Element {
       onMouseEnter={onRowHoverEnter}
       onMouseLeave={onRowHoverLeave}
     >
-      <div
-        className="w-11 h-11 rounded-full shrink-0 flex items-center justify-center text-sm font-bold text-white"
-        style={{
-          background: member.imageUrl
-            ? `url(${member.imageUrl}) center/cover`
-            : "#7C3AED",
-        }}
-      >
-        {!member.imageUrl && initialsOf(displayLabel)}
-      </div>
+      <MemberAvatar displayName={member.displayName || member.username} />
       <div className="flex flex-col min-w-0 flex-1 gap-0.5">
         <span className="text-[15px] font-bold text-white">{displayLabel}</span>
         <div className="flex items-center gap-3 flex-wrap">

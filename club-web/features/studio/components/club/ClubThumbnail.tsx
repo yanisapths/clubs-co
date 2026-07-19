@@ -2,16 +2,6 @@ import Image from "next/image";
 import clsx from "clsx";
 import { getCategoryGradient } from "./constants";
 
-const gradientMap: Record<string, string> = {
-  sports: "linear-gradient(160deg,#4a5a1a 0%,#7a8a2a 45%,#b8aa30 100%)",
-  art: "linear-gradient(160deg,#5a1a2a 0%,#8a2a4a 45%,#aa3a6a 100%)",
-  culture: "linear-gradient(160deg,#4a2a1a 0%,#7a4a2a 45%,#aa6a3a 100%)",
-  esport: "linear-gradient(160deg,#2a1a5a 0%,#4a2a8a 45%,#6a3aaa 100%)",
-  education: "linear-gradient(160deg,#1a5a3a 0%,#2a8a5a 45%,#3aaa7a 100%)",
-  tech: "linear-gradient(160deg,#0a1a2a 0%,#1a3a5a 45%,#2a5a8a 100%)",
-  other: "linear-gradient(160deg,#1a1a2a 0%,#2a2a4a 45%,#4a3a6a 100%)",
-};
-
 interface ClubThumbnailProps {
   imageUrl?: string | null;
   name: string;

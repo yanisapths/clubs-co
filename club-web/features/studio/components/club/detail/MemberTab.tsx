@@ -80,6 +80,7 @@ export function MembersTab({
   };
 
   const { show, visible, close } = useModal();
+  const [memberToRemove, setMemberToRemove] = useState<ClubMember | null>(null);
 
   const handleLeaveClub = () => {
     leaveClub.mutate(
@@ -92,6 +93,29 @@ export function MembersTab({
         onError: () => {
           toast.danger("Failed to leave club.");
           close();
+        },
+      },
+    );
+  };
+
+  const handleRemoveMember = () => {
+    if (!memberToRemove) return;
+    removeMember.mutate(
+      {
+        clubId: club.id,
+        memberId: memberToRemove.id,
+        clubName: toClubSlug(club.name),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Member has been removed.");
+          setMemberToRemove(null);
+        },
+        onError: (error) => {
+          toast.danger(
+            error instanceof Error ? error.message : "Failed to remove member.",
+          );
+          setMemberToRemove(null);
         },
       },
     );
@@ -374,25 +398,7 @@ export function MembersTab({
                     {!pending && canRemove && (
                       <button
                         onClick={() => {
-                          removeMember.mutate(
-                            {
-                              clubId: club.id,
-                              memberId: member.id,
-                              clubName: toClubSlug(club.name),
-                            },
-                            {
-                              onSuccess: () => {
-                                toast.success("Member has been removed.");
-                              },
-                              onError: (error) => {
-                                toast.danger(
-                                  error instanceof Error
-                                    ? error.message
-                                    : "Failed to remove member.",
-                                );
-                              },
-                            },
-                          );
+                          setMemberToRemove(member);
                           closeMenu();
                         }}
                         disabled={
@@ -411,6 +417,17 @@ export function MembersTab({
           );
         })}
       </ul>
+
+      {memberToRemove && (
+        <ConfirmationModal
+          title="Remove member"
+          description={`Are you sure you want to remove ${memberToRemove.displayName} from this club? They will need to be invited or request to join again.`}
+          isPending={removeMember.isPending}
+          onConfirm={handleRemoveMember}
+          onClose={() => setMemberToRemove(null)}
+          variant="danger"
+        />
+      )}
 
       {visible && (
         <ConfirmationModal

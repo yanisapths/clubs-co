@@ -64,8 +64,6 @@ function CreatorHomePage() {
     Boolean(url),
   );
 
-  const usernameInitials = (user.username ?? "?").slice(0, 2).toUpperCase();
-
   const handleSaveProfile = async (data: ProfileSaveData) => {
     const socialLinks: SocialLink[] = Object.entries(data.socialLinks).map(
       ([key, url]) => ({
@@ -103,9 +101,8 @@ function CreatorHomePage() {
           <div className="relative px-6 pb-5 flex flex-col gap-3">
             <div className="flex items-center gap-4">
               <Avatar
-                userId={user.id}
                 imageUrl={profile?.imageUrl}
-                initials={usernameInitials}
+                displayName={(profile?.displayName || profile?.username) ?? ""}
                 size={72}
               />
               <div className="flex flex-col gap-0.5 mb-0.5">
