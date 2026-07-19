@@ -8,7 +8,7 @@ AWS_REGION="us-east-1"
 AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 ECR_REPO="club-backend-nonprd"
 ECS_CLUSTER="default"
-ECS_SERVICE="club-backend-nonprd-299f"
+ECS_SERVICE="default-club-backend-nonprd-299f"
 ECS_TASK_FAMILY="default-club-backend-nonprd-299f"
 CONTAINER_NAME="club-backend"
 
