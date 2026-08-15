@@ -24,23 +24,39 @@ type AppConfig struct {
 }
 
 type DatabaseConfig struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	Name     string
-	SSLMode  string
+	Host           string
+	Port           string
+	User           string
+	Password       string
+	Name           string
+	SSLMode        string
+	ConnectTimeout time.Duration
 }
 
 func (d DatabaseConfig) DSN() string {
+	sslMode := d.SSLMode
+	if sslMode == "" {
+		sslMode = "disable"
+	}
+	// Neon requires TLS; avoid silent misconfiguration in deployed envs.
+	if sslMode == "disable" && strings.Contains(d.Host, "neon.tech") {
+		sslMode = "require"
+	}
+
+	connectTimeoutSec := int(d.ConnectTimeout.Seconds())
+	if connectTimeoutSec <= 0 {
+		connectTimeoutSec = 30
+	}
+
 	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s&connect_timeout=%d",
 		url.QueryEscape(d.User),
 		url.QueryEscape(d.Password),
 		d.Host,
 		d.Port,
 		d.Name,
-		d.SSLMode,
+		sslMode,
+		connectTimeoutSec,
 	)
 }
 
@@ -67,6 +83,7 @@ func Load() (*Config, error) {
 	v.SetDefault("database.host", "localhost")
 	v.SetDefault("database.port", "5432")
 	v.SetDefault("database.sslmode", "disable")
+	v.SetDefault("database.connect_timeout", "30s")
 	v.SetDefault("jwt.access_token_ttl", "5h")
 	v.SetDefault("jwt.refresh_token_ttl", "168h")
 
@@ -84,8 +101,9 @@ func Load() (*Config, error) {
 	v.BindEnv("database.user",     "DATABASE_USER")
 	v.BindEnv("database.password", "DATABASE_PASSWORD")
 	v.BindEnv("database.name",     "DATABASE_NAME")
-	v.BindEnv("database.sslmode",  "DATABASE_SSLMODE")
-	v.BindEnv("jwt.secret",        "JWT_SECRET")
+	v.BindEnv("database.sslmode",          "DATABASE_SSLMODE")
+	v.BindEnv("database.connect_timeout",  "DATABASE_CONNECT_TIMEOUT")
+	v.BindEnv("jwt.secret",                "JWT_SECRET")
 	v.BindEnv("app.port",          "APP_PORT")
 	v.BindEnv("app.env",           "APP_ENV")
 	v.BindEnv("app.env",           "APP_ENV")
@@ -103,6 +121,10 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid jwt.refresh_token_ttl: %w", err)
 	}
+	connectTimeout, err := time.ParseDuration(v.GetString("database.connect_timeout"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid database.connect_timeout: %w", err)
+	}
 
 	cfg := &Config{
 		App: AppConfig{
@@ -110,12 +132,13 @@ func Load() (*Config, error) {
 			Port: v.GetString("app.port"),
 		},
 		Database: DatabaseConfig{
-			Host:     v.GetString("database.host"),
-			Port:     v.GetString("database.port"),
-			User:     v.GetString("database.user"),
-			Password: v.GetString("database.password"),
-			Name:     v.GetString("database.name"),
-			SSLMode:  v.GetString("database.sslmode"),
+			Host:           v.GetString("database.host"),
+			Port:           v.GetString("database.port"),
+			User:           v.GetString("database.user"),
+			Password:       v.GetString("database.password"),
+			Name:           v.GetString("database.name"),
+			SSLMode:        v.GetString("database.sslmode"),
+			ConnectTimeout: connectTimeout,
 		},
 		JWT: JWTConfig{
 			Secret:          v.GetString("jwt.secret"),

@@ -3,7 +3,9 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -55,6 +57,33 @@ func initGCPCredentials() error {
     return nil
 }
 
+func waitForDatabase(ctx context.Context, sqlDB *sql.DB, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	backoff := time.Second
+
+	for {
+		pingCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		err := sqlDB.PingContext(pingCtx)
+		cancel()
+		if err == nil {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("database ping failed after %s: %w", timeout, err)
+		}
+
+		log.Printf("database ping failed, retrying in %s: %v", backoff, err)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(backoff):
+		}
+
+		if backoff < 5*time.Second {
+			backoff += time.Second
+		}
+	}
+}
 
 func main() {
 	cfg, err := config.Load()
@@ -85,9 +114,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to get underlying *sql.DB: %v", err)
 	}
-	sqlDB.SetMaxOpenConns(20) 
+	sqlDB.SetMaxOpenConns(20)
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+
+	pingTimeout := 2 * time.Minute
+	if cfg.App.Env == "production" {
+		pingTimeout = 3 * time.Minute
+	}
+	if err := waitForDatabase(context.Background(), sqlDB, pingTimeout); err != nil {
+		log.Fatalf("failed to ping database: %v", err)
+	}
+	log.Println("database connection verified")
 
 	gcsClient, err := storage.NewClient(context.Background())
 	if err != nil {
