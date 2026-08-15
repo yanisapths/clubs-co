@@ -36,25 +36,24 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-
 func initGCPCredentials() error {
-    encoded := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-    if encoded == "" {
-        return nil 
-    }
+	encoded := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+	if encoded == "" {
+		return nil
+	}
 
-    decoded, err := base64.StdEncoding.DecodeString(encoded)
-    if err != nil {
-        return err
-    }
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return err
+	}
 
-    path := "/tmp/gcp-credentials.json"
-    if err := os.WriteFile(path, decoded, 0600); err != nil {
-        return err
-    }
+	path := "/tmp/gcp-credentials.json"
+	if err := os.WriteFile(path, decoded, 0600); err != nil {
+		return err
+	}
 
-    os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", path)
-    return nil
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", path)
+	return nil
 }
 
 func waitForDatabase(ctx context.Context, sqlDB *sql.DB, timeout time.Duration) error {
@@ -104,6 +103,7 @@ func main() {
 	}
 
 	r := gin.New()
+	r.HandleMethodNotAllowed = true
 	r.Use(gin.Recovery())
 	r.Use(middleware.Logger())
 	r.Use(middleware.CORS())
@@ -136,16 +136,15 @@ func main() {
 		log.Fatalf("failed to create GCS client: %v", err)
 	}
 	defer gcsClient.Close()
-	
+
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer logger.Sync()
 
-
 	userRepo := repository.NewUserRepository(db)
-    authSvc := service.NewAuthService(userRepo, cfg.JWT, cfg.Google.ClientID)
+	authSvc := service.NewAuthService(userRepo, cfg.JWT, cfg.Google.ClientID)
 	authHandler := handler.NewAuthHandler(authSvc, logger)
 
 	if cfg.App.Env == "production" {
@@ -169,20 +168,22 @@ func main() {
 	studioClubRepo := studioclub.NewClubRepository(sqlDB, uploadSvc)
 	studioClubMemberRepo := clubmember.NewMemberRepository(sqlDB)
 
-	memberRepo      := membershipclub.NewMembershipRepository(sqlDB)
-	profileRepo      := profile.NewProfileRepository(sqlDB, uploadSvc)
-	memberUserRepo      := membershipuser.NewMembershipUserRepository(sqlDB)
+	memberRepo := membershipclub.NewMembershipRepository(sqlDB)
+	profileRepo := profile.NewProfileRepository(sqlDB, uploadSvc)
+	memberUserRepo := membershipuser.NewMembershipUserRepository(sqlDB)
 	// ── Routes ────────────────────────────────────────────────────────────────
 	studio := api.Group("/studio")
 	studio.Use(middleware.Auth(cfg.JWT.Secret))
 	{
 		studio.GET("/club", studioclub.NewGetClub(studioClubRepo).Handler)
-		studio.POST("/club",   studioclub.NewCreateClub(studioClubRepo, logger).Handler)
-		studio.PUT("/club/:id",   studioclub.NewUpdateClub(studioClubRepo, uploadSvc, logger).Handler)
+		studio.POST("/club", studioclub.NewCreateClub(studioClubRepo, logger).Handler)
+		// Static path must be registered before /club/:id so gin does not treat
+		// "exist" as an :id param (and so /club/:id/member stays reachable).
+		studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
+		studio.PUT("/club/:id", studioclub.NewUpdateClub(studioClubRepo, uploadSvc, logger).Handler)
 		studio.DELETE("/club/:id", studioclub.NewDeleteClub(studioClubRepo, logger).Handler)
 		studio.GET("/club/:id", studioclub.NewGetClubById(studioClubRepo, logger).Handler)
 		studio.PATCH("/club/:id", studioclub.NewPatchClub(studioClubRepo, uploadSvc, logger).Handler)
-		studio.GET("/club/exist", studioclub.NewGetClubExist(studioClubRepo, logger).Handler)
 		studio.GET("/club/:id/member", studioclub.NewGetClubMemberListById(studioClubRepo, logger).Handler)
 		// clubmember
 		studio.POST("/club/:id/member/invite", clubmember.NewInviteClubMember(studioClubMemberRepo, logger).Handler)
@@ -195,8 +196,8 @@ func main() {
 	profileApi.Use(middleware.Auth(cfg.JWT.Secret))
 	{
 		//view self profile
-		profileApi.GET("",      profile.NewGetUserProfile(profileRepo, logger).Handler)
-		profileApi.PATCH("",    profile.NewUpdateUserProfile(profileRepo, uploadSvc,logger).Handler)
+		profileApi.GET("", profile.NewGetUserProfile(profileRepo, logger).Handler)
+		profileApi.PATCH("", profile.NewUpdateUserProfile(profileRepo, uploadSvc, logger).Handler)
 		profileApi.GET("/club", profile.NewGetUserClubs(profileRepo, logger).Handler)
 		profileApi.DELETE("", profile.NewDeleteUser(profileRepo, uploadSvc, logger).Handler)
 	}
@@ -212,9 +213,9 @@ func main() {
 		"/club/list",
 		membershipclub.NewGetClubListPaginated(memberRepo, logger).Handler,
 	)
-	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join",      membershipclub.NewJoinClub(memberRepo,logger).Handler)
-	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave",   membershipclub.NewLeaveClub(memberRepo,logger).Handler)
-	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).PATCH("/club/:id/invite/response",   membershipclub.NewInvitationResponse(memberRepo,logger).Handler)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).POST("/club/:id/join", membershipclub.NewJoinClub(memberRepo, logger).Handler)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).DELETE("/club/:id/leave", membershipclub.NewLeaveClub(memberRepo, logger).Handler)
+	api.Group("/membership").Use(middleware.Auth(cfg.JWT.Secret)).PATCH("/club/:id/invite/response", membershipclub.NewInvitationResponse(memberRepo, logger).Handler)
 	mbr.GET("/club/:club_name", membershipclub.NewGetClubInfo(memberRepo, logger).Handler)
 	mbr.GET("/club/:club_name/member", membershipclub.NewGetClubMemberList(memberRepo, logger).Handler)
 	mbr.GET("/search", membershipclub.NewSearchClubList(memberRepo, logger).Handler)

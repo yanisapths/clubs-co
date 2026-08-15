@@ -4,6 +4,7 @@ package club
 import (
 	"club-backend/internal/auth"
 	"club-backend/pkg/response"
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -11,13 +12,13 @@ import (
 )
 
 type getClubMemberListById struct {
-	repo GetClubMemberListByIdRepo
+	repo   GetClubMemberListByIdRepo
 	logger *zap.Logger
 }
 
 func NewGetClubMemberListById(repo GetClubMemberListByIdRepo, logger *zap.Logger) *getClubMemberListById {
 	return &getClubMemberListById{
-		repo: repo,
+		repo:   repo,
 		logger: logger,
 	}
 }
@@ -37,14 +38,17 @@ func (s *getClubMemberListById) Handler(c *gin.Context) {
 
 	clubInfo, err := s.repo.GetClubByIDByOwnerId(c.Request.Context(), clubID, claims.UserID.String())
 	if err != nil {
+		if errors.Is(err, ErrClubNotFound) {
+			response.NotFound(c, "club not found")
+			return
+		}
 		s.logger.Error(
 			"failed : GetClubByID",
 			zap.Error(err),
 			zap.String("path", c.Request.URL.Path),
 			zap.String("method", c.Request.Method),
 		)
-	
-		response.NotFound(c, "club not found")
+		response.InternalServerError(c, response.ErrSomethingWentWrong.Error())
 		return
 	}
 	if clubInfo == nil {
@@ -54,7 +58,7 @@ func (s *getClubMemberListById) Handler(c *gin.Context) {
 			zap.String("path", c.Request.URL.Path),
 			zap.String("method", c.Request.Method),
 		)
-	
+
 		response.NotFound(c, "club not found")
 		return
 
@@ -68,7 +72,7 @@ func (s *getClubMemberListById) Handler(c *gin.Context) {
 			zap.String("path", c.Request.URL.Path),
 			zap.String("method", c.Request.Method),
 		)
-	
+
 		response.InternalServerError(c, "failed to load members")
 		return
 	}
@@ -76,7 +80,7 @@ func (s *getClubMemberListById) Handler(c *gin.Context) {
 	resp := ClubMemberResponse{
 		Members: make([]Member, 0, len(members)),
 	}
-	
+
 	for _, m := range members {
 		resp.Members = append(resp.Members, Member{
 			MemberDisplayName: m.MemberDisplayName,

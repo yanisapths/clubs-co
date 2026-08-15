@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -12,11 +13,11 @@ import (
 )
 
 type clubRepository struct {
-	db *sql.DB
+	db        *sql.DB
 	uploadSvc *file.UploadService
 }
 
-func NewClubRepository(db *sql.DB,uploadSvc *file.UploadService) ClubRepository {
+func NewClubRepository(db *sql.DB, uploadSvc *file.UploadService) ClubRepository {
 	return &clubRepository{db: db, uploadSvc: uploadSvc}
 }
 
@@ -251,7 +252,7 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		int64SliceToArray(spaceIDs),
 		req.ThumbnailImage,
 		req.Activate,
-		socialLinksJSON,   
+		socialLinksJSON,
 	).Scan(&club.ID)
 	if err != nil {
 		if isUniqueViolation(err) {
@@ -267,8 +268,16 @@ func (r *clubRepository) CreateClub(ctx context.Context, ownerID string, req Cre
 		WHERE  rank = 1
 		LIMIT  1`
 
-	if _, err = tx.ExecContext(ctx, addFounderQuery, club.ID, ownerID); err != nil {
+	founderRes, err := tx.ExecContext(ctx, addFounderQuery, club.ID, ownerID)
+	if err != nil {
 		return nil, fmt.Errorf("add founder member: %w", err)
+	}
+	founderRows, err := founderRes.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("add founder member: %w", err)
+	}
+	if founderRows == 0 {
+		return nil, fmt.Errorf("add founder member: no club_member_roles row with rank = 1")
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -312,7 +321,7 @@ func resolveSpaceIDs(ctx context.Context, tx *sql.Tx, createdBy string, inputs [
 			ids = append(ids, *s.ID)
 			continue
 		}
-		
+
 		if s.Name == nil {
 			continue
 		}
@@ -366,9 +375,9 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 	if err != nil {
 		return fmt.Errorf("begin tx: %w", err)
 	}
-	
+
 	defer tx.Rollback()
-	if  clubInfo.Name != *req.Name {
+	if clubInfo.Name != *req.Name {
 		var exists bool
 		err = tx.QueryRowContext(ctx, `
 			SELECT EXISTS (
@@ -378,7 +387,7 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 			req.Name,
 		).Scan(&exists)
 		if err != nil {
-			return  fmt.Errorf("check club name exists: %w", err)
+			return fmt.Errorf("check club name exists: %w", err)
 		}
 		if exists {
 			return ErrClubNameTaken
@@ -397,7 +406,7 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 		return fmt.Errorf("get member count: %w", err)
 	}
 	if req.MaxSeats != nil && *req.MaxSeats < memberCount {
-		return  ErrMaxSeatLessthanCurrentMember
+		return ErrMaxSeatLessthanCurrentMember
 	}
 
 	tagIDs, err := resolveTagIDs(ctx, tx, ownerID, req.Tags)
@@ -433,24 +442,23 @@ func (r *clubRepository) UpdateClub(ctx context.Context, ownerID string, clubID 
 		AND owner_id   = $13::uuid
 		AND is_deleted = false`
 
-
 	thumbnailChanged := req.ThumbnailImage.Present
 	thumbnailValue := req.ThumbnailImage.Value
-	
+
 	result, err := tx.ExecContext(ctx, query,
-		req.Name,       
-		req.Description,   
-		req.ClubType,    
-		req.MaxSeats,   
-		req.CategoryID,   
+		req.Name,
+		req.Description,
+		req.ClubType,
+		req.MaxSeats,
+		req.CategoryID,
 		req.DisplayStatus,
-		thumbnailChanged,  
-		thumbnailValue,  
-		int64SliceToArray(tagIDs),   
-		int64SliceToArray(spaceIDs),  
+		thumbnailChanged,
+		thumbnailValue,
+		int64SliceToArray(tagIDs),
+		int64SliceToArray(spaceIDs),
 		socialLinksJSON,
-		clubID,       
-		ownerID,         
+		clubID,
+		ownerID,
 	)
 	if err != nil {
 		return fmt.Errorf("update club: %w", err)
@@ -486,9 +494,9 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 			COALESCE(ARRAY_TO_JSON(c.tag_ids)::text, '[]') AS tag_ids,
 			c.created_at,
 			c.updated_at,
-			u.username AS owner,
+			COALESCE(u.username, '') AS owner,
 			c.owner_id,
-			cg.id AS category_id,
+			COALESCE(cg.id, 0) AS category_id,
 			COALESCE(cg.name, '') AS category_name,
 			(
 				SELECT COALESCE(JSON_AGG(JSON_BUILD_OBJECT('id', t.id, 'name', t.name)), '[]')
@@ -500,7 +508,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 				FROM public.space s
 				WHERE s.id = ANY(c.space_ids)
 			) AS spaces,
-			u.display_name,
+			COALESCE(u.display_name, '') AS display_name,
 			COUNT(*) FILTER (WHERE cm.status = 'Active')  AS member_count,
 			COUNT(*) FILTER (WHERE cm.status = 'Pending') AS pending_member_count,
 			(
@@ -510,21 +518,21 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 				AND cmi.invitation_response = false
 				AND (cmi.expires_at IS NULL OR cmi.expires_at > NOW())
 			) AS pending_invite_count,
-			(
+			COALESCE((
 				SELECT r.name
 				FROM public.club_member me
 				JOIN public.club_member_roles r
 					ON r.id = me.role_id
 				WHERE me.club_id = c.id
-				AND me.user_id = $2
+				AND me.user_id = $2::uuid
 				LIMIT 1
-			) AS member_role
+			), '') AS member_role
 		FROM public.club c
 		LEFT JOIN public.category cg ON cg.id = c.category_id
 		LEFT JOIN public.users u ON u.id = c.owner_id
 		LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.id = $1
-			AND c.owner_id = $2
+			AND c.owner_id = $2::uuid
 			AND c.is_deleted = false
 		GROUP BY
 			c.id,
@@ -547,8 +555,7 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 			cg.name,
 			cg.id,
 			u.username,
-			u.display_name,
-			member_role
+			u.display_name
 	`
 
 	var club Club
@@ -592,21 +599,36 @@ func (r *clubRepository) GetClubByIDByOwnerId(ctx context.Context, clubID int64,
 		&club.MemberRole,
 	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrClubNotFound
+		}
 		return nil, err
 	}
 
+	if len(socialLinksRaw) == 0 {
+		socialLinksRaw = []byte("[]")
+	}
 	if err := json.Unmarshal(socialLinksRaw, &club.SocialLinks); err != nil {
 		return nil, fmt.Errorf("unmarshal social_links: %w", err)
 	}
 
+	if len(galleryRaw) == 0 {
+		galleryRaw = []byte("[]")
+	}
 	if err := json.Unmarshal(galleryRaw, &club.GalleryURLs); err != nil {
 		return nil, fmt.Errorf("unmarshal gallery_urls: %w", err)
 	}
 
+	if len(spacesRaw) == 0 {
+		spacesRaw = []byte("[]")
+	}
 	if err := json.Unmarshal(spacesRaw, &club.Spaces); err != nil {
 		return nil, fmt.Errorf("unmarshal spaces: %w", err)
 	}
 
+	if len(tagsRaw) == 0 {
+		tagsRaw = []byte("[]")
+	}
 	if err := json.Unmarshal(tagsRaw, &club.Tags); err != nil {
 		return nil, fmt.Errorf("unmarshal tags: %w", err)
 	}
@@ -705,7 +727,7 @@ func (r *clubRepository) GetClubImageURL(ctx context.Context, clubID int64, owne
 	return imageURL, nil
 }
 
-func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int64,req PatchClubRequest) (*PatchClubResult, error) {
+func (r *clubRepository) PatchClub(ctx context.Context, ownerID string, clubID int64, req PatchClubRequest) (*PatchClubResult, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("begin tx: %w", err)
@@ -741,7 +763,7 @@ func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int
 	if tagIDs == nil {
 		tagIDs = []int64{}
 	}
-	
+
 	spaceIDs, err := resolveSpaceIDs(ctx, tx, ownerID, req.Spaces)
 	if err != nil {
 		return nil, fmt.Errorf("resolve spaces: %w", err)
@@ -770,7 +792,7 @@ func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int
 		&clubName,
 		pq.Array(&currentGallery),
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrClubNotFound
 	}
@@ -791,7 +813,7 @@ func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int
 	}
 
 	var promoted []promotedGalleryImage
-	var warnings []error  
+	var warnings []error
 
 	for _, tempURL := range req.GalleriesToAdd {
 		ext := extFromURL(tempURL)
@@ -822,7 +844,7 @@ func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int
 	for _, p := range promoted {
 		nextGallery = append(nextGallery, p.URL)
 	}
-	
+
 	if nextGallery == nil {
 		nextGallery = []string{}
 	}
@@ -857,15 +879,15 @@ func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int
 	}
 
 	var memberCount int
-	 err = tx.QueryRowContext(ctx, `
+	err = tx.QueryRowContext(ctx, `
 		SELECT COUNT(*) AS member_count
 			FROM public.club c
 			LEFT JOIN public.club_member cm ON cm.club_id = c.id
 		WHERE c.id = $1
-		` ,clubID,
+		`, clubID,
 	).Scan(&memberCount)
 	if err != nil {
-		return  nil, fmt.Errorf("get member count: %w", err)
+		return nil, fmt.Errorf("get member count: %w", err)
 	}
 	if req.MaxSeats != nil && *req.MaxSeats < memberCount {
 		return nil, ErrMaxSeatLessthanCurrentMember
@@ -903,17 +925,17 @@ func (r *clubRepository) PatchClub(ctx context.Context,ownerID string,clubID int
 		req.MaxSeats, req.CategoryID, req.DisplayStatus,
 		thumbnailChanged, thumbnailValue,
 		pq.Array(tagIDs), pq.Array(spaceIDs), pq.Array(nextGallery),
-		socialLinksJSON,   
-		clubID,            
-		ownerID,           
-		req.Activate,      
-		bannerURLChanged,  
-		bannerURLValue,   
+		socialLinksJSON,
+		clubID,
+		ownerID,
+		req.Activate,
+		bannerURLChanged,
+		bannerURLValue,
 	)
 
 	if err != nil {
 		if isUniqueViolation(err) {
-				return nil, ErrClubNameTaken
+			return nil, ErrClubNameTaken
 		}
 		return nil, fmt.Errorf("update club: %w", err)
 	}
@@ -950,7 +972,6 @@ func extFromURL(rawURL string) string {
 	return rawURL[idx+1:]
 }
 
-
 func (r *clubRepository) GetClubGalleryURLs(ctx context.Context, clubID int64, ownerID string) ([]string, error) {
 	var raw []byte
 	err := r.db.QueryRowContext(ctx,
@@ -969,20 +990,20 @@ func (r *clubRepository) GetClubGalleryURLs(ctx context.Context, clubID int64, o
 }
 
 func marshalSocialLinks(v interface{}) ([]byte, error) {
-    switch val := v.(type) {
-    case json.RawMessage:
-        if len(val) == 0 || string(val) == "null" {
-            return nil, nil
-        }
-        return val, nil
-    case []map[string]string:
-        if len(val) == 0 {
-            return nil, nil
-        }
-        return json.Marshal(val)
-    default:
-        return nil, nil
-    }
+	switch val := v.(type) {
+	case json.RawMessage:
+		if len(val) == 0 || string(val) == "null" {
+			return nil, nil
+		}
+		return val, nil
+	case []map[string]string:
+		if len(val) == 0 {
+			return nil, nil
+		}
+		return json.Marshal(val)
+	default:
+		return nil, nil
+	}
 }
 
 func (r *clubRepository) GetExistClub(
@@ -1021,7 +1042,6 @@ func (r *clubRepository) GetClubBannerURL(ctx context.Context, clubID int64, own
 	}
 	return bannerURL, nil
 }
-
 
 func (r *clubRepository) CountClubByOwnerID(ctx context.Context, ownerID string) (int, error) {
 	query := `

@@ -4,6 +4,7 @@ package club
 import (
 	"club-backend/internal/auth"
 	"club-backend/pkg/response"
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -11,13 +12,13 @@ import (
 )
 
 type GetClubById struct {
-	repo GetClubByIdRepo
+	repo   GetClubByIdRepo
 	logger *zap.Logger
 }
 
 func NewGetClubById(repo GetClubByIdRepo, logger *zap.Logger) *GetClubById {
 	return &GetClubById{
-		repo: repo,
+		repo:   repo,
 		logger: logger,
 	}
 }
@@ -37,14 +38,17 @@ func (s *GetClubById) Handler(c *gin.Context) {
 
 	clubInfo, err := s.repo.GetClubByIDByOwnerId(c.Request.Context(), clubID, claims.UserID.String())
 	if err != nil {
+		if errors.Is(err, ErrClubNotFound) {
+			response.NotFound(c, "club not found")
+			return
+		}
 		s.logger.Error(
 			"failed : GetClubByID",
 			zap.Error(err),
 			zap.String("path", c.Request.URL.Path),
 			zap.String("method", c.Request.Method),
 		)
-	
-		response.NotFound(c, "club not found")
+		response.InternalServerError(c, response.ErrSomethingWentWrong.Error())
 		return
 	}
 
@@ -71,31 +75,28 @@ func (s *GetClubById) Handler(c *gin.Context) {
 			Description:    description,
 			ImageURL:       imageURL,
 			BannerURL:      bannerURL,
-			GalleryURLs: 	clubInfo.GalleryURLs,
+			GalleryURLs:    clubInfo.GalleryURLs,
 			ClubType:       clubInfo.ClubType,
 			Visibility:     clubInfo.Visibility,
 			MaxSeats:       clubInfo.MaxSeats,
 			AllowFollowers: clubInfo.AllowFollowers,
 			Activate:       clubInfo.Activate,
 			SocialLinks:    clubInfo.SocialLinks,
-			Spaces:       clubInfo.Spaces,
-			Category:   ClubCategory{
-				ID: 	 clubInfo.CategoryID,
-				Name: 	 clubInfo.CategoryName,
+			Spaces:         clubInfo.Spaces,
+			Category: ClubCategory{
+				ID:   clubInfo.CategoryID,
+				Name: clubInfo.CategoryName,
 			},
-			Tags:           clubInfo.Tags,
-			CreatedAt:      clubInfo.CreatedAt.Unix(),
-			UpdatedAt:      clubInfo.UpdatedAt.Unix(),
-			OwnerDisplayName: clubInfo.OwnerDisplayName,
-			MemberCount: 		clubInfo.MemberCount,	
+			Tags:               clubInfo.Tags,
+			CreatedAt:          clubInfo.CreatedAt.Unix(),
+			UpdatedAt:          clubInfo.UpdatedAt.Unix(),
+			OwnerDisplayName:   clubInfo.OwnerDisplayName,
+			MemberCount:        clubInfo.MemberCount,
 			PendingMemberCount: clubInfo.PendingMemberCount,
 			PendingInviteCount: clubInfo.PendingInviteCount,
-			MemberRole:     clubInfo.MemberRole,
+			MemberRole:         clubInfo.MemberRole,
 		},
-	
 	}
-
-	
 
 	response.OK(c, resp)
 }
