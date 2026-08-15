@@ -1,5 +1,6 @@
 import Image from "next/image";
 import clsx from "clsx";
+import { toAssetUrl } from "@/lib/asset-url";
 import { getCategoryGradient } from "./constants";
 
 interface ClubThumbnailProps {
@@ -31,7 +32,12 @@ export function ClubThumbnail({
       style={{ background: getCategoryGradient(category ? category : "other") }}
     >
       {imageUrl ? (
-        <Image src={imageUrl} alt={name} fill className="object-cover" />
+        <Image
+          src={toAssetUrl(imageUrl)}
+          alt={name}
+          fill
+          className="object-cover"
+        />
       ) : (
         <>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,.18),transparent_40%)]" />

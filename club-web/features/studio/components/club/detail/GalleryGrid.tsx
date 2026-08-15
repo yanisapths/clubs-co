@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/design-system/components";
+import { toAssetUrl } from "@/lib/asset-url";
 
 const TOTAL_SLOTS = 4;
 
@@ -25,7 +26,7 @@ export function GalleryGrid({
           onClick={() => onImageClick(i)}
         >
           <img
-            src={url}
+            src={toAssetUrl(url)}
             alt={`Gallery image ${i + 1}`}
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -47,7 +48,7 @@ export function GalleryGrid({
         {fourthImage ? (
           <>
             <img
-              src={fourthImage}
+              src={toAssetUrl(fourthImage)}
               alt="Gallery image 4"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />

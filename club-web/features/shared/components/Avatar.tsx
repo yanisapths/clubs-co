@@ -1,5 +1,6 @@
 "use client";
 
+import { toAssetUrl } from "@/lib/asset-url";
 import { cn } from "@/lib/utils";
 
 interface AvatarProps {
@@ -18,7 +19,7 @@ export function Avatar({
   if (imageUrl) {
     return (
       <img
-        src={imageUrl}
+        src={toAssetUrl(imageUrl)}
         alt={displayName}
         className={cn("shrink-0 rounded-full object-cover", className)}
         style={{ width: size, height: size }}

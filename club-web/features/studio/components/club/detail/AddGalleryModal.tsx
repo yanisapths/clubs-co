@@ -3,6 +3,7 @@ import { Button } from "@/design-system/components/button";
 import { UploadIcon, X, ImageOff, Loader2 } from "lucide-react";
 import { uploadFile } from "@/features/studio/api/file";
 import { getStoredToken } from "@/lib/storage";
+import { toAssetUrl } from "@/lib/asset-url";
 
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_TYPES = ["image/png", "image/jpeg"];
@@ -337,7 +338,7 @@ export function AddGalleryModal({
                     }`}
                   >
                     <img
-                      src={item.url}
+                      src={toAssetUrl(item.url)}
                       alt="Gallery image"
                       className="absolute inset-0 h-full w-full object-cover"
                     />
@@ -373,7 +374,7 @@ export function AddGalleryModal({
                     }`}
                   >
                     <img
-                      src={g.previewUrl}
+                      src={toAssetUrl(g.previewUrl)}
                       alt={g.file.name}
                       className="absolute inset-0 h-full w-full object-cover"
                     />

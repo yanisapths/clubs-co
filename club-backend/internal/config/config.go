@@ -20,8 +20,9 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Env  string
-	Port string
+	Env          string
+	Port         string
+	AssetBaseURL string
 }
 
 type DatabaseConfig struct {
@@ -68,7 +69,7 @@ type JWTConfig struct {
 }
 
 type GCPConfig struct {
-    ProjectID string `env:"GCP_PROJECT_ID,required"`
+	ProjectID string `env:"GCP_PROJECT_ID,required"`
 }
 
 type GoogleConfig struct {
@@ -97,17 +98,17 @@ func Load() (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 
-	v.BindEnv("database.host",     "DATABASE_HOST")
-	v.BindEnv("database.port",     "DATABASE_PORT")
-	v.BindEnv("database.user",     "DATABASE_USER")
+	v.BindEnv("database.host", "DATABASE_HOST")
+	v.BindEnv("database.port", "DATABASE_PORT")
+	v.BindEnv("database.user", "DATABASE_USER")
 	v.BindEnv("database.password", "DATABASE_PASSWORD")
-	v.BindEnv("database.name",     "DATABASE_NAME")
-	v.BindEnv("database.sslmode",          "DATABASE_SSLMODE")
-	v.BindEnv("database.connect_timeout",  "DATABASE_CONNECT_TIMEOUT")
-	v.BindEnv("jwt.secret",                "JWT_SECRET")
-	v.BindEnv("app.port",          "APP_PORT")
-	v.BindEnv("app.env",           "APP_ENV")
-	v.BindEnv("app.env",           "APP_ENV")
+	v.BindEnv("database.name", "DATABASE_NAME")
+	v.BindEnv("database.sslmode", "DATABASE_SSLMODE")
+	v.BindEnv("database.connect_timeout", "DATABASE_CONNECT_TIMEOUT")
+	v.BindEnv("jwt.secret", "JWT_SECRET")
+	v.BindEnv("app.port", "APP_PORT")
+	v.BindEnv("app.env", "APP_ENV")
+	v.BindEnv("app.asset_base_url", "ASSET_BASE_URL")
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
@@ -129,8 +130,9 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		App: AppConfig{
-			Env:  v.GetString("app.env"),
-			Port: v.GetString("app.port"),
+			Env:          v.GetString("app.env"),
+			Port:         v.GetString("app.port"),
+			AssetBaseURL: strings.TrimRight(strings.TrimSpace(v.GetString("app.asset_base_url")), "/"),
 		},
 		Database: DatabaseConfig{
 			Host:           v.GetString("database.host"),

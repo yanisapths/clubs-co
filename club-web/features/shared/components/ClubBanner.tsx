@@ -1,9 +1,10 @@
 import { Club } from "@/features/studio/api/club";
 import { getGradient } from "@/features/studio/utils/utils";
+import { toAssetUrl } from "@/lib/asset-url";
 
 export function ClubBanner({ club }: { club: Club }) {
   const [from, to] = getGradient(String(club.id));
-  const bannerUrl = club.bannerUrl;
+  const bannerUrl = toAssetUrl(club.bannerUrl);
 
   return (
     <div

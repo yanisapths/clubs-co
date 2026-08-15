@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Info, Upload, X } from "lucide-react";
 import { categories } from "@/features/shared/constants";
+import { toAssetUrl } from "@/lib/asset-url";
 
 type Category = (typeof categories)[number];
 
@@ -100,7 +101,7 @@ export function ClubImageUpload({
         {imagePreview ? (
           <>
             <img
-              src={imagePreview}
+              src={toAssetUrl(imagePreview)}
               alt="Club image preview"
               className="h-full w-full object-cover"
             />

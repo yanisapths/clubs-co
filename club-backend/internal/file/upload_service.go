@@ -13,12 +13,29 @@ import (
 )
 
 type UploadService struct {
-	gcs       *storage.Client
-	projectID string
+	gcs          *storage.Client
+	projectID    string
+	assetBaseURL string
 }
 
-func NewUploadService(gcs *storage.Client, projectID string) *UploadService {
-	return &UploadService{gcs: gcs, projectID: projectID}
+func NewUploadService(gcs *storage.Client, projectID string, assetBaseURL string) *UploadService {
+	return &UploadService{
+		gcs:          gcs,
+		projectID:    projectID,
+		assetBaseURL: strings.TrimRight(strings.TrimSpace(assetBaseURL), "/"),
+	}
+}
+
+func gcsPublicPrefix() string {
+	return fmt.Sprintf("https://storage.googleapis.com/%s/", bucketName)
+}
+
+func (s *UploadService) publicURL(objectPath string) string {
+	objectPath = strings.TrimPrefix(strings.ReplaceAll(objectPath, "\\", "/"), "/")
+	if s.assetBaseURL != "" {
+		return s.assetBaseURL + "/" + objectPath
+	}
+	return gcsPublicPrefix() + objectPath
 }
 
 type UploadInput struct {
@@ -63,16 +80,15 @@ func (s *UploadService) Upload(ctx context.Context, input UploadInput) (*UploadR
 	}
 
 	return &UploadResult{
-		URL:      fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectPath),
+		URL:      s.publicURL(objectPath),
 		Filename: input.Filename,
 	}, nil
 }
 
 func (s *UploadService) Delete(ctx context.Context, publicURL string) error {
-	prefix := fmt.Sprintf("https://storage.googleapis.com/%s/", bucketName)
-	objectPath := strings.TrimPrefix(publicURL, prefix)
-	if objectPath == publicURL {
-		return fmt.Errorf("unrecognised GCS URL: %s", publicURL)
+	objectPath, err := s.objectPathFromURL(publicURL)
+	if err != nil {
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
@@ -80,7 +96,6 @@ func (s *UploadService) Delete(ctx context.Context, publicURL string) error {
 
 	return s.gcs.Bucket(bucketName).UserProject(s.projectID).Object(objectPath).Delete(ctx)
 }
-
 
 // MoveObject promotes an object from one location in the bucket to another —
 // e.g. from a "club/temp" staging path to its permanent "club/gallery" home —
@@ -96,43 +111,50 @@ func (s *UploadService) MoveObject(ctx context.Context, fromURL string, destPath
 	if err != nil {
 		return nil, fmt.Errorf("parse source url: %w", err)
 	}
- 
+
 	destPath = strings.Trim(destPath, "/")
 	dstObjectPath := filepath.Join(destPath, destFilename)
- 
+
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
- 
+
 	bucket := s.gcs.Bucket(bucketName).UserProject(s.projectID)
 	src := bucket.Object(srcObjectPath)
 	dst := bucket.Object(dstObjectPath)
- 
+
 	copier := dst.CopierFrom(src)
 	copier.ContentType = "image/png"
 	copier.CacheControl = "public, max-age=86400"
- 
+
 	if _, err := copier.Run(ctx); err != nil {
 		return nil, fmt.Errorf("copy %s -> %s: %w", srcObjectPath, dstObjectPath, err)
 	}
- 
+
 	if err := src.Delete(ctx); err != nil {
 		return &UploadResult{
-				URL:      fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, dstObjectPath),
-				Filename: destFilename,
-			}, fmt.Errorf("copy succeeded but failed to delete source %s: %w", srcObjectPath, err)
+			URL:      s.publicURL(dstObjectPath),
+			Filename: destFilename,
+		}, fmt.Errorf("copy succeeded but failed to delete source %s: %w", srcObjectPath, err)
 	}
- 
+
 	return &UploadResult{
-		URL:      fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, dstObjectPath),
+		URL:      s.publicURL(dstObjectPath),
 		Filename: destFilename,
 	}, nil
 }
- 
+
 func (s *UploadService) objectPathFromURL(publicURL string) (string, error) {
-	prefix := fmt.Sprintf("https://storage.googleapis.com/%s/", bucketName)
-	objectPath := strings.TrimPrefix(publicURL, prefix)
-	if objectPath == publicURL {
-		return "", fmt.Errorf("unrecognised GCS URL: %s", publicURL)
+	prefixes := []string{gcsPublicPrefix()}
+	if s.assetBaseURL != "" {
+		prefixes = append(prefixes, s.assetBaseURL+"/")
 	}
-	return objectPath, nil
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(publicURL, prefix) {
+			objectPath := strings.TrimPrefix(publicURL, prefix)
+			if objectPath != "" && objectPath != publicURL {
+				return objectPath, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("unrecognised asset URL: %s", publicURL)
 }

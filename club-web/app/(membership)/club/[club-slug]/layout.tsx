@@ -1,5 +1,6 @@
 // app/.../club/[club-slug]/layout.tsx
 import type { Metadata, ResolvingMetadata } from "next";
+import { toAssetUrl } from "@/lib/asset-url";
 
 type Props = {
   params: Promise<{ "club-slug": string }> | { "club-slug": string };
@@ -78,7 +79,7 @@ export async function generateMetadata(
       ? `Join ${club.name} and ${club.memberCount} other members on Meeteon.`
       : `Join ${club.name} on Meeteon.`;
 
-  const image = club.bannerUrl ?? club.imageUrl;
+  const image = toAssetUrl(club.bannerUrl ?? club.imageUrl) || undefined;
 
   return {
     title,

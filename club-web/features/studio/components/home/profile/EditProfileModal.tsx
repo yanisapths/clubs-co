@@ -22,6 +22,7 @@ import {
 import { SocialPlatform } from "../../club/create";
 import { uploadFile } from "@/features/studio/api/file";
 import { getStoredToken } from "@/lib/storage";
+import { toAssetUrl } from "@/lib/asset-url";
 import { ALL_PLATFORMS, PLATFORM_CONFIG } from "@/features/shared/constants";
 
 export type SocialLinkMap = Record<string, string>;
@@ -209,7 +210,7 @@ export function EditProfileModal({
           >
             {avatarPreview ? (
               <img
-                src={avatarPreview}
+                src={toAssetUrl(avatarPreview)}
                 alt="Avatar preview"
                 className="h-full w-full object-cover"
               />

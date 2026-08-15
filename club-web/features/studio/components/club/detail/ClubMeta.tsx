@@ -11,6 +11,7 @@ import { usePatchClub } from "@/features/studio/hooks/use-club";
 import { toast } from "@heroui/react";
 import { EditBannerModal, EditBannerModalResult } from "./EditBannerModal";
 import { getGradient } from "@/features/studio/utils/utils";
+import { toAssetUrl } from "@/lib/asset-url";
 
 export function ClubBanner({
   club,
@@ -23,7 +24,7 @@ export function ClubBanner({
 }) {
   const [from, to] = getGradient(String(club.id));
   const categoryDef = categories.find((c) => c.id === club.category?.id);
-  const bannerUrl = club.bannerUrl;
+  const bannerUrl = toAssetUrl(club.bannerUrl);
 
   return (
     <div

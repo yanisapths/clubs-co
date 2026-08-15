@@ -1,5 +1,6 @@
 import { BackgroundCover } from "@/features/studio/components/layout/BackgroundCover";
 import type { Metadata, ResolvingMetadata } from "next";
+import { toAssetUrl } from "@/lib/asset-url";
 
 type Props = {
   // Next.js 15+ passes params as a Promise. `await` on a plain object is a
@@ -69,6 +70,8 @@ export async function generateMetadata(
     ? profile.bio.slice(0, 160)
     : `View ${name}'s clubs and profile on Meeteon.`;
 
+  const image = toAssetUrl(profile.imageUrl) || undefined;
+
   return {
     title,
     description,
@@ -77,15 +80,15 @@ export async function generateMetadata(
       description,
       type: "profile",
       username: profile.username,
-      images: profile.imageUrl
-        ? [{ url: profile.imageUrl, width: 400, height: 400, alt: name }]
+      images: image
+        ? [{ url: image, width: 400, height: 400, alt: name }]
         : previousImages,
     },
     twitter: {
       card: "summary",
       title,
       description,
-      images: profile.imageUrl ? [profile.imageUrl] : undefined,
+      images: image ? [image] : undefined,
     },
   };
 }

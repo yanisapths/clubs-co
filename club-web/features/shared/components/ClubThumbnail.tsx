@@ -1,4 +1,5 @@
 import { getGradient } from "@/features/studio/utils/utils";
+import { toAssetUrl } from "@/lib/asset-url";
 
 function initialsOf(name: string): string {
   return name.slice(0, 2).toUpperCase();
@@ -22,6 +23,7 @@ export function ClubThumbnail({
   className = "",
 }: ClubThumbnailProps) {
   const [from, to] = getGradient(String(id));
+  const src = toAssetUrl(imageUrl);
 
   return (
     <div
@@ -29,12 +31,12 @@ export function ClubThumbnail({
       style={{
         width: size,
         height: size,
-        background: imageUrl
-          ? `url(${imageUrl}) center/cover`
+        background: src
+          ? `url(${src}) center/cover`
           : `linear-gradient(135deg, ${from}, ${to})`,
       }}
     >
-      {!imageUrl && initialsOf(name)}
+      {!src && initialsOf(name)}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 // app/.../category/[category-slug]/layout.tsx
 import type { Metadata, ResolvingMetadata } from "next";
+import { toAssetUrl } from "@/lib/asset-url";
 
 type Props = {
   params: Promise<{ "category-slug": string }> | { "category-slug": string };
@@ -71,7 +72,7 @@ export async function generateMetadata(
       ? `Discover ${data.pagination.totalRecords} ${category.name} clubs on Meeteon.`
       : `Discover ${category.name} clubs on Meeteon.`;
 
-  const image = category.imageUrl;
+  const image = toAssetUrl(category.imageUrl) || undefined;
 
   return {
     title,

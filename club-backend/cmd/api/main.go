@@ -158,7 +158,7 @@ func main() {
 	protected.Use(middleware.Auth(cfg.JWT.Secret))
 	protected.GET("/me", authHandler.Me)
 
-	uploadSvc := file.NewUploadService(gcsClient, cfg.GCP.ProjectID)
+	uploadSvc := file.NewUploadService(gcsClient, cfg.GCP.ProjectID, cfg.App.AssetBaseURL)
 
 	fileGroup := api.Group("/file")
 	fileGroup.Use(middleware.Auth(cfg.JWT.Secret))

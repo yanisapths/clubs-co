@@ -1,6 +1,7 @@
 "use client";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
+import { toAssetUrl } from "@/lib/asset-url";
 
 export function GalleryPreview({
   images,
@@ -65,7 +66,7 @@ export function GalleryPreview({
       >
         <img
           key={current}
-          src={images[current]}
+          src={toAssetUrl(images[current])}
           alt={`Gallery image ${current + 1}`}
           className="w-full h-full max-h-[80vh] object-contain rounded-xl"
         />
