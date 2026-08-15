@@ -4,6 +4,7 @@ package config
 import (
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -121,7 +122,7 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid jwt.refresh_token_ttl: %w", err)
 	}
-	connectTimeout, err := time.ParseDuration(v.GetString("database.connect_timeout"))
+	connectTimeout, err := parseDurationEnv(v.GetString("database.connect_timeout"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid database.connect_timeout: %w", err)
 	}
@@ -155,4 +156,18 @@ func Load() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func parseDurationEnv(raw string) (time.Duration, error) {
+	if raw == "" {
+		return 0, nil
+	}
+	d, err := time.ParseDuration(raw)
+	if err == nil {
+		return d, nil
+	}
+	if seconds, convErr := strconv.Atoi(raw); convErr == nil {
+		return time.Duration(seconds) * time.Second, nil
+	}
+	return 0, err
 }

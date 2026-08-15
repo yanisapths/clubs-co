@@ -68,7 +68,7 @@ func waitForDatabase(ctx context.Context, sqlDB *sql.DB, timeout time.Duration) 
 		if err == nil {
 			return nil
 		}
-		if time.Now().After(deadline) {
+		if timeout > 0 && time.Now().After(deadline) {
 			return fmt.Errorf("database ping failed after %s: %w", timeout, err)
 		}
 
@@ -83,6 +83,18 @@ func waitForDatabase(ctx context.Context, sqlDB *sql.DB, timeout time.Duration) 
 			backoff += time.Second
 		}
 	}
+}
+
+func warmDatabaseAsync(sqlDB *sql.DB) {
+	go func() {
+		// Never block or crash startup — ECS health checks need /health quickly.
+		// Keep retrying until Neon is reachable (cold start, network blips, etc.).
+		if err := waitForDatabase(context.Background(), sqlDB, 0); err != nil {
+			log.Printf("database warmup stopped: %v", err)
+			return
+		}
+		log.Println("database connection verified")
+	}()
 }
 
 func main() {
@@ -117,15 +129,7 @@ func main() {
 	sqlDB.SetMaxOpenConns(20)
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
-
-	pingTimeout := 2 * time.Minute
-	if cfg.App.Env == "production" {
-		pingTimeout = 3 * time.Minute
-	}
-	if err := waitForDatabase(context.Background(), sqlDB, pingTimeout); err != nil {
-		log.Fatalf("failed to ping database: %v", err)
-	}
-	log.Println("database connection verified")
+	warmDatabaseAsync(sqlDB)
 
 	gcsClient, err := storage.NewClient(context.Background())
 	if err != nil {
