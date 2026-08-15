@@ -6,6 +6,7 @@ set -euo pipefail
 # ─────────────────────────────────────────────
 AWS_REGION="us-east-1"
 AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+DOCKER_PLATFORM="linux/amd64"
 ECR_REPO="club-backend-nonprd"
 ECS_CLUSTER="default"
 ECS_SERVICE="default-club-backend-nonprd-299f"
@@ -71,15 +72,16 @@ ok "ECR login successful"
 # ─────────────────────────────────────────────
 # Step 2 — Docker build
 # ─────────────────────────────────────────────
-log "Step 2/5 — Building Docker image..."
+log "Step 2/5 — Building Docker image for ${DOCKER_PLATFORM}..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="${SCRIPT_DIR}/../../club-backend"
 
+export DOCKER_DEFAULT_PLATFORM="${DOCKER_PLATFORM}"
 docker build \
-  --platform linux/amd64 \
+  --platform "${DOCKER_PLATFORM}" \
   -t "${ECR_REPO}:${VERSION}" \
   "$BACKEND_DIR"
-ok "Build complete"
+ok "Build complete (${DOCKER_PLATFORM})"
 
 # ─────────────────────────────────────────────
 # Step 3 — Tag and push to ECR
