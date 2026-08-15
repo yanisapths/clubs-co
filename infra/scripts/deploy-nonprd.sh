@@ -6,12 +6,13 @@ set -euo pipefail
 # ─────────────────────────────────────────────
 AWS_REGION="us-east-1"
 AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-DOCKER_PLATFORM="linux/amd64"
+# ECS Express uses ARM64 by default; push both arch manifests to avoid CannotPullContainerError.
+DOCKER_PLATFORMS="linux/amd64,linux/arm64"
 ECR_REPO="club-backend-nonprd"
 ECS_CLUSTER="default"
 ECS_SERVICE="default-club-backend-nonprd-299f"
 ECS_TASK_FAMILY="default-club-backend-nonprd-299f"
-CONTAINER_NAME="club-backend"
+CONTAINER_NAME="Main"
 
 # ─────────────────────────────────────────────
 # Helpers
@@ -72,29 +73,28 @@ ok "ECR login successful"
 # ─────────────────────────────────────────────
 # Step 2 — Docker build
 # ─────────────────────────────────────────────
-log "Step 2/5 — Building Docker image for ${DOCKER_PLATFORM}..."
+log "Step 2/5 — Building and pushing multi-arch image (${DOCKER_PLATFORMS})..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="${SCRIPT_DIR}/../../club-backend"
 
-export DOCKER_DEFAULT_PLATFORM="${DOCKER_PLATFORM}"
-docker build \
-  --platform "${DOCKER_PLATFORM}" \
-  -t "${ECR_REPO}:${VERSION}" \
+BUILDER_NAME="club-backend-nonprd-builder"
+if ! docker buildx inspect "${BUILDER_NAME}" >/dev/null 2>&1; then
+  docker buildx create --name "${BUILDER_NAME}" --use
+else
+  docker buildx use "${BUILDER_NAME}"
+fi
+
+docker buildx build \
+  --platform "${DOCKER_PLATFORMS}" \
+  -t "${IMAGE_URI}" \
+  --push \
   "$BACKEND_DIR"
-ok "Build complete (${DOCKER_PLATFORM})"
+ok "Pushed ${IMAGE_URI} (${DOCKER_PLATFORMS})"
 
 # ─────────────────────────────────────────────
-# Step 3 — Tag and push to ECR
+# Step 3 — Register new ECS task definition revision
 # ─────────────────────────────────────────────
-log "Step 3/5 — Tagging and pushing to ECR..."
-docker tag "${ECR_REPO}:${VERSION}" "${IMAGE_URI}"
-docker push "${IMAGE_URI}"
-ok "Pushed ${IMAGE_URI}"
-
-# ─────────────────────────────────────────────
-# Step 4 — Register new ECS task definition revision
-# ─────────────────────────────────────────────
-log "Step 4/5 — Registering new ECS task definition..."
+log "Step 3/5 — Registering new ECS task definition..."
 
 # Fetch current task definition
 CURRENT_TASK_DEF=$(aws ecs describe-task-definition \
@@ -132,9 +132,9 @@ NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
 ok "New task definition: ${NEW_TASK_DEF_ARN}"
 
 # ─────────────────────────────────────────────
-# Step 5 — Update ECS service
+# Step 4 — Update ECS service
 # ─────────────────────────────────────────────
-log "Step 5/5 — Updating ECS service..."
+log "Step 4/5 — Updating ECS service..."
 
 aws ecs update-service \
   --region "$AWS_REGION" \
@@ -150,7 +150,7 @@ ok "ECS service update triggered"
 # Wait for stability (optional, ~2-3 min)
 # ─────────────────────────────────────────────
 echo ""
-log "Waiting for service to stabilize (this takes ~2-3 minutes)..."
+log "Step 5/5 — Waiting for service to stabilize (this takes ~2-3 minutes)..."
 aws ecs wait services-stable \
   --region "$AWS_REGION" \
   --cluster "$ECS_CLUSTER" \
